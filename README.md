@@ -9,6 +9,7 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 ## Features
 
 ### Payment Checkout
+
 - 🔄 **Redirect Checkout** - Redirect users to Beem's hosted checkout page
 - 🖼️ **Iframe Checkout** - Embed checkout within your application
 - 🔔 **Webhook Handling** - Automatic webhook processing with Laravel events
@@ -16,11 +17,13 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 - 💾 **Transaction Storage** - Optional database storage for payment records
 
 ### OTP (One-Time Password)
+
 - 📱 **Send OTP** - Send verification codes via SMS
 - ✅ **Verify OTP** - Validate user-entered codes
 - 🔐 **Phone Verification** - Secure phone number verification flow
 
 ### Developer Experience
+
 - 📦 **DTOs** - Type-safe data transfer objects for requests and responses
 - 🧪 **Fully Tested** - Comprehensive test coverage with Pest
 - 🚀 **CI/CD Ready** - GitHub Actions workflows included
@@ -44,6 +47,12 @@ Publish the configuration file:
 php artisan vendor:publish --tag="beem-config"
 ```
 
+**Available publishable tags:**
+
+- `beem-config` - Publishes the configuration file
+- `beem-migrations` - Publishes the database migration (optional, for transaction storage)
+- `beem-views` - Publishes the Blade views (optional, for customization)
+
 ## Configuration
 
 Add your Beem credentials to your `.env` file:
@@ -64,13 +73,13 @@ return [
     'api_key' => env('BEEM_API_KEY'),
     'secret_key' => env('BEEM_SECRET_KEY'),
     'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa/v1'),
-    
+
     'webhook' => [
         'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
         'secret' => env('BEEM_WEBHOOK_SECRET'),
         'middleware' => [],
     ],
-    
+
     'callback_url' => env('BEEM_CALLBACK_URL'),
 ];
 ```
@@ -136,13 +145,14 @@ Use the included Blade component:
 Or manually add the button:
 
 ```html
-<div id="beem-button"
-     data-price="1000"
-     data-token="{{ $secureToken }}"
-     data-reference="ORDER-001"
-     data-transaction="TXN-123456"
-     data-mobile="255712345678">
-</div>
+<div
+  id="beem-button"
+  data-price="1000"
+  data-token="{{ $secureToken }}"
+  data-reference="ORDER-001"
+  data-transaction="TXN-123456"
+  data-mobile="255712345678"
+></div>
 <script src="https://checkout.beem.africa/bpay.min.js"></script>
 ```
 
@@ -170,7 +180,7 @@ $response = Beem::otp()->request('255712345678');
 
 if ($response->isSuccessful()) {
     $pinId = $response->getPinId();
-    
+
     // Store the PIN ID in session or database for verification
     session(['otp_pin_id' => $pinId]);
 }
@@ -191,7 +201,7 @@ $result = Beem::otp()->verify($pinId, $userPin);
 if ($result->isValid()) {
     // OTP is valid - proceed with verification
     session()->forget('otp_pin_id');
-    
+
     // Mark phone number as verified
     auth()->user()->update(['phone_verified_at' => now()]);
 } else {
@@ -242,7 +252,7 @@ class HandleSuccessfulPayment
         $amount = $event->getAmount();
         $reference = $event->getReferenceNumber();
         $mobile = $event->getMsisdn();
-        
+
         // Update your order/payment status
         Order::where('reference', $reference)->update([
             'status' => 'paid',
@@ -265,7 +275,7 @@ class HandleFailedPayment
     {
         $transactionId = $event->getTransactionId();
         $reference = $event->getReferenceNumber();
-        
+
         // Handle the failed payment
         Order::where('reference', $reference)->update([
             'status' => 'failed',
@@ -302,14 +312,14 @@ The event payload provides access to all webhook data:
 public function handle(PaymentSucceeded $event): void
 {
     $payload = $event->payload;
-    
+
     $payload->amount;           // '1000.00'
     $payload->referenceNumber;  // 'ORDER-001'
     $payload->status;           // 'success'
     $payload->timestamp;        // '2024-01-15T10:30:00Z'
     $payload->transactionId;    // 'TXN-123'
     $payload->msisdn;           // '255712345678'
-    
+
     // Helper methods
     $payload->isSuccessful();          // true
     $payload->isFailed();              // false
@@ -325,7 +335,7 @@ The package can automatically store transactions in your database. This is usefu
 #### 1. Publish and Run Migrations
 
 ```bash
-php artisan vendor:publish --tag="beem-africa-migrations"
+php artisan vendor:publish --tag="beem-migrations"
 php artisan migrate
 ```
 
@@ -343,6 +353,7 @@ php artisan migrate
 > ```
 >
 > You can also configure the user model in `config/beem.php`:
+>
 > ```php
 > 'user_model' => 'App\\Models\\User',
 > ```
@@ -389,7 +400,7 @@ When transaction storage is enabled, the transaction model is available in event
 public function handle(PaymentSucceeded $event): void
 {
     $transaction = $event->getTransaction(); // BeemTransaction model or null
-    
+
     if ($transaction) {
         // Update with additional data
         $transaction->update(['user_id' => $userId]);
@@ -432,6 +443,7 @@ composer format
 The package includes GitHub Actions workflows:
 
 ### `tests.yml`
+
 - Runs on every push/PR to main
 - Tests against PHP 8.2, 8.3, 8.4
 - Tests against Laravel 11 and 12
@@ -439,11 +451,13 @@ The package includes GitHub Actions workflows:
 - Checks code style with Pint
 
 ### `integration.yml`
+
 - Runs weekly or on manual dispatch
 - Runs integration tests with Beem sandbox
 - Requires `BEEM_API_KEY`, `BEEM_SECRET_KEY`, and `BEEM_WEBHOOK_SECRET` secrets
 
 To set up CI for your fork:
+
 1. Go to your repository Settings → Secrets and variables → Actions
 2. Add the following secrets:
    - `BEEM_API_KEY`: Your Beem sandbox API key

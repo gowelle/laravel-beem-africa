@@ -22,6 +22,24 @@ class BeemServiceProvider extends PackageServiceProvider
             ->hasMigration('create_beem_transactions_table');
     }
 
+    public function packageBooting(): void
+    {
+        // Register custom publishable tags
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $this->package->basePath('/../config/beem.php') => config_path('beem.php'),
+            ], 'beem-config');
+
+            $this->publishes([
+                $this->package->basePath('/../database/migrations/create_beem_transactions_table.php.stub') => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_beem_transactions_table.php'),
+            ], 'beem-migrations');
+
+            $this->publishes([
+                $this->package->basePath('/../resources/views') => resource_path('views/vendor/beem'),
+            ], 'beem-views');
+        }
+    }
+
     public function packageRegistered(): void
     {
         $this->app->singleton(BeemClient::class, function ($app) {

@@ -4,12 +4,24 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-01-XX
+
+### Fixed
+
+- Fixed custom publishable tags to use `beem-*` prefix instead of `beem-africa-*`
+  - Config file now publishes with `--tag="beem-config"`
+  - Migrations now publish with `--tag="beem-migrations"`
+  - Views now publish with `--tag="beem-views"`
+- Added explicit publishable resource registration in `BeemServiceProvider::packageBooting()`
+
 ## [1.0.0] - 2025-01-XX
 
 ### Added
+
 - Initial release with comprehensive Beem Africa API integration
 
 #### Payment Checkout
+
 - Redirect checkout method - redirect users to Beem's hosted checkout page
 - Iframe checkout method with Blade component - embed checkout in your app
 - Domain whitelisting for iframe checkout
@@ -21,6 +33,7 @@ All notable changes to `beem-africa` will be documented in this file.
 - Auto-save transactions on webhook receipt
 
 #### OTP (One-Time Password)
+
 - Request OTP via SMS to verify phone numbers
 - Verify OTP codes entered by users
 - `BeemOtpService` for OTP operations
@@ -30,6 +43,7 @@ All notable changes to `beem-africa` will be documented in this file.
 - Accessible via `Beem::otp()` facade method
 
 #### Developer Experience
+
 - Type-safe DTOs for all requests and responses
   - Payment: `CheckoutRequest`, `CheckoutResponse`, `CallbackPayload`
   - OTP: `OtpRequest`, `OtpResponse`, `OtpVerification`, `OtpVerificationResult`
@@ -41,5 +55,3 @@ All notable changes to `beem-africa` will be documented in this file.
 - PHPStan level 5 static analysis
 - Laravel Pint code style configuration
 - Full documentation with usage examples
-
-
