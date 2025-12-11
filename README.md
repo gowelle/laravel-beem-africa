@@ -44,14 +44,14 @@ composer require gowelle/laravel-beem-africa
 Publish the configuration file:
 
 ```bash
-php artisan vendor:publish --tag="beem-config"
+php artisan vendor:publish --tag="beem-africa-config"
 ```
 
 **Available publishable tags:**
 
-- `beem-config` - Publishes the configuration file
-- `beem-migrations` - Publishes the database migration (optional, for transaction storage)
-- `beem-views` - Publishes the Blade views (optional, for customization)
+- `beem-africa-config` - Publishes the configuration file
+- `beem-africa-migrations` - Publishes the database migration (optional, for transaction storage)
+- `beem-africa-views` - Publishes the Blade views (optional, for customization)
 
 ## Configuration
 
@@ -67,7 +67,7 @@ BEEM_CALLBACK_URL=https://yourapp.com/payment/callback
 ### Configuration Options
 
 ```php
-// config/beem.php
+// config/beem-africa.php
 
 return [
     'api_key' => env('BEEM_API_KEY'),
@@ -81,6 +81,13 @@ return [
     ],
 
     'callback_url' => env('BEEM_CALLBACK_URL'),
+
+    'store_transactions' => env('BEEM_STORE_TRANSACTIONS', false),
+
+    'otp' => [
+        'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa/v1'),
+        'app_id' => env('BEEM_OTP_APP_ID'),
+    ],
 ];
 ```
 
@@ -233,7 +240,34 @@ try {
 
 ### Handling Webhooks
 
-The package automatically registers a webhook route at `/beem/webhook`. When Beem sends a payment notification, the package dispatches Laravel events:
+The package automatically registers a webhook route at `/beem/webhook`. When Beem sends a payment notification, the package dispatches Laravel events.
+
+#### Webhook Security
+
+The package supports webhook authentication using Beem's secure token. Configure your webhook secret in `.env`:
+
+```env
+BEEM_WEBHOOK_SECRET=your_webhook_secret_from_beem
+```
+
+**Two authentication methods are available:**
+
+1. **Built-in validation** - The webhook controller automatically validates the `beem-secure-token` header
+2. **Middleware approach** - Apply the provided middleware for more control:
+
+```php
+// config/beem-africa.php
+
+'webhook' => [
+    'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
+    'secret' => env('BEEM_WEBHOOK_SECRET'),
+    'middleware' => [
+        \Gowelle\BeemAfrica\Http\Middleware\VerifyBeemSignature::class,
+    ],
+],
+```
+
+> **Note:** If you use the middleware approach, the controller will still perform validation. You can use either or both methods depending on your security requirements. If no `BEEM_WEBHOOK_SECRET` is configured, both will allow requests through.
 
 #### 1. Create Event Listeners
 
@@ -335,7 +369,7 @@ The package can automatically store transactions in your database. This is usefu
 #### 1. Publish and Run Migrations
 
 ```bash
-php artisan vendor:publish --tag="beem-migrations"
+php artisan vendor:publish --tag="beem-africa-migrations"
 php artisan migrate
 ```
 

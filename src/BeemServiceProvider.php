@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Gowelle\BeemAfrica;
 
 use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
-use Gowelle\BeemAfrica\Http\Controllers\WebhookController;
 use Gowelle\BeemAfrica\Support\BeemClient;
-use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,31 +15,16 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('beem-africa')
-            ->hasConfigFile('beem')
-            ->hasViews('beem')
-            ->hasMigration('create_beem_transactions_table');
+            ->hasConfigFile()
+            ->hasViews()
+            ->hasMigration('create_beem_transactions_table')
+            ->hasRoute('webhook');
     }
 
-    public function packageBooting(): void
+    public function register()
     {
-        // Register custom publishable tags
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                $this->package->basePath('/../config/beem.php') => config_path('beem.php'),
-            ], 'beem-config');
+        return parent::register();
 
-            $this->publishes([
-                $this->package->basePath('/../database/migrations/create_beem_transactions_table.php.stub') => database_path('migrations/'.date('Y_m_d_His', time()).'_create_beem_transactions_table.php'),
-            ], 'beem-migrations');
-
-            $this->publishes([
-                $this->package->basePath('/../resources/views') => resource_path('views/vendor/beem'),
-            ], 'beem-views');
-        }
-    }
-
-    public function packageRegistered(): void
-    {
         $this->app->singleton(BeemClient::class, function ($app) {
             return new BeemClient(
                 apiKey: config('beem.api_key'),
@@ -73,20 +56,5 @@ class BeemServiceProvider extends PackageServiceProvider
         });
 
         $this->app->alias(BeemCheckoutService::class, 'beem');
-    }
-
-    public function packageBooted(): void
-    {
-        $this->registerWebhookRoute();
-    }
-
-    protected function registerWebhookRoute(): void
-    {
-        $path = config('beem.webhook.path', 'beem/webhook');
-        $middleware = config('beem.webhook.middleware', []);
-
-        Route::post($path, WebhookController::class)
-            ->middleware($middleware)
-            ->name('beem.webhook');
     }
 }

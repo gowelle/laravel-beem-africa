@@ -4,6 +4,25 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-01-XX
+
+### Added
+
+- Added `VerifyBeemSignature` middleware for webhook authentication
+  - Validates `beem-secure-token` header against configured webhook secret
+  - Can be applied via `webhook.middleware` configuration option
+  - Provides additional layer of security for webhook endpoints
+
+### Improved
+
+- Enhanced webhook security with dual authentication approach
+  - Controller now validates secure token in addition to optional middleware
+  - Both methods work independently and can be used together
+  - Gracefully handles missing webhook secrets for development environments
+- Updated README with comprehensive webhook security documentation
+  - Added examples for both built-in and middleware-based authentication
+  - Clarified webhook configuration options
+
 ## [1.0.1] - 2025-01-XX
 
 ### Fixed
