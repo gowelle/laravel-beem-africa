@@ -61,7 +61,6 @@ Add your Beem credentials to your `.env` file:
 BEEM_API_KEY=your_api_key
 BEEM_SECRET_KEY=your_secret_key
 BEEM_WEBHOOK_SECRET=optional_webhook_secret
-BEEM_CALLBACK_URL=https://yourapp.com/payment/callback
 ```
 
 ### Configuration Options
@@ -79,8 +78,6 @@ return [
         'secret' => env('BEEM_WEBHOOK_SECRET'),
         'middleware' => [],
     ],
-
-    'callback_url' => env('BEEM_CALLBACK_URL'),
 
     'store_transactions' => env('BEEM_STORE_TRANSACTIONS', false),
 
@@ -163,6 +160,101 @@ Or manually add the button:
 <script src="https://checkout.beem.africa/bpay.min.js"></script>
 ```
 
+### Error Handling
+
+The package provides structured error handling for Beem Africa API errors. All payment-related operations throw `PaymentException` when errors occur.
+
+#### Available Error Codes
+
+Based on [Beem Africa API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
+
+| Code | Description | Helper Method |
+|------|-------------|---------------|
+| 100  | Invalid Mobile Number | `isInvalidMobileNumber()` |
+| 101  | Invalid Amount | `isInvalidAmount()` |
+| 102  | Invalid Transaction ID | `isInvalidTransactionId()` |
+| 120  | Invalid Authentication Parameters | `isInvalidAuthentication()` |
+
+#### Handling Payment Errors
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Gowelle\BeemAfrica\Exceptions\PaymentException;
+use Gowelle\BeemAfrica\Enums\BeemErrorCode;
+
+try {
+    $request = new CheckoutRequest(
+        amount: 1000.00,
+        transactionId: 'TXN-123',
+        referenceNumber: 'ORDER-001',
+        mobile: '255712345678',
+    );
+
+    return Beem::redirect($request);
+} catch (PaymentException $e) {
+    // Get the Beem-specific error code
+    $beemErrorCode = $e->getBeemErrorCode();
+
+    // Check for specific error types
+    if ($e->isInvalidMobileNumber()) {
+        return back()->withErrors(['mobile' => 'Invalid mobile number format']);
+    }
+
+    if ($e->isInvalidAmount()) {
+        return back()->withErrors(['amount' => 'Invalid amount provided']);
+    }
+
+    if ($e->isInvalidTransactionId()) {
+        return back()->withErrors(['transaction_id' => 'Transaction ID already exists or is invalid']);
+    }
+
+    if ($e->isInvalidAuthentication()) {
+        Log::error('Beem authentication failed - check API credentials');
+        return back()->withErrors(['error' => 'Payment service unavailable']);
+    }
+
+    // Generic error handling
+    Log::error('Payment error', [
+        'message' => $e->getMessage(),
+        'beem_code' => $beemErrorCode?->value,
+        'http_status' => $e->getHttpStatusCode(),
+    ]);
+
+    return back()->withErrors(['error' => 'Payment failed. Please try again.']);
+}
+```
+
+#### Checking Error Codes Programmatically
+
+```php
+use Gowelle\BeemAfrica\Exceptions\PaymentException;
+use Gowelle\BeemAfrica\Enums\BeemErrorCode;
+
+try {
+    // Your payment operation
+} catch (PaymentException $e) {
+    // Check if a specific error code is present
+    if ($e->hasErrorCode(BeemErrorCode::INVALID_MOBILE_NUMBER)) {
+        // Handle invalid mobile number
+    }
+
+    // Get the error code enum
+    $errorCode = $e->getBeemErrorCode();
+
+    if ($errorCode === BeemErrorCode::INVALID_AMOUNT) {
+        // Handle invalid amount
+    }
+
+    // Access error code details
+    if ($errorCode) {
+        echo $errorCode->description(); // "Invalid Mobile Number"
+        echo $errorCode->message();     // Detailed error message
+        echo $errorCode->value;         // 100 (the numeric code)
+    }
+}
+```
+
 ### OTP (One-Time Password)
 
 The package supports Beem Africa's OTP service for phone number verification.
@@ -217,7 +309,7 @@ if ($result->isValid()) {
 }
 ```
 
-#### 4. Error Handling
+#### 4. OTP Error Handling
 
 ```php
 use Gowelle\BeemAfrica\Exceptions\OtpRequestException;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Gowelle\BeemAfrica\Support;
 
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
-use Gowelle\BeemAfrica\Exceptions\BeemException;
 use Gowelle\BeemAfrica\Exceptions\InvalidConfigurationException;
+use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -64,7 +64,7 @@ class BeemClient
     /**
      * Whitelist a domain for iframe checkout.
      *
-     * @throws BeemException
+     * @throws PaymentException
      */
     public function whitelistDomain(string $domain): bool
     {
@@ -74,10 +74,7 @@ class BeemClient
             ]);
 
         if ($response->failed()) {
-            throw new BeemException(
-                'Failed to whitelist domain: '.$response->body(),
-                $response->status()
-            );
+            $this->throwPaymentException($response, 'Failed to whitelist domain');
         }
 
         return true;
@@ -98,17 +95,14 @@ class BeemClient
      *
      * @param  array<string, mixed>  $query
      *
-     * @throws BeemException
+     * @throws PaymentException
      */
     public function get(string $endpoint, array $query = []): Response
     {
         $response = $this->request()->get($this->baseUrl.$endpoint, $query);
 
         if ($response->failed()) {
-            throw new BeemException(
-                'API request failed: '.$response->body(),
-                $response->status()
-            );
+            $this->throwPaymentException($response);
         }
 
         return $response;
@@ -119,17 +113,14 @@ class BeemClient
      *
      * @param  array<string, mixed>  $data
      *
-     * @throws BeemException
+     * @throws PaymentException
      */
     public function post(string $endpoint, array $data = []): Response
     {
         $response = $this->request()->post($this->baseUrl.$endpoint, $data);
 
         if ($response->failed()) {
-            throw new BeemException(
-                'API request failed: '.$response->body(),
-                $response->status()
-            );
+            $this->throwPaymentException($response);
         }
 
         return $response;
@@ -141,5 +132,27 @@ class BeemClient
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
+    }
+
+    /**
+     * Parse error response and throw appropriate PaymentException.
+     *
+     * @throws PaymentException
+     */
+    private function throwPaymentException(Response $response, string $defaultMessage = 'API request failed'): never
+    {
+        $responseBody = $response->json();
+
+        // If response is JSON and contains error information, use it
+        if (is_array($responseBody) && ! empty($responseBody)) {
+            throw PaymentException::fromApiResponse($responseBody, $response->status());
+        }
+
+        // Fallback to generic exception with response body
+        throw new PaymentException(
+            $defaultMessage.': '.$response->body(),
+            null,
+            $response->status()
+        );
     }
 }

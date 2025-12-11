@@ -4,6 +4,38 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-01-XX
+
+### Added
+
+- Implemented structured error code handling for Beem Africa Payment API
+  - Added `BeemErrorCode` enum with official API error codes (100, 101, 102, 120)
+  - Created `PaymentException` class for payment-specific errors
+  - Factory methods for each error type: `invalidMobileNumber()`, `invalidAmount()`, `invalidTransactionId()`, `invalidAuthentication()`
+  - Convenience checker methods: `isInvalidMobileNumber()`, `isInvalidAmount()`, `isInvalidTransactionId()`, `isInvalidAuthentication()`
+  - Smart `fromApiResponse()` method that automatically parses API error responses
+- Comprehensive error handling documentation in README
+  - Error codes table with descriptions and helper methods
+  - Real-world usage examples for catching and handling specific errors
+  - Programmatic error code checking examples
+
+### Changed
+
+- `BeemClient` now throws `PaymentException` instead of generic `BeemException` for API errors
+  - `post()`, `get()`, and `whitelistDomain()` methods updated
+  - Automatic error code detection from API responses
+  - Supports both `code` and `error_code` field names in API responses
+  - Handles JSON and non-JSON error responses gracefully
+
+### Testing
+
+- Added 34+ new tests for error code handling
+  - Unit tests for `PaymentException` factory methods and error checking
+  - Feature tests for HTTP error scenarios with mocked API responses
+  - Error code parsing tests for all supported error codes
+- All tests passing (99 tests, 255 assertions)
+- PHPStan level 9 compliance maintained
+
 ## [1.0.2] - 2025-01-XX
 
 ### Added

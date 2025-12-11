@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Gowelle\BeemAfrica\Enums\BeemErrorCode;
 use Gowelle\BeemAfrica\Exceptions\InvalidConfigurationException;
+use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Gowelle\BeemAfrica\Support\BeemClient;
 
 describe('BeemClient', function () {
@@ -81,5 +83,57 @@ describe('BeemClient', function () {
         );
 
         expect($client->getBaseUrl())->toBe($customUrl);
+    });
+});
+
+describe('BeemClient Error Code Parsing', function () {
+    it('creates PaymentException from API error response with code 100', function () {
+        $errorData = ['code' => 100, 'message' => 'Invalid mobile number'];
+        $exception = PaymentException::fromApiResponse($errorData, 400);
+
+        expect($exception->getBeemErrorCode())->toBe(BeemErrorCode::INVALID_MOBILE_NUMBER)
+            ->and($exception->isInvalidMobileNumber())->toBeTrue()
+            ->and($exception->getHttpStatusCode())->toBe(400);
+    });
+
+    it('creates PaymentException from API error response with code 101', function () {
+        $errorData = ['code' => 101, 'message' => 'Invalid amount'];
+        $exception = PaymentException::fromApiResponse($errorData, 400);
+
+        expect($exception->getBeemErrorCode())->toBe(BeemErrorCode::INVALID_AMOUNT)
+            ->and($exception->isInvalidAmount())->toBeTrue();
+    });
+
+    it('creates PaymentException from API error response with code 102', function () {
+        $errorData = ['code' => 102, 'message' => 'Invalid transaction ID'];
+        $exception = PaymentException::fromApiResponse($errorData, 400);
+
+        expect($exception->getBeemErrorCode())->toBe(BeemErrorCode::INVALID_TRANSACTION_ID)
+            ->and($exception->isInvalidTransactionId())->toBeTrue();
+    });
+
+    it('creates PaymentException from API error response with code 120', function () {
+        $errorData = ['code' => 120, 'message' => 'Invalid authentication'];
+        $exception = PaymentException::fromApiResponse($errorData, 401);
+
+        expect($exception->getBeemErrorCode())->toBe(BeemErrorCode::INVALID_AUTHENTICATION)
+            ->and($exception->isInvalidAuthentication())->toBeTrue()
+            ->and($exception->getHttpStatusCode())->toBe(401);
+    });
+
+    it('handles error_code field name', function () {
+        $errorData = ['error_code' => 100, 'message' => 'Mobile invalid'];
+        $exception = PaymentException::fromApiResponse($errorData, 400);
+
+        expect($exception->getBeemErrorCode())->toBe(BeemErrorCode::INVALID_MOBILE_NUMBER);
+    });
+
+    it('creates generic exception for unknown error code', function () {
+        $errorData = ['code' => 999, 'message' => 'Unknown error'];
+        $exception = PaymentException::fromApiResponse($errorData, 500);
+
+        expect($exception->getBeemErrorCode())->toBeNull()
+            ->and($exception->getMessage())->toBe('Unknown error')
+            ->and($exception->getHttpStatusCode())->toBe(500);
     });
 });

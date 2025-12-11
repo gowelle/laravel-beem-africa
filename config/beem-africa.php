@@ -49,18 +49,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Callback URL
-    |--------------------------------------------------------------------------
-    |
-    | The URL where Beem will redirect users after payment completion.
-    | This can be overridden per transaction.
-    |
-    */
-
-    'callback_url' => env('BEEM_CALLBACK_URL'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Iframe Configuration
     |--------------------------------------------------------------------------
     |
