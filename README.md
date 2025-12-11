@@ -1,8 +1,8 @@
 # Beem Africa Laravel Package
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/gowelle/beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/beem-africa)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/beem-africa-php/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/gowelle/beem-africa-php/actions/workflows/tests.yml)
-[![Total Downloads](https://img.shields.io/packagist/dt/gowelle/beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/beem-africa)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
+[![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
 A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods) and **OTP (One-Time Password)** services.
 
