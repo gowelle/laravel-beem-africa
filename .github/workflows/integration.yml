@@ -1,0 +1,46 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_integration:
+        description: 'Run integration tests with sandbox'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    name: Beem Sandbox Integration Tests
+
+    # Only run if secrets are available
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run integration tests
+        env:
+          BEEM_API_KEY: ${{ secrets.BEEM_API_KEY }}
+          BEEM_SECRET_KEY: ${{ secrets.BEEM_SECRET_KEY }}
+          BEEM_WEBHOOK_SECRET: ${{ secrets.BEEM_WEBHOOK_SECRET }}
+        run: vendor/bin/pest --group=integration
