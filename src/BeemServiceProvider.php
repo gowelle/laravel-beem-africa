@@ -21,9 +21,9 @@ class BeemServiceProvider extends PackageServiceProvider
             ->hasRoute('webhook');
     }
 
-    public function register()
+    public function register(): void
     {
-        return parent::register();
+        parent::register();
 
         $this->app->singleton(BeemClient::class, function ($app) {
             return new BeemClient(
