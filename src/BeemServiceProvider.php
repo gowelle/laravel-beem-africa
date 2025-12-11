@@ -31,7 +31,7 @@ class BeemServiceProvider extends PackageServiceProvider
             ], 'beem-config');
 
             $this->publishes([
-                $this->package->basePath('/../database/migrations/create_beem_transactions_table.php.stub') => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_beem_transactions_table.php'),
+                $this->package->basePath('/../database/migrations/create_beem_transactions_table.php.stub') => database_path('migrations/'.date('Y_m_d_His', time()).'_create_beem_transactions_table.php'),
             ], 'beem-migrations');
 
             $this->publishes([
