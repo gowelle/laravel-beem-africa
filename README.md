@@ -38,7 +38,7 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 Install the package via Composer:
 
 ```bash
-composer require gowelle/beem-africa
+composer require gowelle/laravel-beem-africa
 ```
 
 Publish the configuration file:
