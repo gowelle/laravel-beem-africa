@@ -4,6 +4,16 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.4] - 2025-01-XX
+
+### Fixed
+
+- Fixed config reference inconsistency in `BeemServiceProvider`
+  - Updated all config calls from `config('beem.*')` to `config('beem-africa.*')`
+  - Affects BeemClient, BeemOtpClient, and BeemOtpService service bindings
+  - Ensures consistency with published config file name (`beem-africa.php`)
+- Updated webhook route to use `config('beem-africa.webhook.*')` instead of `config('beem.webhook.*')`
+
 ## [1.0.3] - 2025-01-XX
 
 ### Added

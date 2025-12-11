@@ -27,9 +27,9 @@ class BeemServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(BeemClient::class, function ($app) {
             return new BeemClient(
-                apiKey: config('beem.api_key'),
-                secretKey: config('beem.secret_key'),
-                baseUrl: config('beem.base_url'),
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.base_url'),
             );
         });
 
@@ -42,16 +42,16 @@ class BeemServiceProvider extends PackageServiceProvider
         // Register OTP service
         $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemOtpClient::class, function ($app) {
             return new \Gowelle\BeemAfrica\Support\BeemOtpClient(
-                apiKey: config('beem.api_key'),
-                secretKey: config('beem.secret_key'),
-                baseUrl: config('beem.otp.base_url'),
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.otp.base_url'),
             );
         });
 
         $this->app->singleton(\Gowelle\BeemAfrica\Otp\BeemOtpService::class, function ($app) {
             return new \Gowelle\BeemAfrica\Otp\BeemOtpService(
                 client: $app->make(\Gowelle\BeemAfrica\Support\BeemOtpClient::class),
-                appId: config('beem.otp.app_id'),
+                appId: config('beem-africa.otp.app_id'),
             );
         });
 

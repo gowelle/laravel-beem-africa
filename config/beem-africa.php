@@ -38,7 +38,7 @@ return [
 
     'webhook' => [
         // The path where Beem will send payment callbacks
-        'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
+        'path' => env('BEEM_WEBHOOK_PATH', 'webhooks/beem'),
 
         // Optional secure token to verify webhook authenticity
         'secret' => env('BEEM_WEBHOOK_SECRET'),
@@ -98,7 +98,7 @@ return [
         'app_id' => env('BEEM_OTP_APP_ID'),
 
         // PIN settings (configured in Beem dashboard)
-        'pin_length' => env('BEEM_OTP_PIN_LENGTH', 4),
+        'pin_length' => env('BEEM_OTP_PIN_LENGTH', 6),
         'pin_validity' => env('BEEM_OTP_PIN_VALIDITY', 300), // seconds
         'max_attempts' => env('BEEM_OTP_MAX_ATTEMPTS', 3),
     ],
