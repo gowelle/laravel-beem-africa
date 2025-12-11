@@ -55,7 +55,7 @@ describe('WebhookController', function () {
     });
 
     it('rejects invalid secure token when configured', function () {
-        config(['beem.webhook.secret' => 'valid-secret-token']);
+        config(['beem-africa.webhook.secret' => 'valid-secret-token']);
 
         $response = $this->postJson(route('beem.webhook'), [
             'amount' => '1000.00',
@@ -75,7 +75,7 @@ describe('WebhookController', function () {
     it('accepts valid secure token when configured', function () {
         Event::fake();
 
-        config(['beem.webhook.secret' => 'valid-secret-token']);
+        config(['beem-africa.webhook.secret' => 'valid-secret-token']);
 
         $response = $this->postJson(route('beem.webhook'), [
             'amount' => '2000.00',
@@ -96,7 +96,7 @@ describe('WebhookController', function () {
     it('allows request when no secret is configured', function () {
         Event::fake();
 
-        config(['beem.webhook.secret' => null]);
+        config(['beem-africa.webhook.secret' => null]);
 
         $response = $this->postJson(route('beem.webhook'), [
             'amount' => '3000.00',
