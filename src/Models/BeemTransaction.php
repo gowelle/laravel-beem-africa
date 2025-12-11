@@ -96,7 +96,7 @@ class BeemTransaction extends Model
      */
     public function user(): BelongsTo
     {
-        $userModel = config('beem.user_model', 'App\\Models\\User');
+        $userModel = config('beem-africa.user_model', 'App\\Models\\User');
 
         return $this->belongsTo($userModel);
     }

@@ -4,6 +4,16 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.5] - 2025-01-XX
+
+### Fixed
+
+- Completed config reference migration from `config('beem.*')` to `config('beem-africa.*')`
+  - Updated `WebhookController` to use `config('beem-africa.webhook.secret')` and `config('beem-africa.store_transactions')`
+  - Updated `VerifyBeemSignature` middleware to use `config('beem-africa.webhook.secret')`
+  - Updated `BeemTransaction` model to use `config('beem-africa.user_model')`
+  - Ensures complete consistency across all package files with published config file name (`beem-africa.php`)
+
 ## [1.0.4] - 2025-01-XX
 
 ### Fixed

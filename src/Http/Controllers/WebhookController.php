@@ -48,7 +48,7 @@ class WebhookController extends Controller
      */
     protected function validateSecureToken(Request $request): bool
     {
-        $configuredSecret = config('beem.webhook.secret');
+        $configuredSecret = config('beem-africa.webhook.secret');
 
         // If no secret is configured, skip validation
         if (empty($configuredSecret)) {
@@ -65,7 +65,7 @@ class WebhookController extends Controller
      */
     protected function storeTransaction(CallbackPayload $payload): ?BeemTransaction
     {
-        if (! config('beem.store_transactions', false)) {
+        if (! config('beem-africa.store_transactions', false)) {
             return null;
         }
 
