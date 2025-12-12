@@ -506,7 +506,7 @@ protected $listen = [
 
 ### Handling Webhooks
 
-The package automatically registers a webhook route at `/beem/webhook`. When Beem sends a payment notification, the package dispatches Laravel events.
+The package automatically registers a webhook route at `/webhooks/beem`. When Beem sends a payment notification, the package dispatches Laravel events.
 
 #### Webhook Security
 
