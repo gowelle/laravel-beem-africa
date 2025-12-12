@@ -4,7 +4,6 @@ use Gowelle\BeemAfrica\Airtime\BeemAirtimeService;
 use Gowelle\BeemAfrica\Exceptions\AirtimeException;
 use Gowelle\BeemAfrica\Support\BeemAirtimeClient;
 use Gowelle\BeemAfrica\Tests\TestCase;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 uses(TestCase::class);
