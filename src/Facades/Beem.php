@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool whitelistDomain(string $domain)
  * @method static \Gowelle\BeemAfrica\Otp\BeemOtpService otp()
  * @method static \Gowelle\BeemAfrica\Airtime\BeemAirtimeService airtime()
+ * @method static \Gowelle\BeemAfrica\Sms\BeemSmsService sms()
  *
  * @see \Gowelle\BeemAfrica\Checkout\BeemCheckoutService
  */
@@ -39,5 +40,13 @@ class Beem extends Facade
     public static function airtime(): \Gowelle\BeemAfrica\Airtime\BeemAirtimeService
     {
         return app(\Gowelle\BeemAfrica\Airtime\BeemAirtimeService::class);
+    }
+
+    /**
+     * Get the SMS service instance.
+     */
+    public static function sms(): \Gowelle\BeemAfrica\Sms\BeemSmsService
+    {
+        return app(\Gowelle\BeemAfrica\Sms\BeemSmsService::class);
     }
 }

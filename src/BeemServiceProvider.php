@@ -71,6 +71,23 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register SMS service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemSmsClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemSmsClient(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.sms.base_url'),
+                dlrBaseUrl: config('beem-africa.sms.dlr_base_url'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Sms\BeemSmsService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Sms\BeemSmsService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemSmsClient::class),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }
+

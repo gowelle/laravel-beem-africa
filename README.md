@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods), **OTP (One-Time Password)**, and **Airtime Top-Up** services.
+A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods), **OTP (One-Time Password)**, **Airtime Top-Up**, and **SMS** services.
 
 ## Features
 
@@ -29,6 +29,17 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 - 🔍 **Transaction Status** - Track airtime transfer status
 - 🔔 **Callback Support** - Receive real-time transfer notifications
 - 🎯 **Response Codes** - 16 detailed error codes for precise handling
+
+### SMS
+
+- 📨 **Send SMS** - Send single or bulk SMS to 22+ regions
+- 📋 **Sender Names** - Manage custom sender IDs
+- 📄 **Templates** - Use pre-configured message templates
+- 📊 **Balance Check** - Monitor SMS credit balance
+- 📬 **Delivery Reports** - Track message delivery status
+- 📲 **Two Way SMS** - Receive inbound SMS messages
+- ⏰ **Scheduled Messages** - Schedule SMS for future delivery
+- 🎯 **Error Codes** - 9 detailed error codes for precise handling
 
 ### Developer Experience
 
@@ -500,6 +511,316 @@ use App\Listeners\HandleAirtimeCallback;
 protected $listen = [
     AirtimeTransferCompleted::class => [
         HandleAirtimeCallback::class,
+    ],
+];
+```
+
+### SMS
+
+The package supports Beem Africa's SMS API for sending text messages across 22+ regions.
+
+#### 1. Configure SMS
+
+Add your SMS sender ID to `.env` (optional):
+
+```env
+BEEM_SMS_SENDER_ID=MYAPP
+```
+
+#### 2. Send SMS
+
+Send SMS to one or more recipients:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\DTOs\SmsRequest;
+use Gowelle\BeemAfrica\DTOs\SmsRecipient;
+
+// Single recipient
+$request = new SmsRequest(
+    sourceAddr: 'MYAPP',                // Sender ID (max 11 chars)
+    message: 'Hello from Beem Africa!',
+    recipients: [
+        new SmsRecipient('REC-001', '255712345678'),
+    ]
+);
+
+$response = Beem::sms()->send($request);
+
+if ($response->isSuccessful()) {
+    $requestId = $response->getRequestId();
+    $validCount = $response->getValidCount();
+    
+    // Store request ID for delivery tracking
+    session(['sms_request_id' => $requestId]);
+}
+```
+
+**Bulk SMS:**
+
+```php
+$request = new SmsRequest(
+    sourceAddr: 'MYAPP',
+    message: 'Bulk message to multiple recipients',
+    recipients: [
+        new SmsRecipient('REC-001', '255712345678'),
+        new SmsRecipient('REC-002', '255787654321'),
+        new SmsRecipient('REC-003', '254712345678'),
+    ]
+);
+
+$response = Beem::sms()->send($request);
+
+echo "Valid: {$response->getValidCount()}, Invalid: {$response->getInvalidCount()}";
+```
+
+**Scheduled SMS:**
+
+```php
+$request = new SmsRequest(
+    sourceAddr: 'MYAPP',
+    message: 'Scheduled message',
+    recipients: [new SmsRecipient('REC-001', '255712345678')],
+    scheduleTime: '2025-12-25 09:00'  // GMT+0 timezone
+);
+
+$response = Beem::sms()->send($request);
+```
+
+**Unicode SMS:**
+
+```php
+$request = new SmsRequest(
+    sourceAddr: 'MYAPP',
+    message: 'مرحبا بك',  // Arabic text
+    recipients: [new SmsRecipient('REC-001', '255712345678')],
+    encoding: 8  // UCS2/Unicode encoding
+);
+
+$response = Beem::sms()->send($request);
+```
+
+#### 3. Check SMS Balance
+
+Check your SMS credit balance:
+
+```php
+$balance = Beem::sms()->checkBalance();
+
+echo "SMS Credits: {$balance->getCreditBalance()}";
+```
+
+#### 4. Get Delivery Reports
+
+Poll for delivery status of sent messages:
+
+```php
+$report = Beem::sms()->getDeliveryReport(
+    destAddr: '255712345678',
+    requestId: 12345
+);
+
+if ($report->isDelivered()) {
+    echo "Message delivered successfully";
+} elseif ($report->isFailed()) {
+    echo "Message delivery failed";
+} elseif ($report->isPending()) {
+    echo "Message delivery pending";
+}
+```
+
+#### 5. Get Sender Names
+
+List your registered sender IDs:
+
+```php
+// Get all sender names
+$senderNames = Beem::sms()->getSenderNames();
+
+foreach ($senderNames as $sender) {
+    echo "{$sender->getName()}: {$sender->getStatus()}\n";
+    
+    if ($sender->isActive()) {
+        // Use this sender ID
+    }
+}
+
+// Filter by status
+$activeSenders = Beem::sms()->getSenderNames(status: 'active');
+
+// Search by name
+$results = Beem::sms()->getSenderNames(query: 'MYAPP');
+```
+
+#### 6. Get SMS Templates
+
+List your pre-configured templates:
+
+```php
+$templates = Beem::sms()->getSmsTemplates();
+
+foreach ($templates as $template) {
+    echo "Template: {$template->getName()}\n";
+    echo "Content: {$template->getContent()}\n";
+}
+```
+
+#### 7. SMS Error Handling
+
+The package provides detailed error handling with 9 response codes:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Exceptions\SmsException;
+use Gowelle\BeemAfrica\Enums\SmsResponseCode;
+
+try {
+    $request = new SmsRequest(
+        sourceAddr: 'MYAPP',
+        message: 'Test message',
+        recipients: [new SmsRecipient('REC-001', '255712345678')]
+    );
+    
+    $response = Beem::sms()->send($request);
+} catch (SmsException $e) {
+    // Check specific error types
+    if ($e->isInsufficientBalance()) {
+        return back()->withErrors(['error' => 'Insufficient SMS credits']);
+    }
+    
+    if ($e->isInvalidPhoneNumber()) {
+        return back()->withErrors(['phone' => 'Invalid phone number format']);
+    }
+    
+    if ($e->isInvalidAuthentication()) {
+        Log::error('Beem authentication failed - check API credentials');
+        return back()->withErrors(['error' => 'Service unavailable']);
+    }
+    
+    // Get the response code enum
+    $responseCode = $e->getResponseCode();
+    if ($responseCode) {
+        Log::error('SMS send failed', [
+            'code' => $responseCode->value,
+            'description' => $responseCode->description(),
+        ]);
+    }
+}
+```
+
+**Available Response Codes:**
+
+| Code | Description | Helper Method |
+|------|-------------|---------------|
+| 100 | Message Submitted Successfully | `isSuccess()` |
+| 101 | Invalid phone number | `isInvalidPhoneNumber()` |
+| 102 | Insufficient balance | `isInsufficientBalance()` |
+| 103 | Network timeout | `isNetworkTimeout()` |
+| 104 | Please provide all required parameters | `isMissingParameters()` |
+| 105 | Account not found | `isAccountNotFound()` |
+| 106 | No route mapping to your account | `isNoRoute()` |
+| 107 | No authorization headers | `isInvalidAuthentication()` |
+| 108 | Invalid token | `isInvalidAuthentication()` |
+
+> See [SmsResponseCode](src/Enums/SmsResponseCode.php) for all 9 response codes.
+
+#### 8. SMS Webhooks
+
+The package automatically registers webhook routes for SMS delivery reports and inbound messages.
+
+**Delivery Report Webhook:**
+
+Configure your delivery report webhook URL in the Beem SMS dashboard to point to:
+```
+https://yourapp.com/webhooks/beem/sms/delivery
+```
+
+**Create an event listener:**
+
+```php
+// app/Listeners/HandleSmsDelivery.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\SmsDeliveryReceived;
+
+class HandleSmsDelivery
+{
+    public function handle(SmsDeliveryReceived $event): void
+    {
+        $report = $event->getReport();
+        
+        if ($event->isDelivered()) {
+            // Update your records
+            SmsLog::where('request_id', $report->getRequestId())
+                ->where('dest_addr', $report->getDestAddr())
+                ->update(['status' => 'delivered']);
+        } elseif ($event->isFailed()) {
+            // Handle failure
+            Log::warning('SMS delivery failed', [
+                'dest_addr' => $report->getDestAddr(),
+                'request_id' => $report->getRequestId(),
+            ]);
+        }
+    }
+}
+```
+
+**Inbound SMS Webhook (Two Way SMS):**
+
+Configure your inbound SMS webhook URL in the Beem SMS dashboard to point to:
+```
+https://yourapp.com/webhooks/beem/sms/inbound
+```
+
+**Create an event listener:**
+
+```php
+// app/Listeners/HandleInboundSms.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\InboundSmsReceived;
+
+class HandleInboundSms
+{
+    public function handle(InboundSmsReceived $event): void
+    {
+        $from = $event->getFrom();
+        $message = $event->getMessage();
+        $timestamp = $event->getTimestamp();
+        
+        // Process inbound message
+        InboundMessage::create([
+            'from' => $from,
+            'message' => $message,
+            'received_at' => $timestamp,
+        ]);
+        
+        // Auto-reply logic
+        if (str_contains(strtolower($message), 'help')) {
+            // Send help message
+        }
+    }
+}
+```
+
+**Register the listeners:**
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\SmsDeliveryReceived;
+use Gowelle\BeemAfrica\Events\InboundSmsReceived;
+use App\Listeners\HandleSmsDelivery;
+use App\Listeners\HandleInboundSms;
+
+protected $listen = [
+    SmsDeliveryReceived::class => [
+        HandleSmsDelivery::class,
+    ],
+    InboundSmsReceived::class => [
+        HandleInboundSms::class,
     ],
 ];
 ```

@@ -4,6 +4,28 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-12-13
+
+### Added
+
+- **SMS API Service**: Full integration with Beem Africa SMS API
+  - Send single or bulk SMS to 22+ regions
+  - Check SMS credit balance
+  - Get delivery reports (polling)
+  - List sender names with status filtering
+  - List SMS templates
+  - Two Way SMS support (inbound messages)
+  - Scheduled message delivery
+  - Unicode/UCS2 encoding support
+  - 7 DTOs: `SmsRequest`, `SmsRecipient`, `SmsResponse`, `SmsBalance`, `SmsDeliveryReport`, `SmsSenderName`, `SmsTemplate`
+  - `SmsResponseCode` enum with all 9 response codes
+  - `SmsException` with helper methods for common errors
+  - `SmsDeliveryReceived` and `InboundSmsReceived` events
+  - `SmsWebhookController` for delivery reports and inbound SMS
+  - `Beem::sms()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage (49 new tests, 180 total)
+
 ## [1.0.6] - 2024-12-12
 
 ### Added

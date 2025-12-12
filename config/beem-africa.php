@@ -121,4 +121,32 @@ return [
         // Base URL for Balance API
         'balance_base_url' => env('BEEM_AIRTIME_BALANCE_URL', 'https://apitopup.beem.africa/v1'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Africa SMS service. SMS allows you to send text
+    | messages to mobile numbers across 22+ regions with delivery tracking.
+    |
+    */
+
+    'sms' => [
+        // Base URL for SMS API
+        'base_url' => env('BEEM_SMS_BASE_URL', 'https://apisms.beem.africa/v1'),
+
+        // Base URL for Delivery Reports API
+        'dlr_base_url' => env('BEEM_SMS_DLR_URL', 'https://dlrapi.beem.africa/public/v1'),
+
+        // Default sender ID (can be overridden per message)
+        'default_sender_id' => env('BEEM_SMS_SENDER_ID', 'INFO'),
+
+        // Webhook path for delivery reports
+        'webhook_path' => env('BEEM_SMS_WEBHOOK_PATH', 'webhooks/beem/sms/delivery'),
+
+        // Webhook path for inbound SMS (Two Way SMS)
+        'inbound_webhook_path' => env('BEEM_SMS_INBOUND_PATH', 'webhooks/beem/sms/inbound'),
+    ],
 ];
+
