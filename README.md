@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods) and **OTP (One-Time Password)** services.
+A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods), **OTP (One-Time Password)**, and **Airtime Top-Up** services.
 
 ## Features
 
@@ -21,6 +21,14 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 - 📱 **Send OTP** - Send verification codes via SMS
 - ✅ **Verify OTP** - Validate user-entered codes
 - 🔐 **Phone Verification** - Secure phone number verification flow
+
+### Airtime Top-Up
+
+- 💰 **Transfer Airtime** - Send mobile credit across 40+ African networks
+- 📊 **Check Balance** - Monitor your airtime credit balance
+- 🔍 **Transaction Status** - Track airtime transfer status
+- 🔔 **Callback Support** - Receive real-time transfer notifications
+- 🎯 **Response Codes** - 16 detailed error codes for precise handling
 
 ### Developer Experience
 
@@ -328,6 +336,172 @@ try {
     // Handle verification failure
     Log::error('OTP verification failed: ' . $e->getMessage());
 }
+```
+
+### Airtime Top-Up
+
+The package supports Beem Africa's Airtime API for mobile credit top-ups across Africa.
+
+#### 1. Transfer Airtime
+
+Send airtime to a mobile number:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+$response = Beem::airtime()->transfer(
+    destAddr: '255712345678',      // International format, no +
+    amount: 1000.00,                // Amount in local currency
+    referenceId: 'ORDER-'.uniqid(), // Your unique reference
+);
+
+if ($response->isSuccessful()) {
+    $transactionId = $response->getTransactionId();
+    
+    // Store transaction ID for status checking
+    session(['airtime_txn_id' => $transactionId]);
+}
+```
+
+#### 2. Check Transaction Status
+
+Manually check the status of an airtime transfer:
+
+```php
+$status = Beem::airtime()->checkStatus($transactionId);
+
+if ($status->isSuccessful()) {
+    // Transfer completed successfully
+    $amount = $status->getAmountAsFloat();
+    $destAddr = $status->getDestAddr();
+} else {
+    // Transfer failed or pending
+    $code = $status->getCode();
+    $message = $status->message;
+}
+```
+
+#### 3. Check Balance
+
+Check your airtime credit balance:
+
+```php
+$balance = Beem::airtime()->checkBalance();
+
+echo "Balance: {$balance->getBalance()} {$balance->getCurrency()}";
+```
+
+#### 4. Airtime Error Handling
+
+The package provides detailed error handling with 16 response codes:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Exceptions\AirtimeException;
+use Gowelle\BeemAfrica\Enums\AirtimeResponseCode;
+
+try {
+    $response = Beem::airtime()->transfer(
+        destAddr: '255712345678',
+        amount: 1000.00,
+        referenceId: 'REF-001',
+    );
+} catch (AirtimeException $e) {
+    // Check specific error types
+    if ($e->isInsufficientBalance()) {
+        return back()->withErrors(['amount' => 'Insufficient airtime balance']);
+    }
+    
+    if ($e->isInvalidPhoneNumber()) {
+        return back()->withErrors(['phone' => 'Invalid phone number format']);
+    }
+    
+    if ($e->isInvalidAuthentication()) {
+        Log::error('Beem authentication failed - check API credentials');
+        return back()->withErrors(['error' => 'Service unavailable']);
+    }
+    
+    // Get the response code enum
+    $responseCode = $e->getResponseCode();
+    if ($responseCode) {
+        Log::error('Airtime transfer failed', [
+            'code' => $responseCode->value,
+            'description' => $responseCode->description(),
+            'is_failure' => $responseCode->isFailure(),
+        ]);
+    }
+}
+```
+
+**Available Response Codes:**
+
+| Code | Description | Helper Method |
+|------|-------------|---------------|
+| 100 | Disbursement successful | `isSuccess()` |
+| 101 | Disbursement failed | `isFailure()` |
+| 102 | Invalid phone number | `isInvalidPhoneNumber()` |
+| 103 | Insufficient balance | `isInsufficientBalance()` |
+| 104 | Network timeout | `isNetworkTimeout()` |
+| 105 | Invalid parameters | `isInvalidParameters()` |
+| 106 | Amount too large | `isAmountTooLarge()` |
+| 114 | Disbursement Pending | `isPending()` |
+| 120 | Invalid Authentication | `isInvalidAuthentication()` |
+
+> See [AirtimeResponseCode](src/Enums/AirtimeResponseCode.php) for all 16 response codes.
+
+#### 5. Airtime Callbacks
+
+Beem sends async callbacks with the final transfer status. Configure your callback URL in the **Beem Airtime dashboard**.
+
+**Create an event listener:**
+
+```php
+// app/Listeners/HandleAirtimeCallback.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\AirtimeTransferCompleted;
+
+class HandleAirtimeCallback
+{
+    public function handle(AirtimeTransferCompleted $event): void
+    {
+        $transactionId = $event->getTransactionId();
+        $amount = $event->getAmount();
+        $destAddr = $event->getDestAddr();
+        $referenceId = $event->getReferenceId();
+        
+        if ($event->isSuccessful()) {
+            // Update your records
+            AirtimeTransaction::where('reference_id', $referenceId)->update([
+                'status' => 'completed',
+                'transaction_id' => $transactionId,
+                'completed_at' => now(),
+            ]);
+        } else {
+            // Handle failure
+            $code = $event->getCode();
+            Log::warning("Airtime transfer failed: {$code}", [
+                'reference_id' => $referenceId,
+            ]);
+        }
+    }
+}
+```
+
+**Register the listener:**
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\AirtimeTransferCompleted;
+use App\Listeners\HandleAirtimeCallback;
+
+protected $listen = [
+    AirtimeTransferCompleted::class => [
+        HandleAirtimeCallback::class,
+    ],
+];
 ```
 
 ### Handling Webhooks

@@ -102,4 +102,23 @@ return [
         'pin_validity' => env('BEEM_OTP_PIN_VALIDITY', 300), // seconds
         'max_attempts' => env('BEEM_OTP_MAX_ATTEMPTS', 3),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Airtime Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Africa Airtime service. Airtime recharge allows
+    | you to send mobile credit to phone numbers across Africa.
+    | Note: Configure your callback URL in the Beem Airtime dashboard.
+    |
+    */
+
+    'airtime' => [
+        // Base URL for Airtime API
+        'base_url' => env('BEEM_AIRTIME_BASE_URL', 'https://apiairtime.beem.africa/v1'),
+
+        // Base URL for Balance API
+        'balance_base_url' => env('BEEM_AIRTIME_BALANCE_URL', 'https://apitopup.beem.africa/v1'),
+    ],
 ];

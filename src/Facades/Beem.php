@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string getCheckoutUrl(CheckoutRequest $request)
  * @method static bool whitelistDomain(string $domain)
  * @method static \Gowelle\BeemAfrica\Otp\BeemOtpService otp()
+ * @method static \Gowelle\BeemAfrica\Airtime\BeemAirtimeService airtime()
  *
  * @see \Gowelle\BeemAfrica\Checkout\BeemCheckoutService
  */
@@ -30,5 +31,13 @@ class Beem extends Facade
     public static function otp(): \Gowelle\BeemAfrica\Otp\BeemOtpService
     {
         return app(\Gowelle\BeemAfrica\Otp\BeemOtpService::class);
+    }
+
+    /**
+     * Get the Airtime service instance.
+     */
+    public static function airtime(): \Gowelle\BeemAfrica\Airtime\BeemAirtimeService
+    {
+        return app(\Gowelle\BeemAfrica\Airtime\BeemAirtimeService::class);
     }
 }

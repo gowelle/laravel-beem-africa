@@ -4,6 +4,22 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.6] - 2024-12-12
+
+### Added
+- **Airtime API Service**: Full integration with Beem Africa Airtime API
+  - Transfer airtime to mobile numbers across 40+ African networks
+  - Check transaction status
+  - Check airtime credit balance
+  - Callback webhook support with `AirtimeTransferCompleted` event
+  - 5 DTOs: `AirtimeRequest`, `AirtimeResponse`, `AirtimeCallback`, `AirtimeBalance`, `AirtimeStatusRequest`
+  - `AirtimeResponseCode` enum with all 16 response codes
+  - `AirtimeException` with helper methods for common errors
+  - `Beem::airtime()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage (unit and integration tests)
+
+
 ## [1.0.5] - 2025-01-XX
 
 ### Fixed

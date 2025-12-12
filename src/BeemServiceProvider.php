@@ -55,6 +55,22 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register Airtime service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemAirtimeClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemAirtimeClient(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.airtime.base_url'),
+                balanceBaseUrl: config('beem-africa.airtime.balance_base_url'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Airtime\BeemAirtimeService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Airtime\BeemAirtimeService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemAirtimeClient::class),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }
