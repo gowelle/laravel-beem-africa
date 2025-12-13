@@ -1,6 +1,6 @@
 {
     "name": "gowelle/laravel-beem-africa",
-    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, Collections, USSD, Contacts, and Moja (multi-channel messaging) services",
+    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, Collections, USSD, Contacts, Moja, and International SMS services",
     "keywords": [
         "laravel",
         "beem",
@@ -19,14 +19,16 @@
         "whatsapp",
         "messaging",
         "tanzania",
-        "africa"
+        "africa",
+        "international-sms",
+        "global-sms"
     ],
     "homepage": "https://github.com/gowelle/beem-africa-php",
     "license": "MIT",
     "authors": [
         {
-            "name": "Gowelle",
-            "email": "dev@gowelle.com"
+            "name": "Gowelle John",
+            "email": "gowelle.john@icloud.com"
         }
     ],
     "require": {

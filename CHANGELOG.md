@@ -4,7 +4,25 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
-## [1.7.0] - 2025-12-XX
+## [1.8.0] - 2025-12-13
+
+### Added
+
+- **International SMS Service**: Full integration with Beem International SMS API
+  - Send SMS to international numbers via `bl-int-sms` gateway
+  - Support for binary messages (Unicode, Hex)
+  - Multiple recipients support
+  - Check international SMS balance via Portal API
+  - Webhook handling for Delivery Reports (DLR)
+  - `InternationalSmsRequest` and `InternationalSmsResponse` DTOs
+  - `InternationalBalance` DTO
+  - `InternationalDlrReceived` event
+  - `InternationalWebhookController` for callback handling
+  - `Beem::internationalSms()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage
+
+## [1.7.0] - 2025-12-13
 
 ### Added
 

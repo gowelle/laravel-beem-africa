@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, **Contacts**, and **Moja** (multi-channel messaging) services.
+A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, **Contacts**, **Moja** (multi-channel messaging), and **International SMS** services.
 
 ## Table of Contents
 
@@ -22,6 +22,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [USSD Hub](#using-ussd-hub)
   - [Contacts](#using-contacts)
   - [Moja (Multi-Channel Messaging)](#using-moja-multi-channel-messaging)
+  - [International SMS](#using-international-sms)
 - [Testing](#testing)
 - [Security](#security)
 - [Credits](#credits)
@@ -103,6 +104,14 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 📊 **Delivery Tracking** - Track message delivery status (sent, delivered, read, failed)
 - 🎯 **Error Handling** - Comprehensive error codes and error handling with MojaException
 
+### International SMS
+
+- 🌍 **Global Reach** - Send SMS to international numbers
+- 🔢 **Binary Support** - Send Unicode/Hex messages (flash messages, etc.)
+- 📋 **Multiple Recipients** - Send to multiple destinations in one request
+- 📊 **Balance Check** - Monitor International SMS credit balance
+- 🔔 **DLR Webhooks** - Real-time delivery reports
+
 ### Developer Experience
 
 - 📦 **DTOs** - Type-safe data transfer objects for requests and responses
@@ -142,6 +151,9 @@ Add your Beem credentials to your `.env` file:
 BEEM_API_KEY=your_api_key
 BEEM_SECRET_KEY=your_secret_key
 BEEM_WEBHOOK_SECRET=optional_webhook_secret
+
+BEEM_INTERNATIONAL_SMS_USERNAME=your_int_sms_username
+BEEM_INTERNATIONAL_SMS_PASSWORD=your_int_sms_password
 ```
 
 ### Configuration Options
@@ -165,6 +177,14 @@ return [
     'otp' => [
         'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa/v1'),
         'app_id' => env('BEEM_OTP_APP_ID'),
+    ],
+
+    'international_sms' => [
+        'username' => env('BEEM_INTERNATIONAL_SMS_USERNAME'),
+        'password' => env('BEEM_INTERNATIONAL_SMS_PASSWORD'),
+        'base_url' => 'https://api.blsmsgw.com:8443/bin',
+        'portal_url' => 'https://www.blsmsgw.com/portal/api',
+        'dlr_url' => env('BEEM_INTERNATIONAL_SMS_DLR_URL'),
     ],
 ];
 ```
@@ -2224,6 +2244,49 @@ protected $listen = [
         HandleMojaDeliveryReport::class,
     ],
 ];
+```
+
+### International SMS
+
+#### 1. Configure Credentials
+Add to `.env`:
+```env
+BEEM_INTERNATIONAL_SMS_USERNAME=...
+BEEM_INTERNATIONAL_SMS_PASSWORD=...
+```
+
+#### 2. Send International SMS
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\DTOs\InternationalSmsRequest;
+
+$request = new InternationalSmsRequest(
+    sourceAddr: 'Gowelle',
+    destAddr: '255712345678', // International format
+    message: 'Hello World',
+);
+
+$response = Beem::internationalSms()->send($request);
+
+if ($response->isSuccessful()) {
+    echo $response->getFirstMessageId();
+}
+```
+
+#### 3. Send Binary Message
+```php
+$request = InternationalSmsRequest::createBinary(
+    sourceAddr: 'Gowelle',
+    destAddr: '255712345678',
+    hexMessage: '00480065006C006C006F' // "Hello" in UTF-16BE Hex
+);
+Beem::internationalSms()->send($request);
+```
+
+#### 4. Check Balance
+```php
+$balance = Beem::internationalSms()->checkBalance();
+echo $balance->balance . ' ' . $balance->currency;
 ```
 
 ## Testing

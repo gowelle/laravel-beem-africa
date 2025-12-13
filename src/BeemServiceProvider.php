@@ -18,7 +18,8 @@ class BeemServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_beem_transactions_table')
-            ->hasRoute('webhook');
+            ->hasRoute('webhook')
+            ->hasRoute('international_webhook');
     }
 
     public function register(): void
@@ -87,7 +88,30 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        $this->app->singleton(\Gowelle\BeemAfrica\Sms\BeemSmsService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Sms\BeemSmsService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemSmsClient::class),
+            );
+        });
+
+        // Register International SMS service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemInternationalSmsClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemInternationalSmsClient(
+                username: config('beem-africa.international_sms.username', ''),
+                password: config('beem-africa.international_sms.password', ''),
+                baseUrl: config('beem-africa.international_sms.base_url', 'https://api.blsmsgw.com:8443/bin'),
+                portalUrl: config('beem-africa.international_sms.portal_url', 'https://www.blsmsgw.com/portal/api'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Sms\InternationalSmsService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Sms\InternationalSmsService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemInternationalSmsClient::class),
+            );
+        });
+
         // Register Disbursement service
+
         $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemDisbursementClient::class, function ($app) {
             return new \Gowelle\BeemAfrica\Support\BeemDisbursementClient(
                 apiKey: config('beem-africa.api_key'),
