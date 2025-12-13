@@ -4,6 +4,22 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.4.0] - 2025-12-13
+
+### Added
+
+- **USSD Hub Service**: Full integration with Beem USSD Hub API
+  - Handle USSD session callbacks (initiate/continue/terminate)
+  - Return menu responses to subscribers
+  - Check USSD credit balance
+  - `UssdCommand` enum for session flow control
+  - 3 DTOs: `UssdCallback`, `UssdResponse`, `UssdBalance`
+  - `UssdSessionReceived` event with helper methods
+  - `UssdWebhookController` for callback handling
+  - `Beem::ussd()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage (18 new tests, 247 total)
+
 ## [1.3.0] - 2025-12-13
 
 ### Added

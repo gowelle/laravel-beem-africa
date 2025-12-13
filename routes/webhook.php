@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Gowelle\BeemAfrica\Http\Controllers\CollectionWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\SmsWebhookController;
+use Gowelle\BeemAfrica\Http\Controllers\UssdWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,3 +29,9 @@ Route::post(
     config('beem-africa.collection.webhook_path', 'webhooks/beem/collection'),
     [CollectionWebhookController::class, 'handleCallback']
 )->name('beem.collection');
+
+// USSD Session Callback
+Route::post(
+    config('beem-africa.ussd.webhook_path', 'webhooks/beem/ussd'),
+    [UssdWebhookController::class, 'handleCallback']
+)->name('beem.ussd');

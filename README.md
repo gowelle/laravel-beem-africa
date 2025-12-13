@@ -19,6 +19,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [SMS](#sms)
   - [Disbursements](#disbursements)
   - [Collections](#collections)
+  - [USSD Hub](#ussd-hub)
   - [Webhooks](#handling-webhooks)
 - [Testing](#testing)
 - [Security](#security)
@@ -73,6 +74,13 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 🔔 **Webhook Callbacks** - Real-time payment notifications
 - 📊 **Balance Check** - Monitor collection balance
 - 🏪 **Multiple Paybills** - Support for various paybill/merchant numbers
+
+### USSD Hub
+
+- 📱 **Interactive Menus** - Design and run USSD menus via API
+- 🔄 **Session Management** - Handle initiate/continue/terminate flows
+- 📊 **Balance Check** - Monitor USSD credit balance
+- 🌐 **Multi-Network** - Single API for multiple mobile networks
 
 ### Developer Experience
 
@@ -1034,6 +1042,74 @@ The collection callback includes:
 | `network_name` | Mobile network (Vodacom, Airtel, etc.) |
 | `source_currency` | Source currency (TZS) |
 | `target_currency` | Target currency (TZS) |
+
+### USSD Hub
+
+The package supports Beem's USSD Hub for interactive menus.
+
+#### 1. Check Balance
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+$balance = Beem::ussd()->checkBalance();
+echo "Balance: " . $balance->getFormattedBalance();
+```
+
+#### 2. Handling USSD Sessions
+
+When a subscriber dials your USSD code, Beem sends callbacks. Create a listener:
+
+```php
+// app/Listeners/HandleUssdSession.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\UssdSessionReceived;
+
+class HandleUssdSession
+{
+    public function handle(UssdSessionReceived $event): void
+    {
+        if ($event->isInitiate()) {
+            // First menu
+            $event->continueWith("Welcome!\n1. Check Balance\n2. Buy Airtime");
+            return;
+        }
+
+        if ($event->isContinue()) {
+            $response = $event->getSubscriberResponse();
+            
+            match ($response) {
+                '1' => $event->terminateWith("Your balance: TZS 5,000"),
+                '2' => $event->continueWith("Enter amount:"),
+                default => $event->terminateWith("Invalid option"),
+            };
+        }
+    }
+}
+```
+
+Register the listener:
+
+```php
+use Gowelle\BeemAfrica\Events\UssdSessionReceived;
+use App\Listeners\HandleUssdSession;
+
+protected $listen = [
+    UssdSessionReceived::class => [
+        HandleUssdSession::class,
+    ],
+];
+```
+
+#### USSD Commands
+
+| Command | Description |
+|---------|-------------|
+| `initiate` | First invocation of session |
+| `continue` | Ongoing session with subscriber response |
+| `terminate` | Close the USSD session |
 
 ### Handling Webhooks
 

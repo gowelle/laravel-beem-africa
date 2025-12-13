@@ -111,6 +111,15 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register USSD service
+        $this->app->singleton(\Gowelle\BeemAfrica\Ussd\BeemUssdService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Ussd\BeemUssdService(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                balanceUrl: config('beem-africa.ussd.balance_url'),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }

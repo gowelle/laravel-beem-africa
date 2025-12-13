@@ -181,4 +181,22 @@ return [
         // Webhook path for collection callbacks
         'webhook_path' => env('BEEM_COLLECTION_WEBHOOK_PATH', 'webhooks/beem/collection'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | USSD Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem USSD Hub service. USSD allows you to design
+    | and run interactive USSD menus via API.
+    |
+    */
+
+    'ussd' => [
+        // Balance check URL
+        'balance_url' => env('BEEM_USSD_BALANCE_URL', 'https://apitopup.beem.africa/v1/credit-balance'),
+
+        // Webhook path for USSD callbacks
+        'webhook_path' => env('BEEM_USSD_WEBHOOK_PATH', 'webhooks/beem/ussd'),
+    ],
 ];
