@@ -7,7 +7,32 @@ on:
     branches: [main, master]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.2, 8.3, 8.4]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json, dom, curl, libxml, mbstring
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Check code style with Pint
+        run: vendor/bin/pint --test
+
   tests:
+    needs: lint
     runs-on: ubuntu-latest
 
     strategy:
@@ -44,6 +69,7 @@ jobs:
         run: vendor/bin/pest
 
   static-analysis:
+    needs: lint
     runs-on: ubuntu-latest
 
     name: Static Analysis
@@ -64,25 +90,3 @@ jobs:
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse
-
-  code-style:
-    runs-on: ubuntu-latest
-
-    name: Code Style
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
-          coverage: none
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
-
-      - name: Check code style
-        run: vendor/bin/pint --test

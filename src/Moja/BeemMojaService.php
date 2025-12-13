@@ -85,7 +85,7 @@ class BeemMojaService
      */
     public function fetchTemplates(array $filters = []): MojaTemplateListResponse
     {
-        $response = $this->client->broadcastGet('/message-templates/list', $filters);
+        $response = $this->client->get('/message-templates/list', $filters);
 
         if (! $response->successful()) {
             throw MojaException::fromApiResponse(
