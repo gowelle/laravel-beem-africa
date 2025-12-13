@@ -87,6 +87,21 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register Disbursement service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemDisbursementClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemDisbursementClient(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.disbursement.base_url'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Disbursement\BeemDisbursementService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemDisbursementClient::class),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }

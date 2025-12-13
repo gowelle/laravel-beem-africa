@@ -4,6 +4,20 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-12-13
+
+### Added
+
+- **Disbursements API Service**: Full integration with Beem Africa Disbursement API
+  - Transfer funds to mobile money wallets
+  - Support for scheduled disbursements
+  - 2 DTOs: `DisbursementRequest`, `DisbursementResponse`
+  - `DisbursementResponseCode` enum with all 14 response codes (100-113)
+  - `DisbursementException` with helper methods for error handling
+  - `Beem::disbursement()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage (38 new tests, 218 total)
+
 ## [1.1.0] - 2025-12-13
 
 ### Added

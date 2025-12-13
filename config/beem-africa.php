@@ -148,4 +148,19 @@ return [
         // Webhook path for inbound SMS (Two Way SMS)
         'inbound_webhook_path' => env('BEEM_SMS_INBOUND_PATH', 'webhooks/beem/sms/inbound'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Disbursement Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Africa Disbursement service. Disbursements allow
+    | you to transfer funds to mobile money wallets.
+    |
+    */
+
+    'disbursement' => [
+        // Base URL for Disbursement API
+        'base_url' => env('BEEM_DISBURSEMENT_BASE_URL', 'https://apipay.beem.africa/webservices/disbursement'),
+    ],
 ];
