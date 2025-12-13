@@ -135,6 +135,22 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register Moja service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemMojaClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemMojaClient(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.moja.base_url'),
+                broadcastBaseUrl: config('beem-africa.moja.broadcast_base_url'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Moja\BeemMojaService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Moja\BeemMojaService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemMojaClient::class),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }

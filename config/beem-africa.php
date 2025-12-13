@@ -214,4 +214,28 @@ return [
         // Base URL for Contacts API
         'base_url' => env('BEEM_CONTACTS_BASE_URL', 'https://apicontacts.beem.africa/public/v1'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Moja Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Moja service. Moja provides multi-channel messaging
+    | (WhatsApp, Facebook, Instagram, Google Business Messaging) capabilities.
+    |
+    */
+
+    'moja' => [
+        // Base URL for Chat API
+        'base_url' => env('BEEM_MOJA_BASE_URL', 'https://apichatcore.beem.africa/v1'),
+
+        // Base URL for Broadcast/Template API
+        'broadcast_base_url' => env('BEEM_MOJA_BROADCAST_BASE_URL', 'https://apibroadcast.beem.africa/v1'),
+
+        // Webhook path for incoming messages
+        'webhook_path' => env('BEEM_MOJA_WEBHOOK_PATH', 'webhooks/beem/moja/incoming'),
+
+        // Webhook path for delivery reports
+        'dlr_webhook_path' => env('BEEM_MOJA_DLR_WEBHOOK_PATH', 'webhooks/beem/moja/dlr'),
+    ],
 ];

@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, and **Contacts** services.
+A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, **Contacts**, and **Moja** (multi-channel messaging) services.
 
 ## Table of Contents
 
@@ -21,6 +21,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [Collections](#using-collections)
   - [USSD Hub](#using-ussd-hub)
   - [Contacts](#using-contacts)
+  - [Moja (Multi-Channel Messaging)](#using-moja-multi-channel-messaging)
 - [Testing](#testing)
 - [Security](#security)
 - [Credits](#credits)
@@ -90,6 +91,16 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 📄 **Pagination** - Built-in pagination support for large contact lists
 - ✅ **Validation** - Input validation for phone numbers, email, and dates
 - 📋 **Comprehensive Fields** - Support for name, phone, email, address, birth date, and more
+
+### Moja (Multi-Channel Messaging)
+
+- 💬 **Multi-Channel Support** - WhatsApp, Facebook, Instagram, Google Business Messaging
+- 📱 **Six Message Types** - Text, Image, Document, Video, Audio, Location
+- 🔄 **Active Sessions** - Monitor and manage active chat sessions
+- 📋 **WhatsApp Templates** - Fetch, manage, and send template messages
+- 🔔 **Webhook Handling** - Real-time incoming messages and delivery reports
+- 📊 **Delivery Tracking** - Track message delivery status (sent, delivered, read, failed)
+- 🎯 **Error Handling** - Comprehensive error codes and error handling with MojaException
 
 ### Developer Experience
 
@@ -1683,6 +1694,352 @@ Beem::contacts()->deleteContacts(
     addressBookIds: [$addressBookId],
     contactIds: [$contact1, $contact2, $contact3, $contact4]
 );
+```
+
+### Using Moja (Multi-Channel Messaging)
+
+The package supports Beem's Moja API for multi-channel messaging with support for six message types across multiple channels.
+
+#### 1. Configure Moja
+
+Add your Moja credentials to `.env`:
+
+```env
+BEEM_API_KEY=your_api_key
+BEEM_SECRET_KEY=your_secret_key
+```
+
+#### 2. Get Active Sessions
+
+Retrieve list of active chat sessions:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+// Get all active sessions
+$response = Beem::moja()->getActiveSessions();
+
+foreach ($response->getSessions() as $session) {
+    echo "Session: {$session->username} on {$session->channel}\n";
+    echo "From: {$session->from_addr}\n";
+}
+```
+
+#### 3. Send Messages - Six Types Supported
+
+**Text Message**
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\DTOs\MojaMessageRequest;
+use Gowelle\BeemAfrica\Enums\MojaChannel;
+use Gowelle\BeemAfrica\Enums\MojaMessageType;
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::TEXT,
+    text: 'Hello from Moja API!'
+);
+
+$response = Beem::moja()->sendMessage($request);
+
+if ($response->isSuccess()) {
+    echo "Message sent successfully!";
+}
+```
+
+**Image Message**
+
+```php
+use Gowelle\BeemAfrica\DTOs\MojaMediaObject;
+
+$image = new MojaMediaObject(
+    mime_type: 'image/jpeg',
+    url: 'https://example.com/image.jpg'
+);
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::IMAGE,
+    image: $image,
+    text: 'Check out this image!'  // Optional caption
+);
+
+$response = Beem::moja()->sendMessage($request);
+```
+
+**Document Message**
+
+```php
+$document = new MojaMediaObject(
+    mime_type: 'application/pdf',
+    url: 'https://example.com/document.pdf'
+);
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::DOCUMENT,
+    document: $document
+);
+
+$response = Beem::moja()->sendMessage($request);
+```
+
+**Video Message**
+
+```php
+$video = new MojaMediaObject(
+    mime_type: 'video/mp4',
+    url: 'https://example.com/video.mp4'
+);
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::VIDEO,
+    video: $video,
+    text: 'Watch this video!'  // Optional caption
+);
+
+$response = Beem::moja()->sendMessage($request);
+```
+
+**Audio Message**
+
+```php
+$audio = new MojaMediaObject(
+    mime_type: 'audio/mpeg',
+    url: 'https://example.com/audio.mp3'
+);
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::AUDIO,
+    audio: $audio
+);
+
+$response = Beem::moja()->sendMessage($request);
+```
+
+**Location Message**
+
+```php
+use Gowelle\BeemAfrica\DTOs\MojaLocationObject;
+
+$location = new MojaLocationObject(
+    latitude: '-6.7924',
+    longitude: '39.2083'
+);
+
+$request = new MojaMessageRequest(
+    from: '255701000000',
+    to: '255701000001',
+    channel: MojaChannel::WHATSAPP,
+    message_type: MojaMessageType::LOCATION,
+    location: $location
+);
+
+$response = Beem::moja()->sendMessage($request);
+```
+
+#### 4. Channels Supported
+
+```php
+use Gowelle\BeemAfrica\Enums\MojaChannel;
+
+MojaChannel::WHATSAPP                    // WhatsApp
+MojaChannel::FACEBOOK                    // Facebook Messenger
+MojaChannel::INSTAGRAM                   // Instagram Direct Messages
+MojaChannel::GOOGLE_BUSINESS_MESSAGING   // Google Business Messaging
+```
+
+#### 5. WhatsApp Templates
+
+**Fetch Available Templates**
+
+```php
+// Get all templates
+$response = Beem::moja()->fetchTemplates();
+
+foreach ($response->getTemplates() as $template) {
+    echo "Template: {$template->name}\n";
+    echo "Category: {$template->category}\n";
+    echo "Status: {$template->status}\n";
+}
+
+// Filter templates
+$response = Beem::moja()->fetchTemplates([
+    'category' => 'AUTHENTICATION',
+    'status' => 'approved'
+]);
+```
+
+**Send Template Message**
+
+```php
+use Gowelle\BeemAfrica\DTOs\MojaTemplateRequest;
+
+$request = new MojaTemplateRequest(
+    from_addr: '255701000000',
+    destination_addr: [
+        [
+            'phoneNumber' => '255712345678',
+            'params' => ['John', '123456']  // Template parameters
+        ]
+    ],
+    template_id: 1024
+);
+
+$response = Beem::moja()->sendTemplate($request);
+
+if ($response->allRecipientsValid()) {
+    echo "All {$response->validCounts} recipients are valid\n";
+}
+```
+
+#### 6. Moja Error Handling
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Exceptions\MojaException;
+
+try {
+    $response = Beem::moja()->sendMessage($request);
+} catch (MojaException $e) {
+    // Check for specific error types
+    if ($e->isSessionExpired()) {
+        return back()->withErrors(['error' => 'Chat session expired']);
+    }
+
+    if ($e->isAuthenticationError()) {
+        Log::error('Moja authentication failed - check API credentials');
+        return back()->withErrors(['error' => 'Service unavailable']);
+    }
+
+    if ($e->isRateLimited()) {
+        return back()->withErrors(['error' => 'Too many requests, please try later']);
+    }
+
+    // Generic error handling
+    Log::error('Moja error', [
+        'message' => $e->getMessage(),
+        'code' => $e->getCode(),
+    ]);
+
+    return back()->withErrors(['error' => 'Failed to send message']);
+}
+```
+
+#### 7. Moja Webhooks
+
+The package automatically registers webhook routes for Moja incoming messages and delivery reports.
+
+**Incoming Message Webhook:**
+
+Configure your incoming message webhook URL in Beem dashboard to point to:
+
+```
+https://yourapp.com/webhooks/beem/moja/incoming
+```
+
+**Create an event listener:**
+
+```php
+// app/Listeners/HandleMojaIncomingMessage.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\MojaIncomingMessageReceived;
+
+class HandleMojaIncomingMessage
+{
+    public function handle(MojaIncomingMessageReceived $event): void
+    {
+        $message = $event->message;
+
+        if ($message->isTextMessage()) {
+            // Handle text message
+            ChatMessage::create([
+                'from' => $message->from,
+                'to' => $message->to,
+                'channel' => $message->channel,
+                'text' => $message->text,
+            ]);
+        } elseif ($message->hasMedia()) {
+            // Handle media message
+            if ($message->image) {
+                // Process image
+            } elseif ($message->document) {
+                // Process document
+            }
+        }
+    }
+}
+```
+
+**Delivery Report Webhook:**
+
+Configure your delivery report webhook URL to:
+
+```
+https://yourapp.com/webhooks/beem/moja/dlr
+```
+
+**Create an event listener:**
+
+```php
+// app/Listeners/HandleMojaDeliveryReport.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\MojaDeliveryReportReceived;
+
+class HandleMojaDeliveryReport
+{
+    public function handle(MojaDeliveryReportReceived $event): void
+    {
+        $report = $event->report;
+
+        if ($report->isRead()) {
+            // Message was read by recipient
+            ChatMessage::where('message_id', $report->message_id)
+                ->update(['status' => 'read']);
+        } elseif ($report->isFailed()) {
+            // Message delivery failed
+            ChatMessage::where('message_id', $report->message_id)
+                ->update(['status' => 'failed']);
+        }
+    }
+}
+```
+
+**Register the listeners:**
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\MojaIncomingMessageReceived;
+use Gowelle\BeemAfrica\Events\MojaDeliveryReportReceived;
+use App\Listeners\HandleMojaIncomingMessage;
+use App\Listeners\HandleMojaDeliveryReport;
+
+protected $listen = [
+    MojaIncomingMessageReceived::class => [
+        HandleMojaIncomingMessage::class,
+    ],
+    MojaDeliveryReportReceived::class => [
+        HandleMojaDeliveryReport::class,
+    ],
+];
 ```
 
 ## Testing

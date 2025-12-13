@@ -4,6 +4,31 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.6.0] - 2025-12-13
+
+### Added
+
+- **Moja API Service**: Full integration with Beem Moja API for multi-channel messaging
+  - **Six Message Types**: Text, Image, Document, Video, Audio, Location
+  - **Multi-Channel Support**: WhatsApp, Facebook, Instagram, Google Business Messaging
+  - **Active Sessions Management**: Retrieve and monitor active chat sessions
+  - **WhatsApp Templates**: Fetch templates with filters and send template messages
+  - **Webhook Support**: Handle incoming messages and delivery reports via webhooks
+  - 15 DTOs: `MojaMessageRequest`, `MojaMessageResponse`, `MojaMediaObject`, `MojaLocationObject`, `MojaContactObject`, `MojaActiveSession`, `MojaActiveSessionListResponse`, `MojaTemplate`, `MojaTemplateListResponse`, `MojaTemplateRequest`, `MojaTemplateSendResponse`, `MojaIncomingMessage`, `MojaDeliveryReport`, and more
+  - 5 Enums: `MojaChannel` (WHATSAPP, FACEBOOK, INSTAGRAM, GOOGLE_BUSINESS_MESSAGING), `MojaMessageType` (TEXT, IMAGE, DOCUMENT, VIDEO, AUDIO, LOCATION), `MojaTemplateCategory` (AUTHENTICATION, UTILITY, MARKETING), `MojaTemplateStatus` (PENDING, APPROVED, REJECTED, FAILED), `MojaDeliveryStatus` (SENT, DELIVERED, READ, FAILED)
+  - `MojaException` with specialized error handling (session expired, authentication failed, rate limiting, retryable errors)
+  - `BeemMojaClient` HTTP client with support for main API and broadcast endpoints
+  - `BeemMojaService` with methods: `getActiveSessions()`, `sendMessage()`, `fetchTemplates()`, `sendTemplate()`
+  - 2 Events: `MojaIncomingMessageReceived` and `MojaDeliveryReportReceived` for webhook processing
+  - `MojaWebhookController` for handling incoming messages and delivery reports
+  - Moja webhook routes registered at `/webhooks/beem/moja/incoming` and `/webhooks/beem/moja/dlr`
+  - `Beem::moja()` facade accessor for easy access
+  - Input validation for all request DTOs
+  - Support for optional captions on image/video messages
+  - Support for transaction IDs (UUIDv4) for message tracking
+  - Comprehensive documentation in README with all six message types and template examples
+  - Full test coverage (91 new tests: 12 service tests, 40 DTO tests, 15 enum tests, 15 exception tests, 6 webhook tests, 304 total assertions)
+
 ## [1.5.0] - 2025-12-13
 
 ### Added

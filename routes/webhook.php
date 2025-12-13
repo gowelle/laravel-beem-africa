@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gowelle\BeemAfrica\Http\Controllers\CollectionWebhookController;
+use Gowelle\BeemAfrica\Http\Controllers\MojaWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\SmsWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\UssdWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\WebhookController;
@@ -35,3 +36,15 @@ Route::post(
     config('beem-africa.ussd.webhook_path', 'webhooks/beem/ussd'),
     [UssdWebhookController::class, 'handleCallback']
 )->name('beem.ussd');
+
+// Moja Incoming Message Webhook
+Route::post(
+    config('beem-africa.moja.webhook_path', 'webhooks/beem/moja/incoming'),
+    [MojaWebhookController::class, 'handleIncomingMessage']
+)->name('beem.moja.incoming');
+
+// Moja Delivery Report Webhook
+Route::post(
+    config('beem-africa.moja.dlr_webhook_path', 'webhooks/beem/moja/dlr'),
+    [MojaWebhookController::class, 'handleDeliveryReport']
+)->name('beem.moja.dlr');
