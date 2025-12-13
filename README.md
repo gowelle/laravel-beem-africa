@@ -13,15 +13,14 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-  - [Payment Checkout](#redirect-method)
-  - [OTP (One-Time Password)](#otp-one-time-password)
-  - [Airtime Top-Up](#airtime-top-up)
-  - [SMS](#sms)
-  - [Disbursements](#disbursements)
-  - [Collections](#collections)
-  - [USSD Hub](#ussd-hub)
-  - [Contacts](#contacts)
-  - [Webhooks](#handling-webhooks)
+  - [Payment Checkout](#using-payment-checkout)
+  - [OTP (One-Time Password)](#using-otp-one-time-password)
+  - [Airtime Top-Up](#using-airtime-top-up)
+  - [SMS](#using-sms)
+  - [Disbursements](#using-disbursements)
+  - [Collections](#using-collections)
+  - [USSD Hub](#using-ussd-hub)
+  - [Contacts](#using-contacts)
 - [Testing](#testing)
 - [Security](#security)
 - [Credits](#credits)
@@ -160,7 +159,9 @@ return [
 
 ## Usage
 
-### Redirect Method
+### Using Payment Checkout
+
+#### Redirect Method
 
 The simplest way to accept payments is to redirect users to Beem's hosted checkout page:
 
@@ -187,11 +188,11 @@ public function checkout()
 }
 ```
 
-### Iframe Method
+#### Iframe Method
 
 For a seamless checkout experience, embed the checkout button in your page:
 
-#### 1. Whitelist Your Domain
+##### 1. Whitelist Your Domain
 
 Before using the iframe method, whitelist your domain:
 
@@ -202,7 +203,7 @@ use Gowelle\BeemAfrica\Facades\Beem;
 Beem::whitelistDomain('https://yourapp.com');
 ```
 
-#### 2. Add the Checkout Button
+##### 2. Add the Checkout Button
 
 Use the included Blade component:
 
@@ -230,11 +231,11 @@ Or manually add the button:
 <script src="https://checkout.beem.africa/bpay.min.js"></script>
 ```
 
-### Error Handling
+#### Error Handling
 
 The package provides structured error handling for Beem API errors. All payment-related operations throw `PaymentException` when errors occur.
 
-#### Available Error Codes
+##### Available Error Codes
 
 Based on [Beem API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
 
@@ -245,7 +246,7 @@ Based on [Beem API documentation](https://docs.beem.africa/payments-checkout/ind
 | 102  | Invalid Transaction ID            | `isInvalidTransactionId()`  |
 | 120  | Invalid Authentication Parameters | `isInvalidAuthentication()` |
 
-#### Handling Payment Errors
+##### Handling Payment Errors
 
 ```php
 use Gowelle\BeemAfrica\Facades\Beem;
@@ -295,7 +296,7 @@ try {
 }
 ```
 
-#### Checking Error Codes Programmatically
+##### Checking Error Codes Programmatically
 
 ```php
 use Gowelle\BeemAfrica\Exceptions\PaymentException;
@@ -325,7 +326,211 @@ try {
 }
 ```
 
-### OTP (One-Time Password)
+#### Handling Webhooks
+
+The package automatically registers a webhook route at `/webhooks/beem`. When Beem sends a payment notification, the package dispatches Laravel events.
+
+##### Webhook Security
+
+The package supports webhook authentication using Beem's secure token. Configure your webhook secret in `.env`:
+
+```env
+BEEM_WEBHOOK_SECRET=your_webhook_secret_from_beem
+```
+
+**Two authentication methods are available:**
+
+1. **Built-in validation** - The webhook controller automatically validates the `beem-secure-token` header
+2. **Middleware approach** - Apply the provided middleware for more control:
+
+```php
+// config/beem-africa.php
+
+'webhook' => [
+    'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
+    'secret' => env('BEEM_WEBHOOK_SECRET'),
+    'middleware' => [
+        \Gowelle\BeemAfrica\Http\Middleware\VerifyBeemSignature::class,
+    ],
+],
+```
+
+> **Note:** If you use the middleware approach, the controller will still perform validation. You can use either or both methods depending on your security requirements. If no `BEEM_WEBHOOK_SECRET` is configured, both will allow requests through.
+
+##### 1. Create Event Listeners
+
+```php
+// app/Listeners/HandleSuccessfulPayment.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\PaymentSucceeded;
+
+class HandleSuccessfulPayment
+{
+    public function handle(PaymentSucceeded $event): void
+    {
+        $transactionId = $event->getTransactionId();
+        $amount = $event->getAmount();
+        $reference = $event->getReferenceNumber();
+        $mobile = $event->getMsisdn();
+
+        // Update your order/payment status
+        Order::where('reference', $reference)->update([
+            'status' => 'paid',
+            'paid_at' => now(),
+        ]);
+    }
+}
+```
+
+```php
+// app/Listeners/HandleFailedPayment.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\PaymentFailed;
+
+class HandleFailedPayment
+{
+    public function handle(PaymentFailed $event): void
+    {
+        $transactionId = $event->getTransactionId();
+        $reference = $event->getReferenceNumber();
+
+        // Handle the failed payment
+        Order::where('reference', $reference)->update([
+            'status' => 'failed',
+        ]);
+    }
+}
+```
+
+##### 2. Register the Listeners
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\PaymentSucceeded;
+use Gowelle\BeemAfrica\Events\PaymentFailed;
+use App\Listeners\HandleSuccessfulPayment;
+use App\Listeners\HandleFailedPayment;
+
+protected $listen = [
+    PaymentSucceeded::class => [
+        HandleSuccessfulPayment::class,
+    ],
+    PaymentFailed::class => [
+        HandleFailedPayment::class,
+    ],
+];
+```
+
+##### Using the Callback Payload
+
+The event payload provides access to all webhook data:
+
+```php
+public function handle(PaymentSucceeded $event): void
+{
+    $payload = $event->payload;
+
+    $payload->amount;           // '1000.00'
+    $payload->referenceNumber;  // 'ORDER-001'
+    $payload->status;           // 'success'
+    $payload->timestamp;        // '2024-01-15T10:30:00Z'
+    $payload->transactionId;    // 'TXN-123'
+    $payload->msisdn;           // '255712345678'
+
+    // Helper methods
+    $payload->isSuccessful();          // true
+    $payload->isFailed();              // false
+    $payload->getAmountAsFloat();      // 1000.00
+    $payload->getTimestampAsDateTime(); // DateTimeImmutable
+}
+```
+
+#### Transaction Storage (Optional)
+
+The package can automatically store transactions in your database. This is useful for tracking payment history and reconciliation.
+
+##### 1. Publish and Run Migrations
+
+```bash
+php artisan vendor:publish --tag="beem-africa-migrations"
+php artisan migrate
+```
+
+> **Note for UUID/ULID Users:** If your `users` table uses `uuid` or `ulid` as the primary key instead of `bigint`, you need to modify the published migration before running it:
+>
+> ```php
+> // For UUID:
+> $table->uuid('user_id')->nullable()->constrained()->nullOnDelete();
+>
+> // For ULID:
+> $table->ulid('user_id')->nullable()->constrained()->nullOnDelete();
+>
+> // Or remove the constraint entirely and handle it manually:
+> $table->string('user_id', 36)->nullable();
+> ```
+>
+> You can also configure the user model in `config/beem.php`:
+>
+> ```php
+> 'user_model' => 'App\\Models\\User',
+> ```
+
+##### 2. Enable Transaction Storage
+
+Add to your `.env`:
+
+```env
+BEEM_STORE_TRANSACTIONS=true
+```
+
+##### 3. Access Stored Transactions
+
+```php
+use Gowelle\BeemAfrica\Models\BeemTransaction;
+
+// Find by transaction ID
+$transaction = BeemTransaction::where('transaction_id', 'TXN-123')->first();
+
+// Find by reference
+$transactions = BeemTransaction::byReference('ORDER-001')->get();
+
+// Query by status
+$successful = BeemTransaction::successful()->get();
+$failed = BeemTransaction::failed()->get();
+$pending = BeemTransaction::pending()->get();
+
+// Create a pending transaction before redirect
+$transaction = BeemTransaction::createPending(
+    transactionId: 'TXN-' . uniqid(),
+    referenceNumber: 'ORDER-001',
+    amount: 1000.00,
+    msisdn: '255712345678',
+    userId: auth()->id(),
+);
+```
+
+##### 4. Access Transaction in Event Listeners
+
+When transaction storage is enabled, the transaction model is available in events:
+
+```php
+public function handle(PaymentSucceeded $event): void
+{
+    $transaction = $event->getTransaction(); // BeemTransaction model or null
+
+    if ($transaction) {
+        // Update with additional data
+        $transaction->update(['user_id' => $userId]);
+    }
+}
+```
+
+### Using OTP (One-Time Password)
 
 The package supports Beem's OTP service for phone number verification.
 
@@ -400,7 +605,7 @@ try {
 }
 ```
 
-### Airtime Top-Up
+### Using Airtime Top-Up
 
 The package supports Beem's Airtime API for mobile credit top-ups across Africa.
 
@@ -566,7 +771,7 @@ protected $listen = [
 ];
 ```
 
-### SMS
+### Using SMS
 
 The package supports Beem's SMS API for sending text messages across 22+ regions.
 
@@ -878,7 +1083,7 @@ protected $listen = [
 ];
 ```
 
-### Disbursements
+### Using Disbursements
 
 The package supports Beem's Disbursement API for mobile money payouts.
 
@@ -976,7 +1181,7 @@ try {
 
 > See [DisbursementResponseCode](src/Enums/DisbursementResponseCode.php) for all 14 response codes.
 
-### Collections
+### Using Collections
 
 The package supports Beem's Payment Collections API for receiving mobile money payments.
 
@@ -1055,7 +1260,7 @@ The collection callback includes:
 | `source_currency`   | Source currency (TZS)                  |
 | `target_currency`   | Target currency (TZS)                  |
 
-### USSD Hub
+### Using USSD Hub
 
 The package supports Beem's USSD Hub for interactive menus.
 
@@ -1123,7 +1328,7 @@ protected $listen = [
 | `continue`  | Ongoing session with subscriber response |
 | `terminate` | Close the USSD session                   |
 
-### Contacts
+### Using Contacts
 
 The package supports Beem's Contacts API for managing address books and contacts.
 
@@ -1478,210 +1683,6 @@ Beem::contacts()->deleteContacts(
     addressBookIds: [$addressBookId],
     contactIds: [$contact1, $contact2, $contact3, $contact4]
 );
-```
-
-### Handling Webhooks
-
-The package automatically registers a webhook route at `/webhooks/beem`. When Beem sends a payment notification, the package dispatches Laravel events.
-
-#### Webhook Security
-
-The package supports webhook authentication using Beem's secure token. Configure your webhook secret in `.env`:
-
-```env
-BEEM_WEBHOOK_SECRET=your_webhook_secret_from_beem
-```
-
-**Two authentication methods are available:**
-
-1. **Built-in validation** - The webhook controller automatically validates the `beem-secure-token` header
-2. **Middleware approach** - Apply the provided middleware for more control:
-
-```php
-// config/beem-africa.php
-
-'webhook' => [
-    'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
-    'secret' => env('BEEM_WEBHOOK_SECRET'),
-    'middleware' => [
-        \Gowelle\BeemAfrica\Http\Middleware\VerifyBeemSignature::class,
-    ],
-],
-```
-
-> **Note:** If you use the middleware approach, the controller will still perform validation. You can use either or both methods depending on your security requirements. If no `BEEM_WEBHOOK_SECRET` is configured, both will allow requests through.
-
-#### 1. Create Event Listeners
-
-```php
-// app/Listeners/HandleSuccessfulPayment.php
-
-namespace App\Listeners;
-
-use Gowelle\BeemAfrica\Events\PaymentSucceeded;
-
-class HandleSuccessfulPayment
-{
-    public function handle(PaymentSucceeded $event): void
-    {
-        $transactionId = $event->getTransactionId();
-        $amount = $event->getAmount();
-        $reference = $event->getReferenceNumber();
-        $mobile = $event->getMsisdn();
-
-        // Update your order/payment status
-        Order::where('reference', $reference)->update([
-            'status' => 'paid',
-            'paid_at' => now(),
-        ]);
-    }
-}
-```
-
-```php
-// app/Listeners/HandleFailedPayment.php
-
-namespace App\Listeners;
-
-use Gowelle\BeemAfrica\Events\PaymentFailed;
-
-class HandleFailedPayment
-{
-    public function handle(PaymentFailed $event): void
-    {
-        $transactionId = $event->getTransactionId();
-        $reference = $event->getReferenceNumber();
-
-        // Handle the failed payment
-        Order::where('reference', $reference)->update([
-            'status' => 'failed',
-        ]);
-    }
-}
-```
-
-#### 2. Register the Listeners
-
-```php
-// app/Providers/EventServiceProvider.php
-
-use Gowelle\BeemAfrica\Events\PaymentSucceeded;
-use Gowelle\BeemAfrica\Events\PaymentFailed;
-use App\Listeners\HandleSuccessfulPayment;
-use App\Listeners\HandleFailedPayment;
-
-protected $listen = [
-    PaymentSucceeded::class => [
-        HandleSuccessfulPayment::class,
-    ],
-    PaymentFailed::class => [
-        HandleFailedPayment::class,
-    ],
-];
-```
-
-### Using the Callback Payload
-
-The event payload provides access to all webhook data:
-
-```php
-public function handle(PaymentSucceeded $event): void
-{
-    $payload = $event->payload;
-
-    $payload->amount;           // '1000.00'
-    $payload->referenceNumber;  // 'ORDER-001'
-    $payload->status;           // 'success'
-    $payload->timestamp;        // '2024-01-15T10:30:00Z'
-    $payload->transactionId;    // 'TXN-123'
-    $payload->msisdn;           // '255712345678'
-
-    // Helper methods
-    $payload->isSuccessful();          // true
-    $payload->isFailed();              // false
-    $payload->getAmountAsFloat();      // 1000.00
-    $payload->getTimestampAsDateTime(); // DateTimeImmutable
-}
-```
-
-### Transaction Storage (Optional)
-
-The package can automatically store transactions in your database. This is useful for tracking payment history and reconciliation.
-
-#### 1. Publish and Run Migrations
-
-```bash
-php artisan vendor:publish --tag="beem-africa-migrations"
-php artisan migrate
-```
-
-> **Note for UUID/ULID Users:** If your `users` table uses `uuid` or `ulid` as the primary key instead of `bigint`, you need to modify the published migration before running it:
->
-> ```php
-> // For UUID:
-> $table->uuid('user_id')->nullable()->constrained()->nullOnDelete();
->
-> // For ULID:
-> $table->ulid('user_id')->nullable()->constrained()->nullOnDelete();
->
-> // Or remove the constraint entirely and handle it manually:
-> $table->string('user_id', 36)->nullable();
-> ```
->
-> You can also configure the user model in `config/beem.php`:
->
-> ```php
-> 'user_model' => 'App\\Models\\User',
-> ```
-
-#### 2. Enable Transaction Storage
-
-Add to your `.env`:
-
-```env
-BEEM_STORE_TRANSACTIONS=true
-```
-
-#### 3. Access Stored Transactions
-
-```php
-use Gowelle\BeemAfrica\Models\BeemTransaction;
-
-// Find by transaction ID
-$transaction = BeemTransaction::where('transaction_id', 'TXN-123')->first();
-
-// Find by reference
-$transactions = BeemTransaction::byReference('ORDER-001')->get();
-
-// Query by status
-$successful = BeemTransaction::successful()->get();
-$failed = BeemTransaction::failed()->get();
-$pending = BeemTransaction::pending()->get();
-
-// Create a pending transaction before redirect
-$transaction = BeemTransaction::createPending(
-    transactionId: 'TXN-' . uniqid(),
-    referenceNumber: 'ORDER-001',
-    amount: 1000.00,
-    msisdn: '255712345678',
-    userId: auth()->id(),
-);
-```
-
-#### 4. Access Transaction in Event Listeners
-
-When transaction storage is enabled, the transaction model is available in events:
-
-```php
-public function handle(PaymentSucceeded $event): void
-{
-    $transaction = $event->getTransaction(); // BeemTransaction model or null
-
-    if ($transaction) {
-        // Update with additional data
-        $transaction->update(['user_id' => $userId]);
-    }
-}
 ```
 
 ## Testing
