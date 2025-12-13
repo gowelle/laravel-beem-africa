@@ -4,6 +4,67 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-12-XX
+
+### Added
+
+- **Enhanced OTP Error Code Handling**: Comprehensive error code support for Beem OTP API
+  - Added `OtpResponseCode` enum with all 18 OTP response codes (100-118)
+    - Includes descriptions and detailed messages for each code
+    - Helper methods: `isSuccess()`, `isFailure()`, `fromInt()`
+    - Covers all error scenarios: SMS send failures, invalid phone numbers, PIN verification errors, timeout, attempts exceeded, and more
+  - Enhanced `OtpResponse` DTO with error code extraction
+    - Extracts error codes from nested API response structures (`data.message.code`)
+    - Supports both root-level and nested response formats
+    - Added `getCode()` and `getCodeValue()` methods for accessing response codes
+  - Enhanced `OtpVerificationResult` DTO with error code extraction
+    - Automatically identifies valid PIN (code 117) for improved validation
+    - Extracts error codes from nested API response structures
+    - Added `getCode()` and `getCodeValue()` methods for accessing response codes
+  - Enhanced `OtpRequestException` with comprehensive error code support
+    - Stores `OtpResponseCode` enum for programmatic error handling
+    - Added `fromApiResponse()` factory method for automatic error code extraction
+    - Convenience methods: `isInvalidPhoneNumber()`, `isApplicationIdMissing()`, `isApplicationNotFound()`, `isNoChannelFound()`
+    - Added `getOtpResponseCode()`, `getHttpStatusCode()`, and `hasResponseCode()` methods
+  - Enhanced `OtpVerificationException` with comprehensive error code support
+    - Stores `OtpResponseCode` enum for programmatic error handling
+    - Added `fromApiResponse()` factory method for automatic error code extraction
+    - Convenience methods: `isIncorrectPin()`, `isPinTimeout()`, `isAttemptsExceeded()`, `isPinIdNotFound()`
+    - Added `getOtpResponseCode()`, `getHttpStatusCode()`, and `hasResponseCode()` methods
+  - Improved `BeemOtpService` error handling
+    - Automatically extracts error codes from failed API responses
+    - Uses `fromApiResponse()` factory methods for better error context
+    - Passes HTTP status codes to exceptions for improved debugging
+
+### Changed
+
+- `OtpResponse` and `OtpVerificationResult` DTOs now extract and store error codes from API responses
+  - Improved parsing of nested response structures (`data.message.code` and `data.message.message`)
+  - Better handling of different API response formats
+- `OtpRequestException` and `OtpVerificationException` now include error code information
+  - Exceptions automatically extract error codes from API error responses
+  - Backward compatible - existing code continues to work
+
+### Testing
+
+- Added 35 new tests for OTP error code handling
+  - 7 tests for `OtpResponseCode` enum (creation, descriptions, success/failure checks)
+  - 8 tests for enhanced `OtpResponse` DTO (error code extraction from various formats)
+  - 6 tests for enhanced `OtpVerificationResult` DTO (error code extraction, validity detection)
+  - 17 tests for exception enhancements (error code storage, convenience methods, API response parsing)
+  - All tests passing (384 tests total, 1053 assertions)
+- Updated existing OTP DTO tests to cover new error code functionality
+- Maintained 100% backward compatibility with existing tests
+
+### Documentation
+
+- Comprehensive OTP error handling documentation in README
+  - Error codes table with all 18 codes and helper methods
+  - Detailed examples for handling request and verification errors
+  - Programmatic error code checking examples
+  - Response code access examples from DTOs
+  - Real-world usage examples for common error scenarios
+
 ## [1.6.0] - 2025-12-13
 
 ### Added

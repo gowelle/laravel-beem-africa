@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Gowelle\BeemAfrica\DTOs;
 
+use Gowelle\BeemAfrica\Enums\OtpResponseCode;
+
 /**
  * Data Transfer Object for OTP request response.
  */
@@ -13,6 +15,7 @@ class OtpResponse
         public readonly string $pinId,
         public readonly string $message,
         public readonly bool $successful = true,
+        public readonly ?OtpResponseCode $code = null,
     ) {}
 
     /**
@@ -20,10 +23,22 @@ class OtpResponse
      */
     public static function fromArray(array $data): self
     {
+        // Extract code from nested or root level
+        $code = null;
+        if (isset($data['data']['message']['code'])) {
+            $code = OtpResponseCode::fromInt((int) $data['data']['message']['code']);
+        } elseif (isset($data['code'])) {
+            $code = OtpResponseCode::fromInt((int) $data['code']);
+        }
+
+        // Extract message from nested or root level
+        $message = $data['data']['message']['message'] ?? $data['message'] ?? $data['data']['message'] ?? 'OTP sent successfully';
+
         return new self(
             pinId: $data['data']['pinId'] ?? $data['pinId'] ?? '',
-            message: $data['message'] ?? $data['data']['message'] ?? 'OTP sent successfully',
+            message: is_array($message) ? (string) ($message['message'] ?? 'OTP sent successfully') : (string) $message,
             successful: isset($data['successful']) ? (bool) $data['successful'] : true,
+            code: $code,
         );
     }
 
@@ -41,5 +56,21 @@ class OtpResponse
     public function getPinId(): string
     {
         return $this->pinId;
+    }
+
+    /**
+     * Get the response code.
+     */
+    public function getCode(): ?OtpResponseCode
+    {
+        return $this->code;
+    }
+
+    /**
+     * Get the response code value.
+     */
+    public function getCodeValue(): ?int
+    {
+        return $this->code?->value;
     }
 }

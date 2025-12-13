@@ -42,6 +42,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 📱 **Send OTP** - Send verification codes via SMS
 - ✅ **Verify OTP** - Validate user-entered codes
 - 🔐 **Phone Verification** - Secure phone number verification flow
+- 🎯 **Error Codes** - 18 detailed error codes for precise handling
 
 ### Airtime Top-Up
 
@@ -597,22 +598,205 @@ if ($result->isValid()) {
 
 #### 4. OTP Error Handling
 
+The package provides detailed error handling with 18 response codes for precise OTP error management.
+
+##### Available Error Codes
+
+Based on [Beem OTP API documentation](https://docs.beem.africa/bl-otp/index.html#api--ERROR_CODES), the following error codes are supported:
+
+| Code | Description                    | Helper Method                    |
+| ---- | ------------------------------ | -------------------------------- |
+| 100  | SMS sent successfully          | `isSuccess()`                    |
+| 101  | Failed to send SMS             | `isFailure()`                    |
+| 102  | Invalid phone number           | `isInvalidPhoneNumber()`         |
+| 103  | Phone number missing           | `isFailure()`                    |
+| 104  | Application ID missing          | `isApplicationIdMissing()`      |
+| 106  | Application not found           | `isApplicationNotFound()`       |
+| 107  | Application is inactive         | `isFailure()`                    |
+| 108  | No channel found                | `isNoChannelFound()`             |
+| 109  | Placeholder not found           | `isFailure()`                    |
+| 110  | Username or Password missing    | `isFailure()`                    |
+| 111  | PIN missing                     | `isFailure()`                    |
+| 112  | PIN ID missing                  | `isFailure()`                    |
+| 113  | PIN ID not found                | `isPinIdNotFound()`              |
+| 114  | Incorrect PIN                   | `isIncorrectPin()`              |
+| 115  | PIN timeout                     | `isPinTimeout()`                 |
+| 116  | Attempts exceeded               | `isAttemptsExceeded()`           |
+| 117  | Valid PIN                       | `isSuccess()`                    |
+| 118  | Duplicate PIN                   | `isFailure()`                    |
+
+> See [OtpResponseCode](src/Enums/OtpResponseCode.php) for all 18 response codes.
+
+##### Handling OTP Request Errors
+
 ```php
+use Gowelle\BeemAfrica\Facades\Beem;
 use Gowelle\BeemAfrica\Exceptions\OtpRequestException;
-use Gowelle\BeemAfrica\Exceptions\OtpVerificationException;
+use Gowelle\BeemAfrica\Enums\OtpResponseCode;
 
 try {
     $response = Beem::otp()->request('255712345678');
+    
+    // Access response code from successful response
+    $code = $response->getCode();
+    if ($code === OtpResponseCode::SMS_SENT_SUCCESSFULLY) {
+        echo "OTP sent successfully!";
+    }
 } catch (OtpRequestException $e) {
-    // Handle OTP request failure
-    Log::error('OTP request failed: ' . $e->getMessage());
+    // Get the OTP response code
+    $otpResponseCode = $e->getOtpResponseCode();
+    
+    // Check for specific error types
+    if ($e->isInvalidPhoneNumber()) {
+        return back()->withErrors(['phone' => 'Invalid phone number format']);
+    }
+    
+    if ($e->isApplicationIdMissing()) {
+        Log::error('OTP App ID not configured');
+        return back()->withErrors(['error' => 'OTP service configuration error']);
+    }
+    
+    if ($e->isApplicationNotFound()) {
+        Log::error('OTP Application not found - check App ID');
+        return back()->withErrors(['error' => 'OTP service unavailable']);
+    }
+    
+    if ($e->isNoChannelFound()) {
+        Log::error('OTP channel not configured in Beem dashboard');
+        return back()->withErrors(['error' => 'OTP service configuration error']);
+    }
+    
+    // Generic error handling
+    Log::error('OTP request failed', [
+        'message' => $e->getMessage(),
+        'code' => $otpResponseCode?->value,
+        'http_status' => $e->getHttpStatusCode(),
+    ]);
+    
+    return back()->withErrors(['error' => 'Failed to send OTP. Please try again.']);
 }
+```
+
+##### Handling OTP Verification Errors
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Exceptions\OtpVerificationException;
+use Gowelle\BeemAfrica\Enums\OtpResponseCode;
 
 try {
     $result = Beem::otp()->verify($pinId, $userPin);
+    
+    // Access response code from verification result
+    $code = $result->getCode();
+    if ($code === OtpResponseCode::VALID_PIN) {
+        // OTP is valid
+        session()->forget('otp_pin_id');
+        auth()->user()->update(['phone_verified_at' => now()]);
+    }
 } catch (OtpVerificationException $e) {
-    // Handle verification failure
-    Log::error('OTP verification failed: ' . $e->getMessage());
+    // Get the OTP response code
+    $otpResponseCode = $e->getOtpResponseCode();
+    
+    // Check for specific error types
+    if ($e->isIncorrectPin()) {
+        return back()->withErrors(['otp_code' => 'Incorrect OTP code. Please try again.']);
+    }
+    
+    if ($e->isPinTimeout()) {
+        return back()->withErrors(['otp_code' => 'OTP code has expired. Please request a new one.']);
+    }
+    
+    if ($e->isAttemptsExceeded()) {
+        return back()->withErrors(['otp_code' => 'Too many failed attempts. Please request a new OTP.']);
+    }
+    
+    if ($e->isPinIdNotFound()) {
+        return back()->withErrors(['otp_code' => 'Invalid verification session. Please request a new OTP.']);
+    }
+    
+    // Generic error handling
+    Log::error('OTP verification failed', [
+        'message' => $e->getMessage(),
+        'code' => $otpResponseCode?->value,
+        'http_status' => $e->getHttpStatusCode(),
+    ]);
+    
+    return back()->withErrors(['otp_code' => 'Verification failed. Please try again.']);
+}
+```
+
+##### Checking Error Codes Programmatically
+
+```php
+use Gowelle\BeemAfrica\Exceptions\OtpRequestException;
+use Gowelle\BeemAfrica\Exceptions\OtpVerificationException;
+use Gowelle\BeemAfrica\Enums\OtpResponseCode;
+
+try {
+    // Your OTP operation
+} catch (OtpRequestException $e) {
+    // Check if a specific error code is present
+    if ($e->hasResponseCode(OtpResponseCode::INVALID_PHONE_NUMBER)) {
+        // Handle invalid phone number
+    }
+    
+    // Get the error code enum
+    $errorCode = $e->getOtpResponseCode();
+    
+    if ($errorCode === OtpResponseCode::FAILED_TO_SEND_SMS) {
+        // Handle SMS send failure
+    }
+    
+    // Access error code details
+    if ($errorCode) {
+        echo $errorCode->description(); // "Invalid phone number"
+        echo $errorCode->message();     // Detailed error message
+        echo $errorCode->value;         // 102 (the numeric code)
+    }
+}
+
+try {
+    // Your verification operation
+} catch (OtpVerificationException $e) {
+    // Check for specific verification errors
+    if ($e->hasResponseCode(OtpResponseCode::INCORRECT_PIN)) {
+        // Handle incorrect PIN
+    }
+    
+    // Get the error code enum
+    $errorCode = $e->getOtpResponseCode();
+    
+    if ($errorCode === OtpResponseCode::PIN_TIMEOUT) {
+        // Handle PIN timeout
+    }
+}
+```
+
+##### Accessing Response Codes from DTOs
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Enums\OtpResponseCode;
+
+// Request OTP
+$response = Beem::otp()->request('255712345678');
+
+// Get response code from DTO
+$code = $response->getCode();
+$codeValue = $response->getCodeValue(); // Integer value (100, 101, etc.)
+
+if ($code === OtpResponseCode::SMS_SENT_SUCCESSFULLY) {
+    $pinId = $response->getPinId();
+}
+
+// Verify OTP
+$result = Beem::otp()->verify($pinId, $userPin);
+
+// Get response code from verification result
+$code = $result->getCode();
+if ($code === OtpResponseCode::VALID_PIN) {
+    // PIN is valid
 }
 ```
 
