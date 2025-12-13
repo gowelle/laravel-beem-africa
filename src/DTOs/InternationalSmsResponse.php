@@ -33,7 +33,7 @@ class InternationalSmsResponse
         }
 
         foreach ($this->results as $result) {
-            if (($result['status'] ?? '-1') === '0') {
+            if ($result['status'] === '0') {
                 return true;
             }
         }
