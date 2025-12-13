@@ -149,4 +149,3 @@ return [
         'inbound_webhook_path' => env('BEEM_SMS_INBOUND_PATH', 'webhooks/beem/sms/inbound'),
     ],
 ];
-

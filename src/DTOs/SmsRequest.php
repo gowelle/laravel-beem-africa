@@ -47,12 +47,6 @@ class SmsRequest
             throw new \InvalidArgumentException('At least one recipient is required');
         }
 
-        foreach ($this->recipients as $recipient) {
-            if (! $recipient instanceof SmsRecipient) {
-                throw new \InvalidArgumentException('All recipients must be instances of SmsRecipient');
-            }
-        }
-
         if ($this->encoding !== null && ! in_array($this->encoding, [0, 8])) {
             throw new \InvalidArgumentException('Encoding must be 0 (plain text) or 8 (UCS2/Unicode)');
         }

@@ -90,4 +90,3 @@ class BeemServiceProvider extends PackageServiceProvider
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }
-
