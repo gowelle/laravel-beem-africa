@@ -22,7 +22,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [USSD Hub](#using-ussd-hub)
   - [Contacts](#using-contacts)
   - [Moja (Multi-Channel Messaging)](#using-moja-multi-channel-messaging)
-  - [International SMS](#using-international-sms)
+  - [Multicountry SMS and SMPP](#using-multicountry-sms-and-smpp)
 - [Testing](#testing)
 - [Security](#security)
 - [Credits](#credits)
@@ -624,26 +624,26 @@ The package provides detailed error handling with 18 response codes for precise 
 
 Based on [Beem OTP API documentation](https://docs.beem.africa/bl-otp/index.html#api--ERROR_CODES), the following error codes are supported:
 
-| Code | Description                    | Helper Method                    |
-| ---- | ------------------------------ | -------------------------------- |
-| 100  | SMS sent successfully          | `isSuccess()`                    |
-| 101  | Failed to send SMS             | `isFailure()`                    |
-| 102  | Invalid phone number           | `isInvalidPhoneNumber()`         |
-| 103  | Phone number missing           | `isFailure()`                    |
-| 104  | Application ID missing          | `isApplicationIdMissing()`      |
-| 106  | Application not found           | `isApplicationNotFound()`       |
-| 107  | Application is inactive         | `isFailure()`                    |
-| 108  | No channel found                | `isNoChannelFound()`             |
-| 109  | Placeholder not found           | `isFailure()`                    |
-| 110  | Username or Password missing    | `isFailure()`                    |
-| 111  | PIN missing                     | `isFailure()`                    |
-| 112  | PIN ID missing                  | `isFailure()`                    |
-| 113  | PIN ID not found                | `isPinIdNotFound()`              |
-| 114  | Incorrect PIN                   | `isIncorrectPin()`              |
-| 115  | PIN timeout                     | `isPinTimeout()`                 |
-| 116  | Attempts exceeded               | `isAttemptsExceeded()`           |
-| 117  | Valid PIN                       | `isSuccess()`                    |
-| 118  | Duplicate PIN                   | `isFailure()`                    |
+| Code | Description                  | Helper Method              |
+| ---- | ---------------------------- | -------------------------- |
+| 100  | SMS sent successfully        | `isSuccess()`              |
+| 101  | Failed to send SMS           | `isFailure()`              |
+| 102  | Invalid phone number         | `isInvalidPhoneNumber()`   |
+| 103  | Phone number missing         | `isFailure()`              |
+| 104  | Application ID missing       | `isApplicationIdMissing()` |
+| 106  | Application not found        | `isApplicationNotFound()`  |
+| 107  | Application is inactive      | `isFailure()`              |
+| 108  | No channel found             | `isNoChannelFound()`       |
+| 109  | Placeholder not found        | `isFailure()`              |
+| 110  | Username or Password missing | `isFailure()`              |
+| 111  | PIN missing                  | `isFailure()`              |
+| 112  | PIN ID missing               | `isFailure()`              |
+| 113  | PIN ID not found             | `isPinIdNotFound()`        |
+| 114  | Incorrect PIN                | `isIncorrectPin()`         |
+| 115  | PIN timeout                  | `isPinTimeout()`           |
+| 116  | Attempts exceeded            | `isAttemptsExceeded()`     |
+| 117  | Valid PIN                    | `isSuccess()`              |
+| 118  | Duplicate PIN                | `isFailure()`              |
 
 > See [OtpResponseCode](src/Enums/OtpResponseCode.php) for all 18 response codes.
 
@@ -656,7 +656,7 @@ use Gowelle\BeemAfrica\Enums\OtpResponseCode;
 
 try {
     $response = Beem::otp()->request('255712345678');
-    
+
     // Access response code from successful response
     $code = $response->getCode();
     if ($code === OtpResponseCode::SMS_SENT_SUCCESSFULLY) {
@@ -665,34 +665,34 @@ try {
 } catch (OtpRequestException $e) {
     // Get the OTP response code
     $otpResponseCode = $e->getOtpResponseCode();
-    
+
     // Check for specific error types
     if ($e->isInvalidPhoneNumber()) {
         return back()->withErrors(['phone' => 'Invalid phone number format']);
     }
-    
+
     if ($e->isApplicationIdMissing()) {
         Log::error('OTP App ID not configured');
         return back()->withErrors(['error' => 'OTP service configuration error']);
     }
-    
+
     if ($e->isApplicationNotFound()) {
         Log::error('OTP Application not found - check App ID');
         return back()->withErrors(['error' => 'OTP service unavailable']);
     }
-    
+
     if ($e->isNoChannelFound()) {
         Log::error('OTP channel not configured in Beem dashboard');
         return back()->withErrors(['error' => 'OTP service configuration error']);
     }
-    
+
     // Generic error handling
     Log::error('OTP request failed', [
         'message' => $e->getMessage(),
         'code' => $otpResponseCode?->value,
         'http_status' => $e->getHttpStatusCode(),
     ]);
-    
+
     return back()->withErrors(['error' => 'Failed to send OTP. Please try again.']);
 }
 ```
@@ -706,7 +706,7 @@ use Gowelle\BeemAfrica\Enums\OtpResponseCode;
 
 try {
     $result = Beem::otp()->verify($pinId, $userPin);
-    
+
     // Access response code from verification result
     $code = $result->getCode();
     if ($code === OtpResponseCode::VALID_PIN) {
@@ -717,31 +717,31 @@ try {
 } catch (OtpVerificationException $e) {
     // Get the OTP response code
     $otpResponseCode = $e->getOtpResponseCode();
-    
+
     // Check for specific error types
     if ($e->isIncorrectPin()) {
         return back()->withErrors(['otp_code' => 'Incorrect OTP code. Please try again.']);
     }
-    
+
     if ($e->isPinTimeout()) {
         return back()->withErrors(['otp_code' => 'OTP code has expired. Please request a new one.']);
     }
-    
+
     if ($e->isAttemptsExceeded()) {
         return back()->withErrors(['otp_code' => 'Too many failed attempts. Please request a new OTP.']);
     }
-    
+
     if ($e->isPinIdNotFound()) {
         return back()->withErrors(['otp_code' => 'Invalid verification session. Please request a new OTP.']);
     }
-    
+
     // Generic error handling
     Log::error('OTP verification failed', [
         'message' => $e->getMessage(),
         'code' => $otpResponseCode?->value,
         'http_status' => $e->getHttpStatusCode(),
     ]);
-    
+
     return back()->withErrors(['otp_code' => 'Verification failed. Please try again.']);
 }
 ```
@@ -760,14 +760,14 @@ try {
     if ($e->hasResponseCode(OtpResponseCode::INVALID_PHONE_NUMBER)) {
         // Handle invalid phone number
     }
-    
+
     // Get the error code enum
     $errorCode = $e->getOtpResponseCode();
-    
+
     if ($errorCode === OtpResponseCode::FAILED_TO_SEND_SMS) {
         // Handle SMS send failure
     }
-    
+
     // Access error code details
     if ($errorCode) {
         echo $errorCode->description(); // "Invalid phone number"
@@ -783,10 +783,10 @@ try {
     if ($e->hasResponseCode(OtpResponseCode::INCORRECT_PIN)) {
         // Handle incorrect PIN
     }
-    
+
     // Get the error code enum
     $errorCode = $e->getOtpResponseCode();
-    
+
     if ($errorCode === OtpResponseCode::PIN_TIMEOUT) {
         // Handle PIN timeout
     }
@@ -2246,16 +2246,20 @@ protected $listen = [
 ];
 ```
 
-### International SMS
+### Using Multicountry SMS and SMPP
 
 #### 1. Configure Credentials
+
 Add to `.env`:
+
 ```env
 BEEM_INTERNATIONAL_SMS_USERNAME=...
 BEEM_INTERNATIONAL_SMS_PASSWORD=...
+BEEM_INTERNATIONAL_SMS_DLR_URL=...  # Optional: Your DLR webhook URL
 ```
 
 #### 2. Send International SMS
+
 ```php
 use Gowelle\BeemAfrica\Facades\Beem;
 use Gowelle\BeemAfrica\DTOs\InternationalSmsRequest;
@@ -2274,6 +2278,7 @@ if ($response->isSuccessful()) {
 ```
 
 #### 3. Send Binary Message
+
 ```php
 $request = InternationalSmsRequest::createBinary(
     sourceAddr: 'Gowelle',
@@ -2284,9 +2289,304 @@ Beem::internationalSms()->send($request);
 ```
 
 #### 4. Check Balance
+
 ```php
 $balance = Beem::internationalSms()->checkBalance();
 echo $balance->balance . ' ' . $balance->currency;
+```
+
+#### 5. Send to Multiple Recipients
+
+Send the same message to multiple destinations in a single request:
+
+```php
+use Gowelle\BeemAfrica\DTOs\InternationalSmsRequest;
+
+$request = new InternationalSmsRequest(
+    sourceAddr: 'Gowelle',
+    destAddr: [
+        '255712345678',  // Tanzania
+        '254712345678',  // Kenya
+        '256712345678',  // Uganda
+    ],
+    message: 'Hello to multiple recipients!',
+);
+
+$response = Beem::internationalSms()->send($request);
+
+if ($response->isSuccessful()) {
+    // Access all message IDs from results
+    foreach ($response->results as $result) {
+        echo "Status: {$result['status']}, Message ID: {$result['msgid']}\n";
+    }
+}
+```
+
+#### 6. Encoding Options
+
+The `encoding` parameter controls the message format. Supported values:
+
+| Value | Type           | Description                          | Use Case                  |
+| ----- | -------------- | ------------------------------------ | ------------------------- |
+| 0     | Text           | Plain text message (default)         | Regular SMS               |
+| 1     | Flash          | Flash message (displays immediately) | Urgent notifications      |
+| 2     | Binary/Unicode | Unicode or hex-encoded message       | Special characters, emoji |
+| 3     | ISO-8859-1     | Latin alphabet encoding              | European languages        |
+
+**Example - Flash Message:**
+
+```php
+$request = new InternationalSmsRequest(
+    sourceAddr: 'Gowelle',
+    destAddr: '255712345678',
+    message: 'URGENT: System Alert',
+    encoding: 1,  // Flash message
+);
+
+$response = Beem::internationalSms()->send($request);
+```
+
+**Example - Unicode Message:**
+
+```php
+use Gowelle\BeemAfrica\DTOs\InternationalSmsRequest;
+
+// Using the static factory method for binary messages
+$request = InternationalSmsRequest::createBinary(
+    sourceAddr: 'Gowelle',
+    destAddr: '255712345678',
+    hexMessage: '0410043704380432043E',  // "Привет" (Hello in Russian) in UTF-16BE
+);
+
+$response = Beem::internationalSms()->send($request);
+```
+
+#### 7. Response Handling
+
+The response object provides access to detailed information about the send operation:
+
+```php
+$response = Beem::internationalSms()->send($request);
+
+// Check overall success
+if ($response->isSuccessful()) {
+    echo "At least one message sent successfully\n";
+}
+
+// Access individual results
+foreach ($response->results as $result) {
+    $status = $result['status'];      // "0" = OK, other values = error
+    $msgid = $result['msgid'];        // Unique message ID
+    $statustext = $result['statustext'];  // Status description (e.g., "OK")
+
+    if ($status === '0') {
+        echo "Message {$msgid} sent successfully\n";
+    } else {
+        echo "Message failed with status {$status}: {$statustext}\n";
+    }
+}
+
+// Check account balance after sending
+if ($response->balance !== null) {
+    echo "Remaining balance: {$response->balance}\n";
+}
+
+// Get the first message ID (useful for single recipient)
+$firstMessageId = $response->getFirstMessageId();
+```
+
+#### 8. Error Handling
+
+The package provides structured error handling using `SmsException`:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\Exceptions\SmsException;
+use Gowelle\BeemAfrica\Enums\SmsResponseCode;
+
+try {
+    $request = new InternationalSmsRequest(
+        sourceAddr: 'Gowelle',
+        destAddr: '255712345678',
+        message: 'Hello World',
+    );
+
+    $response = Beem::internationalSms()->send($request);
+} catch (SmsException $e) {
+    // Check for specific error types
+    if ($e->isInsufficientBalance()) {
+        return back()->withErrors(['error' => 'Insufficient International SMS credits']);
+    }
+
+    if ($e->isInvalidPhoneNumber()) {
+        return back()->withErrors(['phone' => 'Invalid phone number format']);
+    }
+
+    if ($e->isInvalidAuthentication()) {
+        Log::error('International SMS authentication failed - check credentials');
+        return back()->withErrors(['error' => 'Service unavailable']);
+    }
+
+    if ($e->isNetworkTimeout()) {
+        return back()->withErrors(['error' => 'Network timeout - please try again']);
+    }
+
+    // Get the response code enum for additional details
+    $responseCode = $e->getResponseCode();
+    if ($responseCode) {
+        Log::error('International SMS error', [
+            'code' => $responseCode->value,
+            'description' => $responseCode->description(),
+        ]);
+    }
+
+    return back()->withErrors(['error' => 'Failed to send SMS. Please try again.']);
+}
+```
+
+**Available Error Codes:**
+
+| Code | Description                            | Helper Method               |
+| ---- | -------------------------------------- | --------------------------- |
+| 100  | Message Submitted Successfully         | `isSuccess()`               |
+| 101  | Invalid phone number                   | `isInvalidPhoneNumber()`    |
+| 102  | Insufficient balance                   | `isInsufficientBalance()`   |
+| 103  | Network timeout                        | `isNetworkTimeout()`        |
+| 104  | Please provide all required parameters | `isMissingParameters()`     |
+| 105  | Account not found                      | `isAccountNotFound()`       |
+| 106  | No route mapping to your account       | `isNoRoute()`               |
+| 107  | No authorization headers               | `isInvalidAuthentication()` |
+| 108  | Invalid token                          | `isInvalidAuthentication()` |
+
+> See [SmsResponseCode](src/Enums/SmsResponseCode.php) for all 9 response codes.
+
+#### 9. Webhook Handling (DLR - Delivery Report)
+
+Beem sends delivery reports (DLR) to your webhook endpoint when messages are delivered or fail.
+
+##### Register the Webhook Route
+
+In your routes file or service provider, register the International SMS webhook macro:
+
+```php
+// routes/web.php or routes/api.php
+
+Route::beemInternationalWebhook('webhooks/beem/international');
+// This registers: POST /webhooks/beem/international
+```
+
+Or use a custom URL:
+
+```php
+Route::beemInternationalWebhook('custom/international/dlr');
+// This registers: POST /custom/international/dlr
+```
+
+##### Create an Event Listener
+
+```php
+// app/Listeners/HandleInternationalDlr.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\InternationalDlrReceived;
+use Illuminate\Support\Facades\Log;
+
+class HandleInternationalDlr
+{
+    public function handle(InternationalDlrReceived $event): void
+    {
+        $dlrId = $event->getDlrId();
+        $from = $event->getSourceAddr();
+        $to = $event->getDestAddr();
+        $message = $event->getMessage();
+        $payload = $event->payload;
+
+        // Access full payload for additional data
+        Log::info('International DLR Received', [
+            'dlr_id' => $dlrId,
+            'from' => $from,
+            'to' => $to,
+            'payload' => $payload,
+        ]);
+
+        // Update your database with delivery status
+        // Example: Find the SMS record and update its status
+        InternationalSmsLog::updateOrCreate(
+            ['dlr_id' => $dlrId],
+            [
+                'status' => $payload['status'] ?? 'received',
+                'delivered_at' => now(),
+            ]
+        );
+    }
+}
+```
+
+##### Register the Listener
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\InternationalDlrReceived;
+use App\Listeners\HandleInternationalDlr;
+
+protected $listen = [
+    InternationalDlrReceived::class => [
+        HandleInternationalDlr::class,
+    ],
+];
+```
+
+##### Access Webhook Payload Data
+
+The `InternationalDlrReceived` event provides helper methods to access common fields:
+
+```php
+public function handle(InternationalDlrReceived $event): void
+{
+    // Helper methods (case-insensitive field access)
+    $dlrId = $event->getDlrId();           // DLRID or dlrid
+    $from = $event->getSourceAddr();       // SOURCEADDR or from
+    $to = $event->getDestAddr();           // DESTADDR or to
+    $message = $event->getMessage();       // MESSAGE or text
+
+    // Full payload access for any field
+    $fullPayload = $event->payload;
+    $status = $fullPayload['status'] ?? $fullPayload['STATUS'] ?? null;
+    $timestamp = $fullPayload['timestamp'] ?? $fullPayload['TIMESTAMP'] ?? null;
+}
+```
+
+##### Configure DLR URL in .env
+
+```env
+BEEM_INTERNATIONAL_SMS_DLR_URL=https://yourapp.com/webhooks/beem/international
+```
+
+Then use it in your send request (optional):
+
+```php
+$request = new InternationalSmsRequest(
+    sourceAddr: 'Gowelle',
+    destAddr: '255712345678',
+    message: 'Hello World',
+    dlrAddress: env('BEEM_INTERNATIONAL_SMS_DLR_URL'),  // Set webhook URL per request
+);
+
+$response = Beem::internationalSms()->send($request);
+```
+
+Or configure it globally in `config/beem-africa.php`:
+
+```php
+'international_sms' => [
+    'username' => env('BEEM_INTERNATIONAL_SMS_USERNAME'),
+    'password' => env('BEEM_INTERNATIONAL_SMS_PASSWORD'),
+    'base_url' => 'https://api.blsmsgw.com:8443/bin',
+    'portal_url' => 'https://www.blsmsgw.com/portal/api',
+    'dlr_url' => env('BEEM_INTERNATIONAL_SMS_DLR_URL'),
+],
 ```
 
 ## Testing
