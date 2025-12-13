@@ -2284,7 +2284,7 @@ To set up CI for your fork:
 
 ## Security
 
-If you discover any security-related issues, please email dev@gowelle.com instead of using the issue tracker.
+If you discover any security-related issues, please email gowelle.john@icloud.com instead of using the issue tracker.
 
 ## Credits
 
