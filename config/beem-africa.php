@@ -199,4 +199,19 @@ return [
         // Webhook path for USSD callbacks
         'webhook_path' => env('BEEM_USSD_WEBHOOK_PATH', 'webhooks/beem/ussd'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contacts Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Contacts service. Contacts allows you to manage
+    | address books and contacts through API.
+    |
+    */
+
+    'contacts' => [
+        // Base URL for Contacts API
+        'base_url' => env('BEEM_CONTACTS_BASE_URL', 'https://apicontacts.beem.africa/public/v1'),
+    ],
 ];

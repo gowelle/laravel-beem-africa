@@ -4,6 +4,26 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-12-13
+
+### Added
+
+- **Contacts Service**: Full integration with Beem Contacts API for managing address books and contacts
+  - **AddressBooks Management**: Create, list, update, and delete address books
+  - **Contacts Management**: Full CRUD operations for contacts with comprehensive field support
+  - Pagination support with `PaginationData` DTO
+  - 10 DTOs: `AddressBook`, `AddressBookRequest`, `AddressBookResponse`, `AddressBookListResponse`, `AddressBookDeleteResponse`, `Contact`, `ContactRequest`, `ContactResponse`, `ContactListResponse`, `ContactDeleteResponse`
+  - `PaginationData` DTO for handling paginated responses
+  - `ContactsException` with specialized error handling
+  - `BeemContactsClient` HTTP client
+  - `BeemContactsService` with all CRUD operations
+  - `Beem::contacts()` facade accessor
+  - **Enums**: `Gender` (MALE, FEMALE) and `Title` (MR, MRS, MS) enums for type-safe contact data
+  - Input validation for phone numbers, email, birth dates, gender, and title
+  - Support for both enum and string values (backward compatible)
+  - Comprehensive documentation in README with enum usage examples
+  - Full test coverage (48 new tests, 293 total)
+
 ## [1.4.0] - 2025-12-13
 
 ### Added
@@ -73,6 +93,7 @@ All notable changes to `beem-africa` will be documented in this file.
 ## [1.0.6] - 2024-12-12
 
 ### Added
+
 - **Airtime API Service**: Full integration with Beem Airtime API
   - Transfer airtime to mobile numbers across 40+ African networks
   - Check transaction status
@@ -84,7 +105,6 @@ All notable changes to `beem-africa` will be documented in this file.
   - `Beem::airtime()` facade accessor
   - Comprehensive documentation in README
   - Full test coverage (unit and integration tests)
-
 
 ## [1.0.5] - 2025-01-XX
 
@@ -208,4 +228,3 @@ All notable changes to `beem-africa` will be documented in this file.
 - PHPStan level 5 static analysis
 - Laravel Pint code style configuration
 - Full documentation with usage examples
-

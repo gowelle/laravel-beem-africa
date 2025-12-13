@@ -1,6 +1,6 @@
 {
     "name": "gowelle/laravel-beem-africa",
-    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, Collections, and USSD services",
+    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, Collections, USSD, and Contacts services",
     "keywords": [
         "laravel",
         "beem",
@@ -12,6 +12,8 @@
         "checkout",
         "disbursements",
         "collections",
+        "contacts",
+        "addressbook",
         "mobile-money",
         "tanzania",
         "africa"

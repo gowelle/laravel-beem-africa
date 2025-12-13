@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, and **Collections** services.
+A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, and **Contacts** services.
 
 ## Table of Contents
 
@@ -20,6 +20,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [Disbursements](#disbursements)
   - [Collections](#collections)
   - [USSD Hub](#ussd-hub)
+  - [Contacts](#contacts)
   - [Webhooks](#handling-webhooks)
 - [Testing](#testing)
 - [Security](#security)
@@ -81,6 +82,15 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 🔄 **Session Management** - Handle initiate/continue/terminate flows
 - 📊 **Balance Check** - Monitor USSD credit balance
 - 🌐 **Multi-Network** - Single API for multiple mobile networks
+
+### Contacts
+
+- 📇 **AddressBook Management** - Create and manage multiple contact address books
+- 👥 **Contact Management** - Full CRUD operations for contacts
+- 🔍 **Search & Filter** - Search contacts by name or phone number
+- 📄 **Pagination** - Built-in pagination support for large contact lists
+- ✅ **Validation** - Input validation for phone numbers, email, and dates
+- 📋 **Comprehensive Fields** - Support for name, phone, email, address, birth date, and more
 
 ### Developer Experience
 
@@ -228,11 +238,11 @@ The package provides structured error handling for Beem API errors. All payment-
 
 Based on [Beem API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
 
-| Code | Description | Helper Method |
-|------|-------------|---------------|
-| 100  | Invalid Mobile Number | `isInvalidMobileNumber()` |
-| 101  | Invalid Amount | `isInvalidAmount()` |
-| 102  | Invalid Transaction ID | `isInvalidTransactionId()` |
+| Code | Description                       | Helper Method               |
+| ---- | --------------------------------- | --------------------------- |
+| 100  | Invalid Mobile Number             | `isInvalidMobileNumber()`   |
+| 101  | Invalid Amount                    | `isInvalidAmount()`         |
+| 102  | Invalid Transaction ID            | `isInvalidTransactionId()`  |
 | 120  | Invalid Authentication Parameters | `isInvalidAuthentication()` |
 
 #### Handling Payment Errors
@@ -409,7 +419,7 @@ $response = Beem::airtime()->transfer(
 
 if ($response->isSuccessful()) {
     $transactionId = $response->getTransactionId();
-    
+
     // Store transaction ID for status checking
     session(['airtime_txn_id' => $transactionId]);
 }
@@ -463,16 +473,16 @@ try {
     if ($e->isInsufficientBalance()) {
         return back()->withErrors(['amount' => 'Insufficient airtime balance']);
     }
-    
+
     if ($e->isInvalidPhoneNumber()) {
         return back()->withErrors(['phone' => 'Invalid phone number format']);
     }
-    
+
     if ($e->isInvalidAuthentication()) {
         Log::error('Beem authentication failed - check API credentials');
         return back()->withErrors(['error' => 'Service unavailable']);
     }
-    
+
     // Get the response code enum
     $responseCode = $e->getResponseCode();
     if ($responseCode) {
@@ -487,17 +497,17 @@ try {
 
 **Available Response Codes:**
 
-| Code | Description | Helper Method |
-|------|-------------|---------------|
-| 100 | Disbursement successful | `isSuccess()` |
-| 101 | Disbursement failed | `isFailure()` |
-| 102 | Invalid phone number | `isInvalidPhoneNumber()` |
-| 103 | Insufficient balance | `isInsufficientBalance()` |
-| 104 | Network timeout | `isNetworkTimeout()` |
-| 105 | Invalid parameters | `isInvalidParameters()` |
-| 106 | Amount too large | `isAmountTooLarge()` |
-| 114 | Disbursement Pending | `isPending()` |
-| 120 | Invalid Authentication | `isInvalidAuthentication()` |
+| Code | Description             | Helper Method               |
+| ---- | ----------------------- | --------------------------- |
+| 100  | Disbursement successful | `isSuccess()`               |
+| 101  | Disbursement failed     | `isFailure()`               |
+| 102  | Invalid phone number    | `isInvalidPhoneNumber()`    |
+| 103  | Insufficient balance    | `isInsufficientBalance()`   |
+| 104  | Network timeout         | `isNetworkTimeout()`        |
+| 105  | Invalid parameters      | `isInvalidParameters()`     |
+| 106  | Amount too large        | `isAmountTooLarge()`        |
+| 114  | Disbursement Pending    | `isPending()`               |
+| 120  | Invalid Authentication  | `isInvalidAuthentication()` |
 
 > See [AirtimeResponseCode](src/Enums/AirtimeResponseCode.php) for all 16 response codes.
 
@@ -522,7 +532,7 @@ class HandleAirtimeCallback
         $amount = $event->getAmount();
         $destAddr = $event->getDestAddr();
         $referenceId = $event->getReferenceId();
-        
+
         if ($event->isSuccessful()) {
             // Update your records
             AirtimeTransaction::where('reference_id', $referenceId)->update([
@@ -591,7 +601,7 @@ $response = Beem::sms()->send($request);
 if ($response->isSuccessful()) {
     $requestId = $response->getRequestId();
     $validCount = $response->getValidCount();
-    
+
     // Store request ID for delivery tracking
     session(['sms_request_id' => $requestId]);
 }
@@ -680,7 +690,7 @@ $senderNames = Beem::sms()->getSenderNames();
 
 foreach ($senderNames as $sender) {
     echo "{$sender->getName()}: {$sender->getStatus()}\n";
-    
+
     if ($sender->isActive()) {
         // Use this sender ID
     }
@@ -721,23 +731,23 @@ try {
         message: 'Test message',
         recipients: [new SmsRecipient('REC-001', '255712345678')]
     );
-    
+
     $response = Beem::sms()->send($request);
 } catch (SmsException $e) {
     // Check specific error types
     if ($e->isInsufficientBalance()) {
         return back()->withErrors(['error' => 'Insufficient SMS credits']);
     }
-    
+
     if ($e->isInvalidPhoneNumber()) {
         return back()->withErrors(['phone' => 'Invalid phone number format']);
     }
-    
+
     if ($e->isInvalidAuthentication()) {
         Log::error('Beem authentication failed - check API credentials');
         return back()->withErrors(['error' => 'Service unavailable']);
     }
-    
+
     // Get the response code enum
     $responseCode = $e->getResponseCode();
     if ($responseCode) {
@@ -751,17 +761,17 @@ try {
 
 **Available Response Codes:**
 
-| Code | Description | Helper Method |
-|------|-------------|---------------|
-| 100 | Message Submitted Successfully | `isSuccess()` |
-| 101 | Invalid phone number | `isInvalidPhoneNumber()` |
-| 102 | Insufficient balance | `isInsufficientBalance()` |
-| 103 | Network timeout | `isNetworkTimeout()` |
-| 104 | Please provide all required parameters | `isMissingParameters()` |
-| 105 | Account not found | `isAccountNotFound()` |
-| 106 | No route mapping to your account | `isNoRoute()` |
-| 107 | No authorization headers | `isInvalidAuthentication()` |
-| 108 | Invalid token | `isInvalidAuthentication()` |
+| Code | Description                            | Helper Method               |
+| ---- | -------------------------------------- | --------------------------- |
+| 100  | Message Submitted Successfully         | `isSuccess()`               |
+| 101  | Invalid phone number                   | `isInvalidPhoneNumber()`    |
+| 102  | Insufficient balance                   | `isInsufficientBalance()`   |
+| 103  | Network timeout                        | `isNetworkTimeout()`        |
+| 104  | Please provide all required parameters | `isMissingParameters()`     |
+| 105  | Account not found                      | `isAccountNotFound()`       |
+| 106  | No route mapping to your account       | `isNoRoute()`               |
+| 107  | No authorization headers               | `isInvalidAuthentication()` |
+| 108  | Invalid token                          | `isInvalidAuthentication()` |
 
 > See [SmsResponseCode](src/Enums/SmsResponseCode.php) for all 9 response codes.
 
@@ -772,6 +782,7 @@ The package automatically registers webhook routes for SMS delivery reports and 
 **Delivery Report Webhook:**
 
 Configure your delivery report webhook URL in the Beem SMS dashboard to point to:
+
 ```
 https://yourapp.com/webhooks/beem/sms/delivery
 ```
@@ -790,7 +801,7 @@ class HandleSmsDelivery
     public function handle(SmsDeliveryReceived $event): void
     {
         $report = $event->getReport();
-        
+
         if ($event->isDelivered()) {
             // Update your records
             SmsLog::where('request_id', $report->getRequestId())
@@ -810,6 +821,7 @@ class HandleSmsDelivery
 **Inbound SMS Webhook (Two Way SMS):**
 
 Configure your inbound SMS webhook URL in the Beem SMS dashboard to point to:
+
 ```
 https://yourapp.com/webhooks/beem/sms/inbound
 ```
@@ -830,14 +842,14 @@ class HandleInboundSms
         $from = $event->getFrom();
         $message = $event->getMessage();
         $timestamp = $event->getTimestamp();
-        
+
         // Process inbound message
         InboundMessage::create([
             'from' => $from,
             'message' => $message,
             'received_at' => $timestamp,
         ]);
-        
+
         // Auto-reply logic
         if (str_contains(strtolower($message), 'help')) {
             // Send help message
@@ -927,15 +939,15 @@ try {
     if ($e->isInsufficientBalance()) {
         return back()->withErrors(['error' => 'Insufficient wallet balance']);
     }
-    
+
     if ($e->isInvalidPhoneNumber()) {
         return back()->withErrors(['phone' => 'Invalid phone number']);
     }
-    
+
     if ($e->isAmountTooLarge()) {
         return back()->withErrors(['amount' => 'Amount exceeds limit']);
     }
-    
+
     if ($e->isInvalidAuthentication()) {
         Log::error('Beem authentication failed');
         return back()->withErrors(['error' => 'Service unavailable']);
@@ -945,22 +957,22 @@ try {
 
 **Available Response Codes:**
 
-| Code | Description | Helper Method |
-|------|-------------|---------------|
-| 100 | Disbursement successful | `isSuccess()` |
-| 101 | Disbursement failed | `isFailure()` |
-| 102 | Invalid phone number | `isInvalidPhoneNumber()` |
-| 103 | Insufficient balance | `isInsufficientBalance()` |
-| 104 | Network timeout | `isNetworkTimeout()` |
-| 105 | Invalid parameters | `isInvalidParameters()` |
-| 106 | Amount too large | `isAmountTooLarge()` |
-| 107 | Account not found | `isAccountNotFound()` |
-| 108 | No route mapping | `isNoRoute()` |
-| 109 | No authorization headers | `isInvalidAuthentication()` |
-| 110 | Invalid token | `isInvalidAuthentication()` |
-| 111 | Missing Destination MSISDN | `isMissingMsisdn()` |
-| 112 | Missing Disbursement Amount | `isInvalidAmount()` |
-| 113 | Invalid Disbursement Amount | `isInvalidAmount()` |
+| Code | Description                 | Helper Method               |
+| ---- | --------------------------- | --------------------------- |
+| 100  | Disbursement successful     | `isSuccess()`               |
+| 101  | Disbursement failed         | `isFailure()`               |
+| 102  | Invalid phone number        | `isInvalidPhoneNumber()`    |
+| 103  | Insufficient balance        | `isInsufficientBalance()`   |
+| 104  | Network timeout             | `isNetworkTimeout()`        |
+| 105  | Invalid parameters          | `isInvalidParameters()`     |
+| 106  | Amount too large            | `isAmountTooLarge()`        |
+| 107  | Account not found           | `isAccountNotFound()`       |
+| 108  | No route mapping            | `isNoRoute()`               |
+| 109  | No authorization headers    | `isInvalidAuthentication()` |
+| 110  | Invalid token               | `isInvalidAuthentication()` |
+| 111  | Missing Destination MSISDN  | `isMissingMsisdn()`         |
+| 112  | Missing Disbursement Amount | `isInvalidAmount()`         |
+| 113  | Invalid Disbursement Amount | `isInvalidAmount()`         |
 
 > See [DisbursementResponseCode](src/Enums/DisbursementResponseCode.php) for all 14 response codes.
 
@@ -1032,16 +1044,16 @@ protected $listen = [
 
 The collection callback includes:
 
-| Field | Description |
-|-------|-------------|
-| `transaction_id` | Unique transaction ID from Beem |
-| `amount_collected` | Payment amount |
-| `subscriber_msisdn` | Payer's phone number |
-| `reference_number` | Reference entered by subscriber |
-| `paybill_number` | Your merchant/paybill number |
-| `network_name` | Mobile network (Vodacom, Airtel, etc.) |
-| `source_currency` | Source currency (TZS) |
-| `target_currency` | Target currency (TZS) |
+| Field               | Description                            |
+| ------------------- | -------------------------------------- |
+| `transaction_id`    | Unique transaction ID from Beem        |
+| `amount_collected`  | Payment amount                         |
+| `subscriber_msisdn` | Payer's phone number                   |
+| `reference_number`  | Reference entered by subscriber        |
+| `paybill_number`    | Your merchant/paybill number           |
+| `network_name`      | Mobile network (Vodacom, Airtel, etc.) |
+| `source_currency`   | Source currency (TZS)                  |
+| `target_currency`   | Target currency (TZS)                  |
 
 ### USSD Hub
 
@@ -1079,7 +1091,7 @@ class HandleUssdSession
 
         if ($event->isContinue()) {
             $response = $event->getSubscriberResponse();
-            
+
             match ($response) {
                 '1' => $event->terminateWith("Your balance: TZS 5,000"),
                 '2' => $event->continueWith("Enter amount:"),
@@ -1105,11 +1117,368 @@ protected $listen = [
 
 #### USSD Commands
 
-| Command | Description |
-|---------|-------------|
-| `initiate` | First invocation of session |
-| `continue` | Ongoing session with subscriber response |
-| `terminate` | Close the USSD session |
+| Command     | Description                              |
+| ----------- | ---------------------------------------- |
+| `initiate`  | First invocation of session              |
+| `continue`  | Ongoing session with subscriber response |
+| `terminate` | Close the USSD session                   |
+
+### Contacts
+
+The package supports Beem's Contacts API for managing address books and contacts.
+
+#### 1. AddressBook Management
+
+**List AddressBooks**
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+// List all address books
+$response = Beem::contacts()->listAddressBooks();
+
+foreach ($response->getAddressBooks() as $addressBook) {
+    echo "{$addressBook->getAddressbook()}: {$addressBook->getContactsCount()} contacts\n";
+}
+
+// Access pagination data
+$pagination = $response->getPagination();
+echo "Total: {$pagination->getTotalItems()}\n";
+echo "Page {$pagination->getCurrentPage()} of {$pagination->getTotalPages()}\n";
+```
+
+**Search AddressBooks**
+
+```php
+// Search by name
+$response = Beem::contacts()->listAddressBooks(query: 'Marketing');
+```
+
+**Create AddressBook**
+
+```php
+use Gowelle\BeemAfrica\DTOs\AddressBookRequest;
+
+$request = new AddressBookRequest(
+    addressbook: 'VIP Customers',
+    description: 'High value customer list'
+);
+
+$response = Beem::contacts()->createAddressBook($request);
+
+if ($response->isSuccessful()) {
+    $addressBookId = $response->getId();
+    echo "Created: {$response->getMessage()}\n";
+}
+```
+
+**Update AddressBook**
+
+```php
+$request = new AddressBookRequest(
+    addressbook: 'VIP Customers - Updated',
+    description: 'Premium customer list'
+);
+
+$response = Beem::contacts()->updateAddressBook($addressBookId, $request);
+```
+
+**Delete AddressBook**
+
+> **Note:** You cannot delete the 'Default' address book.
+
+```php
+$response = Beem::contacts()->deleteAddressBook($addressBookId);
+
+if ($response->isSuccessful()) {
+    echo $response->getMessage();
+}
+```
+
+#### 2. Contact Management
+
+**List Contacts**
+
+```php
+// List all contacts in an address book
+$response = Beem::contacts()->listContacts($addressBookId);
+
+foreach ($response->getContacts() as $contact) {
+    echo "{$contact->getFullName()}: {$contact->getMobileNumber()}\n";
+    echo "Email: {$contact->getEmail()}\n";
+}
+
+// Search contacts by name or phone
+$response = Beem::contacts()->listContacts($addressBookId, query: 'John');
+```
+
+**Create Contact**
+
+```php
+use Gowelle\BeemAfrica\DTOs\ContactRequest;
+use Gowelle\BeemAfrica\Enums\Gender;
+use Gowelle\BeemAfrica\Enums\Title;
+
+$request = new ContactRequest(
+    mob_no: '255712345678',              // Required: Primary mobile number
+    addressbook_id: [$addressBookId],    // Required: Array of address book IDs
+    fname: 'John',                       // Optional: First name
+    lname: 'Doe',                        // Optional: Last name
+    title: Title::MR,                    // Optional: Title::MR / Title::MRS / Title::MS (or string 'Mr.' / 'Mrs.' / 'Ms.')
+    gender: Gender::MALE,                // Optional: Gender::MALE / Gender::FEMALE (or string 'male' / 'female')
+    email: 'john.doe@example.com',       // Optional: Email address
+    mob_no2: '255787654321',             // Optional: Secondary mobile number
+    country: 'Tanzania',                 // Optional: Country
+    city: 'Dar es Salaam',               // Optional: City
+    area: 'Kisutu',                      // Optional: Area/Locality
+    birth_date: '1990-01-15'             // Optional: yyyy-mm-dd format
+);
+
+$response = Beem::contacts()->createContact($request);
+
+if ($response->isSuccessful()) {
+    $contactId = $response->getId();
+    echo "Contact created: {$response->getMessage()}\n";
+}
+```
+
+**Using Enums (Recommended)**
+
+```php
+use Gowelle\BeemAfrica\Enums\Gender;
+use Gowelle\BeemAfrica\Enums\Title;
+
+// Gender enum
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$addressBookId],
+    gender: Gender::MALE,     // or Gender::FEMALE
+);
+
+// Title enum
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$addressBookId],
+    title: Title::MR,         // or Title::MRS, Title::MS
+);
+
+// Check gender
+if ($request->gender === Gender::MALE) {
+    // ...
+}
+
+// Get label
+echo Gender::MALE->label();   // "Male"
+echo Gender::FEMALE->label(); // "Female"
+```
+
+**Using Strings (Backward Compatible)**
+
+```php
+// String values still work
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$addressBookId],
+    title: 'Mr.',      // 'Mr.' / 'Mrs.' / 'Ms.'
+    gender: 'male',    // 'male' / 'female'
+);
+```
+
+**Add Contact to Multiple AddressBooks**
+
+```php
+// Add a contact to multiple address books at once
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$addressBookId1, $addressBookId2, $addressBookId3],
+    fname: 'Jane',
+    lname: 'Smith'
+);
+
+$response = Beem::contacts()->createContact($request);
+```
+
+**Update Contact**
+
+```php
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$addressBookId],
+    fname: 'John',
+    lname: 'Doe Updated',
+    email: 'john.updated@example.com'
+);
+
+$response = Beem::contacts()->updateContact($contactId, $request);
+```
+
+**Delete Contacts**
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+// Delete specific contacts from specific address books
+$response = Beem::contacts()->deleteContacts(
+    addressBookIds: [$addressBookId],
+    contactIds: [$contactId1, $contactId2]
+);
+
+if ($response->isSuccessful()) {
+    echo $response->getMessage();
+}
+```
+
+#### 3. Working with Contact Data
+
+```php
+// Access contact details
+$response = Beem::contacts()->listContacts($addressBookId);
+
+foreach ($response->getContacts() as $contact) {
+    // Basic info
+    $fullName = $contact->getFullName();        // "John Doe"
+    $firstName = $contact->getFirstName();       // "John"
+    $lastName = $contact->getLastName();         // "Doe"
+
+    // Contact details
+    $mobile = $contact->getMobileNumber();       // "255712345678"
+    $mobile2 = $contact->getSecondaryMobileNumber();
+    $email = $contact->getEmail();
+
+    // Demographics
+    $title = $contact->getTitle();               // "Mr."
+    $gender = $contact->getGender();             // "male"
+    $birthDate = $contact->getBirthDate();       // "1990-01-15"
+
+    // Location
+    $country = $contact->getCountry();
+    $city = $contact->getCity();
+    $area = $contact->getArea();
+
+    // Metadata
+    $createdAt = $contact->getCreated();         // ISO 8601 timestamp
+    $contactId = $contact->getId();
+}
+```
+
+#### 4. Pagination
+
+Both AddressBooks and Contacts endpoints support pagination:
+
+```php
+$response = Beem::contacts()->listContacts($addressBookId);
+
+$pagination = $response->getPagination();
+
+// Pagination info
+echo "Total Items: {$pagination->getTotalItems()}\n";
+echo "Current Page: {$pagination->getCurrentPage()}\n";
+echo "Page Size: {$pagination->getPageSize()}\n";
+echo "Total Pages: {$pagination->getTotalPages()}\n";
+
+// Check for more pages
+if ($pagination->hasMorePages()) {
+    $nextPage = $pagination->getNextPage();
+    echo "Next page: {$nextPage}\n";
+}
+```
+
+#### 5. Error Handling
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+use Gowelle\BeemAfrica\DTOs\ContactRequest;
+use Gowelle\BeemAfrica\Exceptions\ContactsException;
+
+try {
+    $request = new ContactRequest(
+        mob_no: '255712345678',
+        addressbook_id: [$addressBookId],
+        fname: 'John'
+    );
+
+    $response = Beem::contacts()->createContact($request);
+} catch (ContactsException $e) {
+    // Handle API errors
+    Log::error('Contact creation failed: ' . $e->getMessage());
+
+    // HTTP status code
+    $statusCode = $e->getCode();
+} catch (\InvalidArgumentException $e) {
+    // Handle validation errors
+    Log::error('Invalid input: ' . $e->getMessage());
+}
+```
+
+**Common Validation Errors:**
+
+- Invalid phone number format (must be 10-15 digits, international format without +)
+- Empty address book ID array
+- Invalid birth date format (must be yyyy-mm-dd)
+- Invalid gender (must be Gender::MALE, Gender::FEMALE, or strings 'male' / 'female')
+- Invalid title (must be Title::MR, Title::MRS, Title::MS, or strings 'Mr.' / 'Mrs.' / 'Ms.')
+
+**Available Enums:**
+
+```php
+use Gowelle\BeemAfrica\Enums\Gender;
+use Gowelle\BeemAfrica\Enums\Title;
+
+// Gender Enum
+Gender::MALE     // 'male'
+Gender::FEMALE   // 'female'
+
+// Gender methods
+Gender::MALE->label()     // "Male"
+Gender::MALE->isMale()    // true
+Gender::MALE->isFemale()  // false
+
+// Title Enum
+Title::MR    // 'Mr.'
+Title::MRS   // 'Mrs.'
+Title::MS    // 'Ms.'
+
+// Title methods
+Title::MR->isMr()    // true
+Title::MR->isMrs()   // false
+Title::MR->isMs()    // false
+```
+
+#### 6. Best Practices
+
+**Phone Number Format**
+
+```php
+// ✅ Correct - International format without +
+'255712345678'   // Tanzania
+'254712345678'   // Kenya
+'256712345678'   // Uganda
+
+// ❌ Incorrect
+'+255712345678'  // Don't include +
+'0712345678'     // Don't use local format
+```
+
+**Multiple AddressBooks**
+
+```php
+// Add contact to multiple address books
+$request = new ContactRequest(
+    mob_no: '255712345678',
+    addressbook_id: [$personalId, $workId, $familyId],
+    fname: 'John'
+);
+```
+
+**Batch Operations**
+
+```php
+// Delete multiple contacts at once
+Beem::contacts()->deleteContacts(
+    addressBookIds: [$addressBookId],
+    contactIds: [$contact1, $contact2, $contact3, $contact4]
+);
+```
 
 ### Handling Webhooks
 
@@ -1383,4 +1752,3 @@ If you discover any security-related issues, please email dev@gowelle.com instea
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-

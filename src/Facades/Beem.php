@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService disbursement()
  * @method static \Gowelle\BeemAfrica\Collection\BeemCollectionService collection()
  * @method static \Gowelle\BeemAfrica\Ussd\BeemUssdService ussd()
+ * @method static \Gowelle\BeemAfrica\Contacts\BeemContactsService contacts()
  *
  * @see \Gowelle\BeemAfrica\Checkout\BeemCheckoutService
  */
@@ -75,5 +76,13 @@ class Beem extends Facade
     public static function ussd(): \Gowelle\BeemAfrica\Ussd\BeemUssdService
     {
         return app(\Gowelle\BeemAfrica\Ussd\BeemUssdService::class);
+    }
+
+    /**
+     * Get the Contacts service instance.
+     */
+    public static function contacts(): \Gowelle\BeemAfrica\Contacts\BeemContactsService
+    {
+        return app(\Gowelle\BeemAfrica\Contacts\BeemContactsService::class);
     }
 }

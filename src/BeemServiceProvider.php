@@ -120,6 +120,21 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register Contacts service
+        $this->app->singleton(\Gowelle\BeemAfrica\Support\BeemContactsClient::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Support\BeemContactsClient(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                baseUrl: config('beem-africa.contacts.base_url'),
+            );
+        });
+
+        $this->app->singleton(\Gowelle\BeemAfrica\Contacts\BeemContactsService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Contacts\BeemContactsService(
+                client: $app->make(\Gowelle\BeemAfrica\Support\BeemContactsClient::class),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }
