@@ -87,6 +87,4 @@ describe('OtpResponseCode', function () {
                 ->and($result->value)->toBe($codeValue);
         }
     });
-})
-;
-
+});

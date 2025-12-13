@@ -194,4 +194,3 @@ describe('OtpVerificationException', function () {
         expect($exception->isAttemptsExceeded())->toBeTrue();
     });
 });
-
