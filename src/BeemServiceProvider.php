@@ -102,6 +102,15 @@ class BeemServiceProvider extends PackageServiceProvider
             );
         });
 
+        // Register Collection service
+        $this->app->singleton(\Gowelle\BeemAfrica\Collection\BeemCollectionService::class, function ($app) {
+            return new \Gowelle\BeemAfrica\Collection\BeemCollectionService(
+                apiKey: config('beem-africa.api_key'),
+                secretKey: config('beem-africa.secret_key'),
+                balanceUrl: config('beem-africa.collection.balance_url'),
+            );
+        });
+
         $this->app->alias(BeemCheckoutService::class, 'beem');
     }
 }

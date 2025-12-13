@@ -163,4 +163,22 @@ return [
         // Base URL for Disbursement API
         'base_url' => env('BEEM_DISBURSEMENT_BASE_URL', 'https://apipay.beem.africa/webservices/disbursement'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Collection Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Settings for the Beem Africa Collection service. Collections allow
+    | you to receive mobile money payments from subscribers.
+    |
+    */
+
+    'collection' => [
+        // Balance check URL
+        'balance_url' => env('BEEM_COLLECTION_BALANCE_URL', 'https://apitopup.beem.africa/v1/credit-balance'),
+
+        // Webhook path for collection callbacks
+        'webhook_path' => env('BEEM_COLLECTION_WEBHOOK_PATH', 'webhooks/beem/collection'),
+    ],
 ];

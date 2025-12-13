@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Gowelle\BeemAfrica\Http\Controllers\CollectionWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\SmsWebhookController;
 use Gowelle\BeemAfrica\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
@@ -21,3 +22,9 @@ Route::post(
     config('beem-africa.sms.inbound_webhook_path', 'webhooks/beem/sms/inbound'),
     [SmsWebhookController::class, 'handleInboundSms']
 )->name('beem.sms.inbound');
+
+// Collection Payment Callback
+Route::post(
+    config('beem-africa.collection.webhook_path', 'webhooks/beem/collection'),
+    [CollectionWebhookController::class, 'handleCallback']
+)->name('beem.collection');

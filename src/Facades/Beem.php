@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Gowelle\BeemAfrica\Airtime\BeemAirtimeService airtime()
  * @method static \Gowelle\BeemAfrica\Sms\BeemSmsService sms()
  * @method static \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService disbursement()
+ * @method static \Gowelle\BeemAfrica\Collection\BeemCollectionService collection()
  *
  * @see \Gowelle\BeemAfrica\Checkout\BeemCheckoutService
  */
@@ -57,5 +58,13 @@ class Beem extends Facade
     public static function disbursement(): \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService
     {
         return app(\Gowelle\BeemAfrica\Disbursement\BeemDisbursementService::class);
+    }
+
+    /**
+     * Get the Collection service instance.
+     */
+    public static function collection(): \Gowelle\BeemAfrica\Collection\BeemCollectionService
+    {
+        return app(\Gowelle\BeemAfrica\Collection\BeemCollectionService::class);
     }
 }

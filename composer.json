@@ -1,17 +1,20 @@
 {
     "name": "gowelle/laravel-beem-africa",
-    "description": "Laravel package for Beem Africa API integration - Payment Checkout, OTP (One-Time Password), and Airtime Top-Up services",
+    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, and Collections services",
     "keywords": [
         "laravel",
         "beem",
         "beem-africa",
-        "payment",
-        "checkout",
-        "otp",
         "sms",
         "airtime",
+        "otp",
+        "payment",
+        "checkout",
+        "disbursements",
+        "collections",
         "mobile-money",
-        "tanzania"
+        "tanzania",
+        "africa"
     ],
     "homepage": "https://github.com/gowelle/beem-africa-php",
     "license": "MIT",

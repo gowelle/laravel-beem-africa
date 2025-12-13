@@ -4,11 +4,25 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-12-13
+
+### Added
+
+- **Collections API Service**: Full integration with Beem Payment Collections API
+  - Receive mobile money payments from subscribers via webhook callbacks
+  - Check collection balance
+  - 2 DTOs: `CollectionPayload`, `CollectionBalance`
+  - `CollectionReceived` event for payment notifications
+  - `CollectionWebhookController` for callback handling
+  - `Beem::collection()` facade accessor
+  - Comprehensive documentation in README
+  - Full test coverage (11 new tests, 229 total)
+
 ## [1.2.0] - 2025-12-13
 
 ### Added
 
-- **Disbursements API Service**: Full integration with Beem Africa Disbursement API
+- **Disbursements API Service**: Full integration with Beem Disbursement API
   - Transfer funds to mobile money wallets
   - Support for scheduled disbursements
   - 2 DTOs: `DisbursementRequest`, `DisbursementResponse`
@@ -22,7 +36,7 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ### Added
 
-- **SMS API Service**: Full integration with Beem Africa SMS API
+- **SMS API Service**: Full integration with Beem SMS API
   - Send single or bulk SMS to 22+ regions
   - Check SMS credit balance
   - Get delivery reports (polling)
@@ -43,7 +57,7 @@ All notable changes to `beem-africa` will be documented in this file.
 ## [1.0.6] - 2024-12-12
 
 ### Added
-- **Airtime API Service**: Full integration with Beem Africa Airtime API
+- **Airtime API Service**: Full integration with Beem Airtime API
   - Transfer airtime to mobile numbers across 40+ African networks
   - Check transaction status
   - Check airtime credit balance
@@ -80,7 +94,7 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ### Added
 
-- Implemented structured error code handling for Beem Africa Payment API
+- Implemented structured error code handling for Beem Payment API
   - Added `BeemErrorCode` enum with official API error codes (100, 101, 102, 120)
   - Created `PaymentException` class for payment-specific errors
   - Factory methods for each error type: `invalidMobileNumber()`, `invalidAmount()`, `invalidTransactionId()`, `invalidAuthentication()`
@@ -141,7 +155,7 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ### Added
 
-- Initial release with comprehensive Beem Africa API integration
+- Initial release with comprehensive Beem API integration
 
 #### Payment Checkout
 
@@ -178,3 +192,4 @@ All notable changes to `beem-africa` will be documented in this file.
 - PHPStan level 5 static analysis
 - Laravel Pint code style configuration
 - Full documentation with usage examples
+

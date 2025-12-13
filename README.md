@@ -1,10 +1,29 @@
-# Beem Africa Laravel Package
+# Beem Laravel Package
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A Laravel package for integrating with Beem Africa's APIs. This package supports **Payment Checkout** (Redirect and Iframe methods), **OTP (One-Time Password)**, **Airtime Top-Up**, **SMS**, and **Disbursements** services.
+A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, and **Collections** services.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Payment Checkout](#redirect-method)
+  - [OTP (One-Time Password)](#otp-one-time-password)
+  - [Airtime Top-Up](#airtime-top-up)
+  - [SMS](#sms)
+  - [Disbursements](#disbursements)
+  - [Collections](#collections)
+  - [Webhooks](#handling-webhooks)
+- [Testing](#testing)
+- [Security](#security)
+- [Credits](#credits)
+- [License](#license)
 
 ## Features
 
@@ -47,6 +66,13 @@ A Laravel package for integrating with Beem Africa's APIs. This package supports
 - 🏦 **Multiple Wallets** - Support for various mobile money providers
 - ⏰ **Scheduled Transfers** - Schedule disbursements for later
 - 🎯 **Error Codes** - 14 detailed error codes for precise handling
+
+### Collections
+
+- 💳 **Receive Payments** - Accept mobile money payments from subscribers
+- 🔔 **Webhook Callbacks** - Real-time payment notifications
+- 📊 **Balance Check** - Monitor collection balance
+- 🏪 **Multiple Paybills** - Support for various paybill/merchant numbers
 
 ### Developer Experience
 
@@ -188,11 +214,11 @@ Or manually add the button:
 
 ### Error Handling
 
-The package provides structured error handling for Beem Africa API errors. All payment-related operations throw `PaymentException` when errors occur.
+The package provides structured error handling for Beem API errors. All payment-related operations throw `PaymentException` when errors occur.
 
 #### Available Error Codes
 
-Based on [Beem Africa API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
+Based on [Beem API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
 
 | Code | Description | Helper Method |
 |------|-------------|---------------|
@@ -283,7 +309,7 @@ try {
 
 ### OTP (One-Time Password)
 
-The package supports Beem Africa's OTP service for phone number verification.
+The package supports Beem's OTP service for phone number verification.
 
 #### 1. Configure OTP
 
@@ -358,7 +384,7 @@ try {
 
 ### Airtime Top-Up
 
-The package supports Beem Africa's Airtime API for mobile credit top-ups across Africa.
+The package supports Beem's Airtime API for mobile credit top-ups across Africa.
 
 #### 1. Transfer Airtime
 
@@ -524,7 +550,7 @@ protected $listen = [
 
 ### SMS
 
-The package supports Beem Africa's SMS API for sending text messages across 22+ regions.
+The package supports Beem's SMS API for sending text messages across 22+ regions.
 
 #### 1. Configure SMS
 
@@ -546,7 +572,7 @@ use Gowelle\BeemAfrica\DTOs\SmsRecipient;
 // Single recipient
 $request = new SmsRequest(
     sourceAddr: 'MYAPP',                // Sender ID (max 11 chars)
-    message: 'Hello from Beem Africa!',
+    message: 'Hello from Beem!',
     recipients: [
         new SmsRecipient('REC-001', '255712345678'),
     ]
@@ -834,7 +860,7 @@ protected $listen = [
 
 ### Disbursements
 
-The package supports Beem Africa's Disbursement API for mobile money payouts.
+The package supports Beem's Disbursement API for mobile money payouts.
 
 #### 1. Transfer Funds
 
@@ -929,6 +955,85 @@ try {
 | 113 | Invalid Disbursement Amount | `isInvalidAmount()` |
 
 > See [DisbursementResponseCode](src/Enums/DisbursementResponseCode.php) for all 14 response codes.
+
+### Collections
+
+The package supports Beem's Payment Collections API for receiving mobile money payments.
+
+#### 1. Check Balance
+
+Check your collection balance:
+
+```php
+use Gowelle\BeemAfrica\Facades\Beem;
+
+$balance = Beem::collection()->checkBalance();
+
+echo "Balance: " . $balance->getFormattedBalance(); // e.g. "5,300.00"
+echo "Raw: " . $balance->getBalanceAsFloat();       // e.g. 5300.0
+```
+
+#### 2. Handling Payment Callbacks
+
+When a subscriber makes a payment, Beem sends a callback to your webhook endpoint. The package dispatches a `CollectionReceived` event:
+
+```php
+// app/Listeners/HandleCollectionPayment.php
+
+namespace App\Listeners;
+
+use Gowelle\BeemAfrica\Events\CollectionReceived;
+
+class HandleCollectionPayment
+{
+    public function handle(CollectionReceived $event): void
+    {
+        $transactionId = $event->getTransactionId();
+        $amount = $event->getAmount();
+        $phone = $event->getSubscriberMsisdn();
+        $reference = $event->getReferenceNumber();
+
+        // Process the payment (credit user account, fulfill order, etc.)
+        Payment::create([
+            'transaction_id' => $transactionId,
+            'amount' => $amount,
+            'phone' => $phone,
+            'reference' => $reference,
+            'status' => 'completed',
+        ]);
+    }
+}
+```
+
+Register the listener:
+
+```php
+// app/Providers/EventServiceProvider.php
+
+use Gowelle\BeemAfrica\Events\CollectionReceived;
+use App\Listeners\HandleCollectionPayment;
+
+protected $listen = [
+    CollectionReceived::class => [
+        HandleCollectionPayment::class,
+    ],
+];
+```
+
+#### Collection Payload Data
+
+The collection callback includes:
+
+| Field | Description |
+|-------|-------------|
+| `transaction_id` | Unique transaction ID from Beem |
+| `amount_collected` | Payment amount |
+| `subscriber_msisdn` | Payer's phone number |
+| `reference_number` | Reference entered by subscriber |
+| `paybill_number` | Your merchant/paybill number |
+| `network_name` | Mobile network (Vodacom, Airtel, etc.) |
+| `source_currency` | Source currency (TZS) |
+| `target_currency` | Target currency (TZS) |
 
 ### Handling Webhooks
 
@@ -1202,3 +1307,4 @@ If you discover any security-related issues, please email dev@gowelle.com instea
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
