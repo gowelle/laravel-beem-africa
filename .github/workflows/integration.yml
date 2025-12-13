@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
+      - name: Fix code style with Pint
+        run: vendor/bin/pint
+
       - name: Run integration tests
         env:
           BEEM_API_KEY: ${{ secrets.BEEM_API_KEY }}

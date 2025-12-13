@@ -65,6 +65,9 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
+      - name: Fix code style with Pint
+        run: vendor/bin/pint
+
       - name: Run tests
         run: vendor/bin/pest
 
