@@ -8,7 +8,6 @@ use Gowelle\BeemAfrica\DTOs\OtpRequest;
 use Gowelle\BeemAfrica\DTOs\OtpResponse;
 use Gowelle\BeemAfrica\DTOs\OtpVerification;
 use Gowelle\BeemAfrica\DTOs\OtpVerificationResult;
-use Gowelle\BeemAfrica\Enums\OtpResponseCode;
 use Gowelle\BeemAfrica\Exceptions\OtpRequestException;
 use Gowelle\BeemAfrica\Exceptions\OtpVerificationException;
 use Gowelle\BeemAfrica\Support\BeemOtpClient;
@@ -21,7 +20,8 @@ class BeemOtpService
     public function __construct(
         protected BeemOtpClient $client,
         protected string $appId,
-    ) {}
+    ) {
+    }
 
     /**
      * Request an OTP to be sent to a phone number.
@@ -37,7 +37,7 @@ class BeemOtpService
 
         $response = $this->client->post('/request', $otpRequest->toArray());
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             throw OtpRequestException::fromApiResponse(
                 $response->json() ?? ['message' => $response->body()],
                 $response->status()
@@ -67,7 +67,7 @@ class BeemOtpService
 
         $response = $this->client->post('/verify', $verification->toArray());
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             throw OtpVerificationException::fromApiResponse(
                 $response->json() ?? ['message' => $response->body()],
                 $response->status()

@@ -125,7 +125,7 @@ enum OtpResponseCode: int
      */
     public function isFailure(): bool
     {
-        return ! $this->isSuccess();
+        return !$this->isSuccess();
     }
 }
 
