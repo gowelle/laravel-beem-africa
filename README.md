@@ -23,6 +23,9 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [Contacts](#using-contacts)
   - [Moja (Multi-Channel Messaging)](#using-moja-multi-channel-messaging)
   - [Multicountry SMS and SMPP](#using-multicountry-sms-and-smpp)
+- [UI Components](#ui-components)
+  - [Livewire Components](#livewire-components)
+  - [Vue/InertiaJS Components](#vueinertiajs-components)
 - [Testing](#testing)
 - [Security](#security)
 - [Credits](#credits)
@@ -112,6 +115,13 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 📊 **Balance Check** - Monitor International SMS credit balance
 - 🔔 **DLR Webhooks** - Real-time delivery reports
 
+### UI Components
+
+- 🎨 **Livewire v3 Components** - Ready-to-use checkout, OTP, and SMS components
+- ⚡ **Vue 3 + TypeScript** - Type-safe InertiaJS components with composables
+- 🧪 **Fully Tested** - 104 component tests (75 Vue + 29 Livewire)
+- 🎯 **Beem Branded** - Styled with official Beem colors
+
 ### Developer Experience
 
 - 📦 **DTOs** - Type-safe data transfer objects for requests and responses
@@ -131,10 +141,31 @@ Install the package via Composer:
 composer require gowelle/laravel-beem-africa
 ```
 
-Publish the configuration file:
+### Quick Install (Recommended)
+
+The package includes an interactive install command that sets up everything for you:
 
 ```bash
+php artisan beem-africa:install
+```
+
+This command will:
+- ✅ Publish the configuration file
+- ✅ Publish database migrations
+- ✅ Ask if you want to run migrations
+- ✅ Optionally star the repository on GitHub
+
+### Manual Installation
+
+If you prefer to publish assets manually:
+
+```bash
+# Publish the configuration file
 php artisan vendor:publish --tag="beem-africa-config"
+
+# Publish database migrations (optional)
+php artisan vendor:publish --tag="beem-africa-migrations"
+php artisan migrate
 ```
 
 **Available publishable tags:**
@@ -142,6 +173,57 @@ php artisan vendor:publish --tag="beem-africa-config"
 - `beem-africa-config` - Publishes the configuration file
 - `beem-africa-migrations` - Publishes the database migration (optional, for transaction storage)
 - `beem-africa-views` - Publishes the Blade views (optional, for customization)
+- `beem-africa-components` - Publishes the Blade components (optional, for customization)
+- `beem-africa-translations` - Publishes the translation files (optional, for localization)
+- `beem-africa-vue` - Publishes the Vue/InertiaJS components to `resources/js/vendor/beem-africa`
+
+### Localization
+
+All Blade and Livewire components fully support localization. The package includes built-in translations in three languages:
+- 🇬🇧 **English** (en) - Default
+- 🇹🇿 **Swahili** (sw) - Kiswahili
+- 🇫🇷 **French** (fr) - Français
+
+To use a different language, set your application locale in `config/app.php`:
+
+```php
+'locale' => 'sw', // Use Swahili
+```
+
+Or publish and customize translations:
+
+```bash
+php artisan vendor:publish --tag="beem-africa-translations"
+```
+
+#### Vue Components
+
+Vue components (Inertia/Standalone) support localization via the `labels` prop. You can pass an object with the specific keys you want to customize.
+
+Example with manual strings:
+
+```vue
+<BeemCheckoutButton
+    :amount="1000"
+    :labels="{
+        payNow: 'Lipa Sasa',
+        processing: 'Inachakata...',
+        amount: 'Kiasi'
+    }"
+/>
+```
+
+Example using Laravel translations (Blade):
+
+```vue
+<BeemSmsForm
+    :labels="{
+        sendSms: '{{ __('beem-africa::beem-africa.sms.send_sms') }}',
+        recipients: '{{ __('beem-africa::beem-africa.sms.recipients') }}',
+        message: '{{ __('beem-africa::beem-africa.sms.message') }}'
+    }"
+/>
+```
 
 ## Configuration
 
@@ -240,7 +322,7 @@ Beem::whitelistDomain('https://yourapp.com');
 Use the included Blade component:
 
 ```blade
-<x-beem::checkout-button
+<x-beem-checkout-button
     :amount="1000"
     :token="$secureToken"
     reference="ORDER-001"
@@ -248,6 +330,11 @@ Use the included Blade component:
     mobile="255712345678"
 />
 ```
+
+> **Tip:** To customize the component, publish it with:
+> ```bash
+> php artisan vendor:publish --tag="beem-africa-components"
+> ```
 
 Or manually add the button:
 
@@ -2589,6 +2676,121 @@ Or configure it globally in `config/beem-africa.php`:
 ],
 ```
 
+## UI Components
+
+The package includes ready-to-use UI components for both Livewire and Vue/InertiaJS applications.
+
+### Livewire Components
+
+Livewire v3 components are automatically registered when Livewire is installed.
+
+#### BeemCheckout
+
+A payment checkout component with amount input, reference, and mobile number fields.
+
+```blade
+<livewire:beem-checkout 
+    :amount="1000" 
+    reference="ORDER-001" 
+    mobile="255712345678"
+/>
+```
+
+**Events:**
+- `beem-checkout-initiated` - Dispatched when checkout is initiated
+- `beem-checkout-error` - Dispatched on checkout error
+
+#### BeemOtpVerification
+
+A two-step OTP verification component with phone input and code verification.
+
+```blade
+<livewire:beem-otp-verification />
+
+<!-- With initial phone -->
+<livewire:beem-otp-verification phone="255712345678" />
+```
+
+**Events:**
+- `beem-otp-sent` - Dispatched when OTP is sent
+- `beem-otp-verified` - Dispatched on successful verification
+- `beem-otp-error` - Dispatched on error
+
+#### BeemSmsForm
+
+A full-featured SMS form with recipient management, character counting, and scheduling.
+
+```blade
+<livewire:beem-sms-form />
+```
+
+**Features:**
+- Add/remove multiple recipients
+- Character count with SMS segment display
+- Optional scheduling
+- Real-time validation
+
+### Vue/InertiaJS Components
+
+TypeScript Vue 3 components are publishable for InertiaJS applications.
+
+#### Publishing Components
+
+```bash
+php artisan vendor:publish --tag="beem-africa-vue"
+```
+
+This publishes components to `resources/js/vendor/beem-africa/`.
+
+#### Usage
+
+```vue
+<script setup lang="ts">
+import { 
+  BeemCheckoutButton, 
+  BeemOtpVerification, 
+  BeemSmsForm 
+} from '@/vendor/beem-africa';
+
+const handleCheckout = (event) => {
+  console.log('Checkout URL:', event.checkoutUrl);
+};
+</script>
+
+<template>
+  <BeemCheckoutButton
+    :amount="1000"
+    token="your-token"
+    reference="ORDER-001"
+    transaction-id="TXN-123"
+    @checkout-initiated="handleCheckout"
+  />
+</template>
+```
+
+#### Composables
+
+TypeScript composables for custom implementations:
+
+```typescript
+import { useBeemCheckout, useBeemOtp, useBeemSms } from '@/vendor/beem-africa';
+
+// Checkout
+const { initiateCheckout, isLoading, error } = useBeemCheckout();
+
+// OTP
+const { requestOtp, verifyOtp, isVerified } = useBeemOtp();
+
+// SMS
+const { sendSms, calculateSegments } = useBeemSms();
+```
+
+#### Running Vue Tests
+
+```bash
+npm run test:run
+```
+
 ## Testing
 
 ### Unit & Feature Tests
@@ -2644,6 +2846,14 @@ To set up CI for your fork:
    - `BEEM_API_KEY`: Your Beem sandbox API key
    - `BEEM_SECRET_KEY`: Your Beem sandbox secret key
    - `BEEM_WEBHOOK_SECRET`: Your webhook secret (optional)
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned features and future development.
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Security
 

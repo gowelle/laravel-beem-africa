@@ -4,6 +4,49 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [1.9.0] - 2025-12-20
+
+### Added
+
+- **UI Components**: Ready-to-use UI components for Livewire and Vue/InertiaJS
+  - **Livewire v3 Components**:
+    - `BeemCheckout` - Payment checkout with amount, reference, and mobile input
+    - `BeemOtpVerification` - Two-step OTP verification with phone and code input
+    - `BeemSmsForm` - SMS composer with recipient tags, character count, and scheduling
+  - **Vue 3 + TypeScript Components**:
+    - `BeemCheckoutButton.vue` - Checkout button with event emitters
+    - `BeemOtpVerification.vue` - OTP verification with two-step flow
+    - `BeemSmsForm.vue` - SMS form with segment preview
+  - **Composables** (`useBeem.ts`):
+    - `useBeemCheckout()` - Checkout logic with URL building
+    - `useBeemOtp()` - OTP request and verification flow
+    - `useBeemSms()` - SMS sending with segment calculation
+  - All components styled with Beem brand colors (#33B1BA, #F3A929)
+  - Publishable Vue components via `--tag="beem-africa-vue"`
+  - Livewire components auto-registered when Livewire is installed
+
+- **Localization**: Full localization support for all UI components
+  - Added Swahili (`sw`) and French (`fr`) translations alongside English (`en`)
+  - Added `labels` prop to all Vue components for easy localization
+  - Added `beem-africa-translations` publishable tag for language customization
+  - Updated `beem-africa:install` command to support translation publishing
+
+### Testing
+
+- Added 29 Livewire tests with 72 assertions for component validation
+- Added 75 Vitest tests for Vue components and composables
+  - `BeemCheckoutButton.spec.ts` (15 tests)
+  - `BeemOtpVerification.spec.ts` (18 tests)
+  - `BeemSmsForm.spec.ts` (25 tests)
+  - `useBeem.spec.ts` (17 tests)
+- Total test count: 532 tests (457 PHP + 75 Vue)
+
+### Dependencies
+
+- Added `livewire/livewire: ^3.0` as dev dependency
+- Added `pestphp/pest-plugin-livewire: ^2.0|^3.0` as dev dependency
+- Added Vitest, Vue Test Utils for Vue component testing
+
 ## [1.8.0] - 2025-12-13
 
 ### Added
