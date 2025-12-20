@@ -482,3 +482,4 @@ Contributors are recognized in:
 - GitHub Contributors page
 
 Thank you for contributing to Laravel Beem Africa! 🙏
+
