@@ -168,7 +168,7 @@ const requestOtp = async (): Promise<void> => {
       error.value = data.message || t.value.failedToSendOtp;
       emit('error', { message: error.value! });
     }
-  } catch (err) {
+  } catch {
     error.value = t.value.networkError;
     emit('error', { message: error.value! });
   } finally {
@@ -203,7 +203,7 @@ const verifyOtp = async (): Promise<void> => {
       error.value = data.message || t.value.invalidOtp;
       emit('error', { message: error.value! });
     }
-  } catch (err) {
+  } catch {
     error.value = t.value.verificationFailed;
     emit('error', { message: error.value! });
   } finally {
@@ -266,12 +266,21 @@ defineExpose({
 
 <template>
   <div class="beem-otp">
-    <div v-if="isVerified" class="beem-otp-success">
+    <div
+      v-if="isVerified"
+      class="beem-otp-success"
+    >
       <div class="beem-success-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-            clip-rule="evenodd" />
+            clip-rule="evenodd"
+          />
         </svg>
       </div>
       <h3>{{ t.verified }}</h3>
@@ -279,21 +288,41 @@ defineExpose({
     </div>
 
     <template v-else>
-      <div v-if="error" class="beem-alert beem-alert-error">
+      <div
+        v-if="error"
+        class="beem-alert beem-alert-error"
+      >
         <span>{{ error }}</span>
-        <button type="button" @click="error = null" class="beem-alert-close">&times;</button>
+        <button
+          type="button"
+          class="beem-alert-close"
+          @click="error = null"
+        >
+          &times;
+        </button>
       </div>
 
-      <div v-if="successMessage && !isVerified" class="beem-alert beem-alert-success">
+      <div
+        v-if="successMessage && !isVerified"
+        class="beem-alert beem-alert-success"
+      >
         <span>{{ successMessage }}</span>
       </div>
 
-      <div v-if="!otpSent" class="beem-otp-step">
+      <div
+        v-if="!otpSent"
+        class="beem-otp-step"
+      >
         <div class="beem-step-header">
           <div class="beem-step-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
               <path
-                d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z" />
+                d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z"
+              />
             </svg>
           </div>
           <h3>{{ t.verifyYourPhone }}</h3>
@@ -301,27 +330,55 @@ defineExpose({
         </div>
 
         <div class="beem-form-group">
-          <label for="phone" class="beem-label">{{ t.phoneNumber }}</label>
-          <input type="tel" id="phone" v-model="phone" class="beem-input"
+          <label
+            for="phone"
+            class="beem-label"
+          >{{ t.phoneNumber }}</label>
+          <input
+            id="phone"
+            v-model="phone"
+            type="tel"
+            class="beem-input"
             :class="{ 'beem-input-error': phone && !isPhoneValid }"
-            :placeholder="props.labels?.phoneNumber || '255XXXXXXXXX'" autocomplete="tel">
-          <span v-if="phone && !isPhoneValid" class="beem-error-text">{{ t.invalidPhoneFormat }}</span>
+            :placeholder="props.labels?.phoneNumber || '255XXXXXXXXX'"
+            autocomplete="tel"
+          >
+          <span
+            v-if="phone && !isPhoneValid"
+            class="beem-error-text"
+          >{{ t.invalidPhoneFormat }}</span>
         </div>
 
-        <button type="button" @click="requestOtp" :disabled="!isPhoneValid || isRequesting"
-          class="beem-btn beem-btn-primary">
+        <button
+          type="button"
+          :disabled="!isPhoneValid || isRequesting"
+          class="beem-btn beem-btn-primary"
+          @click="requestOtp"
+        >
           <span v-if="!isRequesting">{{ t.sendOtp }}</span>
-          <span v-else class="beem-loading">{{ t.sending }}</span>
+          <span
+            v-else
+            class="beem-loading"
+          >{{ t.sending }}</span>
         </button>
       </div>
 
-      <div v-else class="beem-otp-step">
+      <div
+        v-else
+        class="beem-otp-step"
+      >
         <div class="beem-step-header">
           <div class="beem-step-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
                 d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                clip-rule="evenodd" />
+                clip-rule="evenodd"
+              />
             </svg>
           </div>
           <h3>{{ t.enterVerificationCode }}</h3>
@@ -329,23 +386,52 @@ defineExpose({
         </div>
 
         <div class="beem-form-group">
-          <label for="otpCode" class="beem-label">{{ t.verificationCode }}</label>
-          <input type="text" id="otpCode" v-model="otpCode" class="beem-input beem-otp-input"
-            :class="{ 'beem-input-error': otpCode && !isOtpValid }" :placeholder="t.enterCode" :maxlength="otpLength"
-            autocomplete="one-time-code" inputmode="numeric">
+          <label
+            for="otpCode"
+            class="beem-label"
+          >{{ t.verificationCode }}</label>
+          <input
+            id="otpCode"
+            v-model="otpCode"
+            type="text"
+            class="beem-input beem-otp-input"
+            :class="{ 'beem-input-error': otpCode && !isOtpValid }"
+            :placeholder="t.enterCode"
+            :maxlength="otpLength"
+            autocomplete="one-time-code"
+            inputmode="numeric"
+          >
         </div>
 
-        <button type="button" @click="verifyOtp" :disabled="!isOtpValid || isVerifying"
-          class="beem-btn beem-btn-primary">
+        <button
+          type="button"
+          :disabled="!isOtpValid || isVerifying"
+          class="beem-btn beem-btn-primary"
+          @click="verifyOtp"
+        >
           <span v-if="!isVerifying">{{ t.verify }}</span>
-          <span v-else class="beem-loading">{{ t.verifying }}</span>
+          <span
+            v-else
+            class="beem-loading"
+          >{{ t.verifying }}</span>
         </button>
 
         <div class="beem-otp-actions">
-          <button type="button" @click="resendOtp" :disabled="resendCooldown > 0" class="beem-link">
+          <button
+            type="button"
+            :disabled="resendCooldown > 0"
+            class="beem-link"
+            @click="resendOtp"
+          >
             {{ resendCooldown > 0 ? t.resendIn.replace(':seconds', resendCooldown.toString()) : t.resendCode }}
           </button>
-          <button type="button" @click="resetVerification" class="beem-link">{{ t.changeNumber }}</button>
+          <button
+            type="button"
+            class="beem-link"
+            @click="resetVerification"
+          >
+            {{ t.changeNumber }}
+          </button>
         </div>
       </div>
     </template>

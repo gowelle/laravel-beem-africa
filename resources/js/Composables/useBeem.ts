@@ -194,7 +194,7 @@ export function useBeemOtp(options: UseBeemOtpOptions = {}): UseBeemOtpReturn {
                 error.value = data.message || 'Failed to send OTP';
                 return { success: false, error: error.value ?? undefined };
             }
-        } catch (err) {
+        } catch {
             error.value = 'Network error. Please try again.';
             return { success: false, error: error.value ?? undefined };
         } finally {
@@ -233,7 +233,7 @@ export function useBeemOtp(options: UseBeemOtpOptions = {}): UseBeemOtpReturn {
                 error.value = data.message || 'Invalid OTP code';
                 return { success: false, valid: false, error: error.value ?? undefined };
             }
-        } catch (err) {
+        } catch {
             error.value = 'Verification failed. Please try again.';
             return { success: false, error: error.value ?? undefined };
         } finally {
@@ -326,7 +326,7 @@ export function useBeemSms(options: UseBeemSmsOptions = {}): UseBeemSmsReturn {
                 error.value = data.message || 'Failed to send SMS';
                 return { success: false, error: error.value ?? undefined };
             }
-        } catch (err) {
+        } catch {
             error.value = 'Network error. Please try again.';
             return { success: false, error: error.value ?? undefined };
         } finally {

@@ -39,7 +39,7 @@ interface CheckoutEvent {
 
 interface ErrorEvent {
   message: string;
-  [key: string]: any; // Allow other properties to satisfy native ErrorEvent type if needed
+  [key: string]: unknown; // Allow other properties to satisfy native ErrorEvent type if needed
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -126,7 +126,7 @@ const initiateCheckout = async (): Promise<void> => {
 };
 
 onMounted(() => {
-  if (!(window as any).BeemPay && !document.querySelector('script[src*="bpay.min.js"]')) {
+  if (!window.BeemPay && !document.querySelector('script[src*="bpay.min.js"]')) {
     const script = document.createElement('script');
     script.src = 'https://checkout.beem.africa/bpay.min.js';
     script.async = true;
@@ -145,9 +145,18 @@ defineExpose({
 
 <template>
   <div class="beem-checkout-wrapper">
-    <div v-if="error" class="beem-alert beem-alert-error">
+    <div
+      v-if="error"
+      class="beem-alert beem-alert-error"
+    >
       <span>{{ error }}</span>
-      <button type="button" @click="error = null" class="beem-alert-close">&times;</button>
+      <button
+        type="button"
+        class="beem-alert-close"
+        @click="error = null"
+      >
+        &times;
+      </button>
     </div>
 
     <div class="beem-amount-display">
@@ -155,26 +164,61 @@ defineExpose({
       <span class="beem-amount-value">{{ formattedAmount }}</span>
     </div>
 
-    <button type="button" :disabled="disabled || isLoading" @click="initiateCheckout" class="beem-btn beem-btn-primary">
+    <button
+      type="button"
+      :disabled="disabled || isLoading"
+      class="beem-btn beem-btn-primary"
+      @click="initiateCheckout"
+    >
       <template v-if="!isLoading">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="beem-icon">
-          <path fill-rule="evenodd"
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="beem-icon"
+        >
+          <path
+            fill-rule="evenodd"
             d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"
-            clip-rule="evenodd" />
+            clip-rule="evenodd"
+          />
         </svg>
         {{ buttonText || t.payNow }}
       </template>
       <template v-else>
-        <svg class="beem-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        <svg
+          class="beem-spinner"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
         </svg>
         {{ t.processing }}
       </template>
     </button>
 
-    <div id="beem-button" :data-price="amount" :data-token="token" :data-reference="reference"
-      :data-transaction="transactionId" :data-mobile="mobile" style="display: none;"></div>
+    <div
+      id="beem-button"
+      :data-price="amount"
+      :data-token="token"
+      :data-reference="reference"
+      :data-transaction="transactionId"
+      :data-mobile="mobile"
+      style="display: none;"
+    />
   </div>
 </template>
 

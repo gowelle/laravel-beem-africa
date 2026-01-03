@@ -200,7 +200,7 @@ const sendSms = async (): Promise<void> => {
       error.value = data.message || t.value.failedToSendSms;
       emit('error', { message: error.value! });
     }
-  } catch (err) {
+  } catch {
     error.value = t.value.networkError;
     emit('error', { message: error.value! });
   } finally {
@@ -236,52 +236,111 @@ defineExpose({
 
 <template>
   <div class="beem-sms">
-    <div v-if="error" class="beem-alert beem-alert-error">
+    <div
+      v-if="error"
+      class="beem-alert beem-alert-error"
+    >
       <span>{{ error }}</span>
-      <button type="button" @click="error = null" class="beem-alert-close">&times;</button>
+      <button
+        type="button"
+        class="beem-alert-close"
+        @click="error = null"
+      >
+        &times;
+      </button>
     </div>
 
-    <div v-if="successMessage" class="beem-alert beem-alert-success">
+    <div
+      v-if="successMessage"
+      class="beem-alert beem-alert-success"
+    >
       <span>{{ successMessage }}</span>
-      <button type="button" @click="successMessage = null" class="beem-alert-close">&times;</button>
+      <button
+        type="button"
+        class="beem-alert-close"
+        @click="successMessage = null"
+      >
+        &times;
+      </button>
     </div>
 
     <div class="beem-sms-form">
       <div class="beem-form-group">
-        <label for="senderName" class="beem-label">{{ t.senderName }}</label>
-        <input type="text" id="senderName" v-model="senderNameInput" class="beem-input"
-          :class="{ 'beem-input-error': senderNameInput.length > 11 }" :placeholder="t.senderPlaceholder"
-          maxlength="11">
+        <label
+          for="senderName"
+          class="beem-label"
+        >{{ t.senderName }}</label>
+        <input
+          id="senderName"
+          v-model="senderNameInput"
+          type="text"
+          class="beem-input"
+          :class="{ 'beem-input-error': senderNameInput.length > 11 }"
+          :placeholder="t.senderPlaceholder"
+          maxlength="11"
+        >
         <span class="beem-hint">{{ t.maxCharactersHint }}</span>
       </div>
 
       <div class="beem-form-group">
         <label class="beem-label">{{ t.recipients }}</label>
         <div class="beem-recipient-input">
-          <input type="tel" v-model="newRecipient" @keyup.enter="addRecipient" class="beem-input"
-            :placeholder="t.phonePlaceholder">
-          <button type="button" @click="addRecipient" class="beem-btn beem-btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <input
+            v-model="newRecipient"
+            type="tel"
+            class="beem-input"
+            :placeholder="t.phonePlaceholder"
+            @keyup.enter="addRecipient"
+          >
+          <button
+            type="button"
+            class="beem-btn beem-btn-icon"
+            @click="addRecipient"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
               <path
-                d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+              />
             </svg>
           </button>
         </div>
 
-        <div v-if="recipients.length > 0" class="beem-recipients-list">
-          <span v-for="(phone, index) in recipients" :key="phone" class="beem-recipient-tag">
+        <div
+          v-if="recipients.length > 0"
+          class="beem-recipients-list"
+        >
+          <span
+            v-for="(phone, index) in recipients"
+            :key="phone"
+            class="beem-recipient-tag"
+          >
             {{ phone }}
-            <button type="button" @click="removeRecipient(index)">&times;</button>
+            <button
+              type="button"
+              @click="removeRecipient(index)"
+            >&times;</button>
           </span>
         </div>
         <span class="beem-hint">{{ t.recipientsAdded.replace(':count', recipients.length.toString()) }}</span>
       </div>
 
       <div class="beem-form-group">
-        <label for="message" class="beem-label">{{ t.message }}</label>
-        <textarea id="message" v-model="message" class="beem-textarea"
-          :class="{ 'beem-input-error': characterCount > maxCharacters }" :placeholder="t.messagePlaceholder"
-          rows="4"></textarea>
+        <label
+          for="message"
+          class="beem-label"
+        >{{ t.message }}</label>
+        <textarea
+          id="message"
+          v-model="message"
+          class="beem-textarea"
+          :class="{ 'beem-input-error': characterCount > maxCharacters }"
+          :placeholder="t.messagePlaceholder"
+          rows="4"
+        />
         <div class="beem-char-count">
           <span :class="{ 'beem-text-error': characterCount > maxCharacters }">{{ characterCount }}/{{ maxCharacters
           }}</span>
@@ -290,23 +349,50 @@ defineExpose({
       </div>
 
       <div class="beem-form-group">
-        <label for="scheduleTime" class="beem-label">{{ t.scheduleOptional }}</label>
-        <input type="datetime-local" id="scheduleTime" v-model="scheduleTime" class="beem-input">
+        <label
+          for="scheduleTime"
+          class="beem-label"
+        >{{ t.scheduleOptional }}</label>
+        <input
+          id="scheduleTime"
+          v-model="scheduleTime"
+          type="datetime-local"
+          class="beem-input"
+        >
         <span class="beem-hint">{{ t.leaveEmptyHint }}</span>
       </div>
 
       <div class="beem-actions">
-        <button type="button" @click="sendSms" :disabled="!isFormValid || isSending" class="beem-btn beem-btn-primary">
+        <button
+          type="button"
+          :disabled="!isFormValid || isSending"
+          class="beem-btn beem-btn-primary"
+          @click="sendSms"
+        >
           <template v-if="!isSending">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="beem-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="beem-icon"
+            >
               <path
-                d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
+                d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"
+              />
             </svg>
             {{ t.sendSms }}
           </template>
-          <template v-else>{{ t.sending }}</template>
+          <template v-else>
+            {{ t.sending }}
+          </template>
         </button>
-        <button type="button" @click="resetForm" class="beem-btn beem-btn-secondary">{{ t.reset }}</button>
+        <button
+          type="button"
+          class="beem-btn beem-btn-secondary"
+          @click="resetForm"
+        >
+          {{ t.reset }}
+        </button>
       </div>
     </div>
   </div>
