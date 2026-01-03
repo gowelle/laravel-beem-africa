@@ -1,17 +1,20 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import BeemSmsForm from './BeemSmsForm.vue';
 
 describe('BeemSmsForm', () => {
     let wrapper: VueWrapper;
+    let fetchMock: Mock;
 
     beforeEach(() => {
-        global.fetch = vi.fn();
+        fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
         document.head.innerHTML = '<meta name="csrf-token" content="test-csrf-token">';
         wrapper = mount(BeemSmsForm);
     });
 
     afterEach(() => {
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
@@ -33,7 +36,7 @@ describe('BeemSmsForm', () => {
             const w = mount(BeemSmsForm, {
                 props: { senderName: 'MYAPP' },
             });
-            expect(w.find('input#senderName').element.value).toBe('MYAPP');
+            expect((w.find('input#senderName').element as HTMLInputElement).value).toBe('MYAPP');
         });
 
         it('accepts custom max characters', () => {
@@ -188,14 +191,14 @@ describe('BeemSmsForm', () => {
         });
 
         it('calls API when sending', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true }),
             });
 
             await wrapper.find('.beem-btn-primary').trigger('click');
 
-            expect(global.fetch).toHaveBeenCalledWith(
+            expect(fetchMock).toHaveBeenCalledWith(
                 '/beem/sms/send',
                 expect.objectContaining({
                     method: 'POST',
@@ -205,7 +208,7 @@ describe('BeemSmsForm', () => {
         });
 
         it('emits sms-sent event on success', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true }),
             });
@@ -221,7 +224,7 @@ describe('BeemSmsForm', () => {
         });
 
         it('shows success message', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true }),
             });
@@ -234,7 +237,7 @@ describe('BeemSmsForm', () => {
 
         it('clears form on success', async () => {
             const vm = wrapper.vm as any;
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true }),
             });
@@ -247,7 +250,7 @@ describe('BeemSmsForm', () => {
         });
 
         it('handles send error', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: false,
                 json: () => Promise.resolve({ success: false, message: 'Send failed' }),
             });

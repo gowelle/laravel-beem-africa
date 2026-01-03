@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vitest';
 import { useBeemCheckout, useBeemOtp, useBeemSms } from './useBeem';
 
 describe('useBeemCheckout', () => {
@@ -69,12 +69,16 @@ describe('useBeemCheckout', () => {
 });
 
 describe('useBeemOtp', () => {
+    let fetchMock: Mock;
+
     beforeEach(() => {
-        global.fetch = vi.fn();
+        fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
         document.head.innerHTML = '<meta name="csrf-token" content="test-token">';
     });
 
     afterEach(() => {
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
@@ -89,7 +93,7 @@ describe('useBeemOtp', () => {
     });
 
     it('sends OTP request correctly', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
+        fetchMock.mockResolvedValueOnce({
             ok: true,
             json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
         });
@@ -103,7 +107,7 @@ describe('useBeemOtp', () => {
     });
 
     it('handles OTP request failure', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
+        fetchMock.mockResolvedValueOnce({
             ok: false,
             json: () => Promise.resolve({ success: false, message: 'Failed' }),
         });
@@ -116,7 +120,7 @@ describe('useBeemOtp', () => {
     });
 
     it('verifies OTP correctly', async () => {
-        (global.fetch as any)
+        fetchMock
             .mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
@@ -157,12 +161,16 @@ describe('useBeemOtp', () => {
 });
 
 describe('useBeemSms', () => {
+    let fetchMock: Mock;
+
     beforeEach(() => {
-        global.fetch = vi.fn();
+        fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
         document.head.innerHTML = '<meta name="csrf-token" content="test-token">';
     });
 
     afterEach(() => {
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
@@ -192,7 +200,7 @@ describe('useBeemSms', () => {
     });
 
     it('sends SMS correctly', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
+        fetchMock.mockResolvedValueOnce({
             ok: true,
             json: () => Promise.resolve({ success: true }),
         });
@@ -222,7 +230,7 @@ describe('useBeemSms', () => {
     });
 
     it('handles send failure', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
+        fetchMock.mockResolvedValueOnce({
             ok: false,
             json: () => Promise.resolve({ success: false, message: 'Send failed' }),
         });

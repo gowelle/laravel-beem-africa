@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import BeemCheckoutButton from './BeemCheckoutButton.vue';
 
@@ -70,10 +70,12 @@ describe('BeemCheckoutButton', () => {
 
     describe('checkout initiation', () => {
         it('emits checkout-initiated event on button click', async () => {
-            // Mock window.location
+            // Mock window.location using Object.defineProperty
             const originalLocation = window.location;
-            delete (window as any).location;
-            window.location = { href: '' } as Location;
+            Object.defineProperty(window, 'location', {
+                writable: true,
+                value: { href: '' },
+            });
 
             await wrapper.setProps({ redirectOnInit: false });
             await wrapper.find('.beem-btn-primary').trigger('click');
@@ -85,7 +87,10 @@ describe('BeemCheckoutButton', () => {
                 reference: 'ORDER-001',
             });
 
-            window.location = originalLocation;
+            Object.defineProperty(window, 'location', {
+                writable: true,
+                value: originalLocation,
+            });
         });
 
         it('builds correct checkout URL', async () => {

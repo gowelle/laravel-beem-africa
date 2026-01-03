@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import BeemOtpVerification from './BeemOtpVerification.vue';
 
 describe('BeemOtpVerification', () => {
     let wrapper: VueWrapper;
+    let fetchMock: Mock;
 
     beforeEach(() => {
-        // Mock fetch
-        global.fetch = vi.fn();
+        // Mock fetch using vi.stubGlobal for proper TypeScript support
+        fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
         // Mock CSRF token
         document.head.innerHTML = '<meta name="csrf-token" content="test-csrf-token">';
 
@@ -15,6 +17,7 @@ describe('BeemOtpVerification', () => {
     });
 
     afterEach(() => {
+        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
@@ -39,7 +42,7 @@ describe('BeemOtpVerification', () => {
             const w = mount(BeemOtpVerification, {
                 props: { initialPhone: '255712345678' },
             });
-            expect(w.find('input#phone').element.value).toBe('255712345678');
+            expect((w.find('input#phone').element as HTMLInputElement).value).toBe('255712345678');
         });
 
         it('accepts custom OTP length', () => {
@@ -87,7 +90,7 @@ describe('BeemOtpVerification', () => {
 
     describe('OTP request', () => {
         it('calls API when requesting OTP', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
             });
@@ -95,7 +98,7 @@ describe('BeemOtpVerification', () => {
             await wrapper.find('input#phone').setValue('255712345678');
             await wrapper.find('.beem-btn-primary').trigger('click');
 
-            expect(global.fetch).toHaveBeenCalledWith(
+            expect(fetchMock).toHaveBeenCalledWith(
                 '/beem/otp/request',
                 expect.objectContaining({
                     method: 'POST',
@@ -105,7 +108,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('emits otp-sent event on success', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
             });
@@ -117,7 +120,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('shows OTP input after successful request', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
             });
@@ -130,7 +133,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('handles request error', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: false,
                 json: () => Promise.resolve({ success: false, message: 'Request failed' }),
             });
@@ -146,7 +149,7 @@ describe('BeemOtpVerification', () => {
     describe('OTP verification', () => {
         beforeEach(async () => {
             // Setup: request OTP first
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ success: true, pinId: 'pin-123' }),
             });
@@ -156,7 +159,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('verifies OTP code', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ valid: true }),
             });
@@ -164,7 +167,7 @@ describe('BeemOtpVerification', () => {
             await wrapper.find('input#otpCode').setValue('123456');
             await wrapper.find('.beem-btn-primary').trigger('click');
 
-            expect(global.fetch).toHaveBeenLastCalledWith(
+            expect(fetchMock).toHaveBeenLastCalledWith(
                 '/beem/otp/verify',
                 expect.objectContaining({
                     method: 'POST',
@@ -174,7 +177,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('emits verified event on success', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ valid: true }),
             });
@@ -187,7 +190,7 @@ describe('BeemOtpVerification', () => {
         });
 
         it('shows success state when verified', async () => {
-            (global.fetch as any).mockResolvedValueOnce({
+            fetchMock.mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({ valid: true }),
             });

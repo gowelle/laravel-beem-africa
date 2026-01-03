@@ -192,11 +192,11 @@ export function useBeemOtp(options: UseBeemOtpOptions = {}): UseBeemOtpReturn {
                 return { success: true, pinId: data.pinId };
             } else {
                 error.value = data.message || 'Failed to send OTP';
-                return { success: false, error: error.value };
+                return { success: false, error: error.value ?? undefined };
             }
         } catch (err) {
             error.value = 'Network error. Please try again.';
-            return { success: false, error: error.value };
+            return { success: false, error: error.value ?? undefined };
         } finally {
             isRequesting.value = false;
         }
@@ -231,11 +231,11 @@ export function useBeemOtp(options: UseBeemOtpOptions = {}): UseBeemOtpReturn {
                 return { success: true, valid: true };
             } else {
                 error.value = data.message || 'Invalid OTP code';
-                return { success: false, valid: false, error: error.value };
+                return { success: false, valid: false, error: error.value ?? undefined };
             }
         } catch (err) {
             error.value = 'Verification failed. Please try again.';
-            return { success: false, error: error.value };
+            return { success: false, error: error.value ?? undefined };
         } finally {
             isVerifying.value = false;
         }
@@ -324,11 +324,11 @@ export function useBeemSms(options: UseBeemSmsOptions = {}): UseBeemSmsReturn {
                 };
             } else {
                 error.value = data.message || 'Failed to send SMS';
-                return { success: false, error: error.value };
+                return { success: false, error: error.value ?? undefined };
             }
         } catch (err) {
             error.value = 'Network error. Please try again.';
-            return { success: false, error: error.value };
+            return { success: false, error: error.value ?? undefined };
         } finally {
             isSending.value = false;
         }
