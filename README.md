@@ -2678,43 +2678,137 @@ Or configure it globally in `config/beem-africa.php`:
 
 ## UI Components
 
-The package includes ready-to-use UI components for both Livewire and Vue/InertiaJS applications.
+The package includes ready-to-use UI components for both Livewire and Vue/InertiaJS applications, with full TypeScript support and localization.
+
+### Quick Links
+
+- [Livewire Components](#livewire-components)
+- [Vue/InertiaJS Components](#vueinertiajs-components)
+- [Vue Composables](#composables)
+- [Backend Routes for Vue](#backend-routes-for-vue-components)
+- [Styling Customization](#styling-customization)
+- [Labels Reference](#labels-reference)
+
+---
 
 ### Livewire Components
 
-Livewire v3 components are automatically registered when Livewire is installed.
+Livewire v3 components are automatically registered when Livewire is installed. No additional setup required.
 
 #### BeemCheckout
 
 A payment checkout component with amount input, reference, and mobile number fields.
 
 ```blade
+{{-- Basic usage with pre-set amount --}}
 <livewire:beem-checkout 
     :amount="1000" 
     reference="ORDER-001" 
     mobile="255712345678"
 />
+
+{{-- Dynamic form (amount editable by user) --}}
+<livewire:beem-checkout />
 ```
 
-**Events:**
-- `beem-checkout-initiated` - Dispatched when checkout is initiated
-- `beem-checkout-error` - Dispatched on checkout error
+##### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `amount` | `float` | `0` | Payment amount. If `0`, displays an editable input field |
+| `reference` | `string` | `''` | Order reference. If empty, displays an editable input field |
+| `mobile` | `?string` | `null` | Pre-filled mobile number (optional) |
+
+##### Public Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `isProcessing` | `bool` | `true` while checkout is being initiated |
+| `errorMessage` | `?string` | Error message if checkout fails |
+| `checkoutUrl` | `?string` | Generated Beem checkout URL |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `beem-checkout-initiated` | `{url, reference, amount}` | Checkout URL successfully generated |
+| `beem-checkout-error` | `{message, code}` | Checkout failed. `code` is the Beem error code |
+
+##### Listening to Events
+
+```blade
+<livewire:beem-checkout 
+    :amount="1000" 
+    reference="ORDER-001"
+    @beem-checkout-initiated="handleCheckout"
+/>
+
+<script>
+document.addEventListener('beem-checkout-initiated', (event) => {
+    console.log('Checkout URL:', event.detail.url);
+    // Optionally redirect or show modal
+});
+</script>
+```
+
+---
 
 #### BeemOtpVerification
 
 A two-step OTP verification component with phone input and code verification.
 
 ```blade
+{{-- Basic usage --}}
 <livewire:beem-otp-verification />
 
-<!-- With initial phone -->
+{{-- With pre-filled phone number --}}
 <livewire:beem-otp-verification phone="255712345678" />
 ```
 
-**Events:**
-- `beem-otp-sent` - Dispatched when OTP is sent
-- `beem-otp-verified` - Dispatched on successful verification
-- `beem-otp-error` - Dispatched on error
+##### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `phone` | `?string` | `null` | Pre-filled phone number |
+
+##### Public Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `phone` | `string` | Current phone number |
+| `otpCode` | `string` | User-entered OTP code |
+| `pinId` | `?string` | Beem PIN ID for verification |
+| `isRequesting` | `bool` | `true` while requesting OTP |
+| `isVerifying` | `bool` | `true` while verifying OTP |
+| `isVerified` | `bool` | `true` after successful verification |
+| `otpSent` | `bool` | `true` after OTP is sent |
+| `resendCooldown` | `int` | Seconds until resend is allowed (60s default) |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `beem-otp-sent` | `{phone}` | OTP sent successfully |
+| `beem-otp-verified` | `{phone}` | Phone number verified |
+| `beem-otp-error` | `{message, code}` | OTP request failed |
+| `beem-otp-verification-failed` | `{message}` | Verification failed |
+
+##### Complete Example
+
+```blade
+<div x-data="{ verified: false }">
+    <livewire:beem-otp-verification 
+        phone="{{ auth()->user()->phone }}"
+        @beem-otp-verified="verified = true"
+    />
+    
+    <div x-show="verified" class="text-green-600">
+        ✓ Phone verified! You can now proceed.
+    </div>
+</div>
+```
+
+---
 
 #### BeemSmsForm
 
@@ -2724,15 +2818,44 @@ A full-featured SMS form with recipient management, character counting, and sche
 <livewire:beem-sms-form />
 ```
 
-**Features:**
-- Add/remove multiple recipients
-- Character count with SMS segment display
-- Optional scheduling
-- Real-time validation
+##### Public Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `senderName` | `string` | Sender ID (max 11 characters) |
+| `message` | `string` | SMS message content |
+| `recipients` | `array` | List of phone numbers |
+| `newRecipient` | `string` | Input field for adding recipients |
+| `scheduleTime` | `?string` | Optional schedule datetime |
+| `isSending` | `bool` | `true` while sending SMS |
+
+##### Computed Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `characterCount` | `int` | Current message length |
+| `smsSegments` | `int` | Number of SMS segments (160 chars = 1, 153 chars per additional) |
+| `remainingCharacters` | `int` | Characters remaining in current segment |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `beem-sms-sent` | `{recipients, segments}` | SMS sent successfully |
+| `beem-sms-error` | `{message}` | SMS sending failed |
+
+##### Features
+
+- **Recipient Management**: Add/remove multiple recipients with validation
+- **Character Counter**: Real-time count with SMS segment display
+- **Scheduling**: Optional datetime picker for scheduled messages
+- **Validation**: Phone format validation (10-15 digits)
+
+---
 
 ### Vue/InertiaJS Components
 
-TypeScript Vue 3 components are publishable for InertiaJS applications.
+TypeScript Vue 3 components for InertiaJS applications with full type safety.
 
 #### Publishing Components
 
@@ -2740,56 +2863,550 @@ TypeScript Vue 3 components are publishable for InertiaJS applications.
 php artisan vendor:publish --tag="beem-africa-vue"
 ```
 
-This publishes components to `resources/js/vendor/beem-africa/`.
+This publishes components to `resources/js/vendor/beem-africa/`:
 
-#### Usage
+```
+resources/js/vendor/beem-africa/
+├── Components/
+│   ├── BeemCheckoutButton.vue
+│   ├── BeemOtpVerification.vue
+│   └── BeemSmsForm.vue
+├── Composables/
+│   └── useBeem.ts
+├── index.ts
+└── types.d.ts
+```
+
+---
+
+#### BeemCheckoutButton
+
+A payment button that redirects to Beem's checkout page.
 
 ```vue
 <script setup lang="ts">
-import { 
-  BeemCheckoutButton, 
-  BeemOtpVerification, 
-  BeemSmsForm 
-} from '@/vendor/beem-africa';
+import { BeemCheckoutButton } from '@/vendor/beem-africa';
 
-const handleCheckout = (event) => {
-  console.log('Checkout URL:', event.checkoutUrl);
+const handleCheckout = (event: { checkoutUrl: string }) => {
+  console.log('Redirecting to:', event.checkoutUrl);
+};
+
+const handleError = (event: { message: string }) => {
+  console.error('Checkout error:', event.message);
 };
 </script>
 
 <template>
   <BeemCheckoutButton
     :amount="1000"
-    token="your-token"
+    token="your-beem-token"
     reference="ORDER-001"
-    transaction-id="TXN-123"
+    transaction-id="TXN-123456"
+    mobile="255712345678"
     @checkout-initiated="handleCheckout"
+    @checkout-error="handleError"
   />
 </template>
 ```
 
-#### Composables
+##### Props
 
-TypeScript composables for custom implementations:
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `amount` | `number` | ✅ | - | Payment amount |
+| `token` | `string` | ✅ | - | Beem secure token |
+| `reference` | `string` | ✅ | - | Order reference number |
+| `transactionId` | `string` | ✅ | - | Unique transaction ID |
+| `mobile` | `string` | ❌ | `null` | Customer mobile number |
+| `buttonText` | `string` | ❌ | `'Pay Now'` | Button label |
+| `disabled` | `boolean` | ❌ | `false` | Disable the button |
+| `redirectOnInit` | `boolean` | ❌ | `true` | Auto-redirect to Beem checkout |
+| `labels` | `Labels` | ❌ | `{}` | Custom labels object |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `checkout-initiated` | `{amount, transactionId, reference, checkoutUrl}` | Checkout URL generated |
+| `checkout-error` | `{message}` | Error occurred |
+| `checkout-complete` | - | Checkout flow complete |
+
+##### Exposed Methods (via ref)
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const checkoutRef = ref();
+
+// Access exposed methods
+checkoutRef.value?.initiateCheckout();
+console.log(checkoutRef.value?.isLoading);
+console.log(checkoutRef.value?.error);
+</script>
+
+<template>
+  <BeemCheckoutButton ref="checkoutRef" ... />
+</template>
+```
+
+---
+
+#### BeemOtpVerification
+
+A two-step phone verification component.
+
+```vue
+<script setup lang="ts">
+import { BeemOtpVerification } from '@/vendor/beem-africa';
+
+const handleVerified = (event: { phone: string }) => {
+  console.log('Phone verified:', event.phone);
+  // Update user profile, enable features, etc.
+};
+</script>
+
+<template>
+  <BeemOtpVerification
+    initial-phone="255712345678"
+    :otp-length="6"
+    request-url="/api/beem/otp/request"
+    verify-url="/api/beem/otp/verify"
+    @verified="handleVerified"
+  />
+</template>
+```
+
+##### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `initialPhone` | `string` | ❌ | `''` | Pre-filled phone number |
+| `otpLength` | `number` | ❌ | `6` | Expected OTP code length |
+| `requestUrl` | `string` | ❌ | `'/beem/otp/request'` | Backend endpoint for OTP request |
+| `verifyUrl` | `string` | ❌ | `'/beem/otp/verify'` | Backend endpoint for verification |
+| `labels` | `Labels` | ❌ | `{}` | Custom labels (21 keys available) |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `otp-sent` | `{phone}` | OTP sent successfully |
+| `verified` | `{phone}` | Phone number verified |
+| `error` | `{message}` | Error occurred |
+| `reset` | - | Form was reset |
+
+##### Exposed State
+
+```typescript
+// Available via ref
+{
+  phone: Ref<string>,
+  otpCode: Ref<string>,
+  pinId: Ref<string | null>,
+  isRequesting: Ref<boolean>,
+  isVerifying: Ref<boolean>,
+  isVerified: Ref<boolean>,
+  otpSent: Ref<boolean>,
+  error: Ref<string | null>,
+  requestOtp: () => Promise<void>,
+  verifyOtp: () => Promise<void>,
+  resendOtp: () => void,
+  resetVerification: () => void,
+}
+```
+
+---
+
+#### BeemSmsForm
+
+A full-featured SMS composition form.
+
+```vue
+<script setup lang="ts">
+import { BeemSmsForm } from '@/vendor/beem-africa';
+
+const handleSmsSent = (event: { recipients: number; segments: number }) => {
+  console.log(`Sent ${event.segments} segments to ${event.recipients} recipients`);
+};
+</script>
+
+<template>
+  <BeemSmsForm
+    sender-name="MYAPP"
+    send-url="/api/beem/sms/send"
+    :max-characters="918"
+    @sms-sent="handleSmsSent"
+  />
+</template>
+```
+
+##### Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `senderName` | `string` | ❌ | `''` | Default sender ID (max 11 chars) |
+| `sendUrl` | `string` | ❌ | `'/beem/sms/send'` | Backend endpoint for sending SMS |
+| `maxCharacters` | `number` | ❌ | `918` | Maximum message length |
+| `labels` | `Labels` | ❌ | `{}` | Custom labels (16 keys available) |
+
+##### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `sms-sent` | `{recipients, segments}` | SMS sent successfully |
+| `error` | `{message}` | Error occurred |
+| `reset` | - | Form was reset |
+
+---
+
+### Composables
+
+TypeScript composables for building custom UI implementations.
 
 ```typescript
 import { useBeemCheckout, useBeemOtp, useBeemSms } from '@/vendor/beem-africa';
-
-// Checkout
-const { initiateCheckout, isLoading, error } = useBeemCheckout();
-
-// OTP
-const { requestOtp, verifyOtp, isVerified } = useBeemOtp();
-
-// SMS
-const { sendSms, calculateSegments } = useBeemSms();
 ```
 
-#### Running Vue Tests
+#### useBeemCheckout
+
+```typescript
+const {
+  isLoading,      // Ref<boolean> - Loading state
+  error,          // Ref<string | null> - Error message
+  checkoutUrl,    // Ref<string | null> - Generated checkout URL
+  initiateCheckout, // (options: CheckoutOptions) => Promise<CheckoutResult>
+  reset,          // () => void - Reset state
+} = useBeemCheckout();
+
+// Usage
+const result = await initiateCheckout({
+  amount: 1000,
+  transactionId: 'TXN-123',
+  reference: 'ORDER-001',
+  mobile: '255712345678',
+  redirectOnInit: false, // Don't auto-redirect
+});
+
+if (result.success) {
+  console.log('Checkout URL:', result.url);
+}
+```
+
+#### useBeemOtp
+
+```typescript
+const {
+  isRequesting,   // Ref<boolean> - Requesting OTP
+  isVerifying,    // Ref<boolean> - Verifying OTP
+  isVerified,     // Ref<boolean> - Verification successful
+  pinId,          // Ref<string | null> - Beem PIN ID
+  error,          // Ref<string | null> - Error message
+  requestOtp,     // (phone: string) => Promise<OtpRequestResult>
+  verifyOtp,      // (otpCode: string, customPinId?: string) => Promise<OtpVerifyResult>
+  reset,          // () => void - Reset state
+} = useBeemOtp({
+  requestUrl: '/api/beem/otp/request', // Optional
+  verifyUrl: '/api/beem/otp/verify',   // Optional
+});
+
+// Usage
+const requestResult = await requestOtp('255712345678');
+if (requestResult.success) {
+  // Show OTP input...
+  const verifyResult = await verifyOtp('123456');
+  if (verifyResult.valid) {
+    console.log('Phone verified!');
+  }
+}
+```
+
+#### useBeemSms
+
+```typescript
+const {
+  isSending,      // Ref<boolean> - Sending state
+  error,          // Ref<string | null> - Error message
+  lastResponse,   // Ref<unknown> - Last API response
+  sendSms,        // (smsData: SmsData) => Promise<SmsSendResult>
+  calculateSegments,     // (message: string) => number
+  calculateCharacterCount, // (message: string) => number
+  reset,          // () => void - Reset state
+} = useBeemSms({
+  sendUrl: '/api/beem/sms/send', // Optional
+});
+
+// Usage
+const segments = calculateSegments('Hello World!'); // Returns 1
+
+const result = await sendSms({
+  senderName: 'MYAPP',
+  message: 'Hello World!',
+  recipients: ['255712345678', '255787654321'],
+  scheduleTime: null,
+});
+
+if (result.success) {
+  console.log(`Sent to ${result.recipients} recipients`);
+}
+```
+
+---
+
+### Backend Routes for Vue Components
+
+Vue components require backend endpoints to communicate with Beem APIs. Here's how to set them up:
+
+#### OTP Routes
+
+```php
+// routes/web.php or routes/api.php
+
+use Gowelle\BeemAfrica\Facades\Beem;
+use Illuminate\Http\Request;
+
+Route::post('/beem/otp/request', function (Request $request) {
+    $request->validate(['phone' => 'required|string|regex:/^[0-9]{10,15}$/']);
+    
+    try {
+        $response = Beem::otp()->request($request->phone);
+        
+        return response()->json([
+            'success' => $response->isSuccessful(),
+            'pinId' => $response->getPinId(),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to send OTP',
+        ], 500);
+    }
+});
+
+Route::post('/beem/otp/verify', function (Request $request) {
+    $request->validate([
+        'pinId' => 'required|string',
+        'otpCode' => 'required|string|min:4|max:6',
+    ]);
+    
+    try {
+        $result = Beem::otp()->verify($request->pinId, $request->otpCode);
+        
+        if ($result->isValid()) {
+            // Mark phone as verified in your database
+            // auth()->user()->update(['phone_verified_at' => now()]);
+        }
+        
+        return response()->json([
+            'valid' => $result->isValid(),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'valid' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+```
+
+#### SMS Route
+
+```php
+use Gowelle\BeemAfrica\DTOs\SmsRecipient;
+use Gowelle\BeemAfrica\DTOs\SmsRequest;
+use Gowelle\BeemAfrica\Facades\Beem;
+
+Route::post('/beem/sms/send', function (Request $request) {
+    $request->validate([
+        'senderName' => 'required|string|max:11',
+        'message' => 'required|string|max:918',
+        'recipients' => 'required|array|min:1',
+        'recipients.*' => 'string|regex:/^[0-9]{10,15}$/',
+        'scheduleTime' => 'nullable|date',
+    ]);
+    
+    try {
+        $recipients = array_map(
+            fn ($phone) => new SmsRecipient(
+                recipientId: uniqid('rcpt_'),
+                destAddr: $phone
+            ),
+            $request->recipients
+        );
+        
+        $smsRequest = new SmsRequest(
+            sourceAddr: $request->senderName,
+            message: $request->message,
+            recipients: $recipients,
+            scheduleTime: $request->scheduleTime,
+        );
+        
+        $response = Beem::sms()->send($smsRequest);
+        
+        return response()->json([
+            'success' => $response->isSuccessful(),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+```
+
+> **Tip:** For API routes, add them to `routes/api.php` and update the component's `requestUrl`, `verifyUrl`, or `sendUrl` props to include the `/api` prefix.
+
+---
+
+### Styling Customization
+
+All components use scoped CSS with Beem's brand colors. You can customize styling in several ways:
+
+#### 1. Override with CSS Variables (Recommended)
+
+```css
+/* In your app.css */
+:root {
+  --beem-primary: #33B1BA;
+  --beem-primary-dark: #2a9aa3;
+  --beem-secondary: #F3A929;
+  --beem-text: #2D2D2C;
+  --beem-text-muted: #555555;
+  --beem-error: #dc3545;
+  --beem-success: #16a34a;
+}
+```
+
+#### 2. Deep Selectors (Vue)
+
+```vue
+<style>
+/* Override component styles */
+:deep(.beem-btn-primary) {
+  background: linear-gradient(135deg, #your-color 0%, #darker-shade 100%);
+}
+
+:deep(.beem-input:focus) {
+  border-color: #your-color;
+  box-shadow: 0 0 0 3px rgba(your-color, 0.15);
+}
+</style>
+```
+
+#### 3. Publish and Edit Blade Views (Livewire)
+
+```bash
+php artisan vendor:publish --tag="beem-africa-views"
+```
+
+This publishes views to `resources/views/vendor/beem-africa/livewire/` for full customization.
+
+---
+
+### Labels Reference
+
+Both Vue and Livewire components support localization via labels.
+
+#### Vue Components
+
+Pass a `labels` prop to customize text:
+
+```vue
+<BeemCheckoutButton
+  :amount="1000"
+  :labels="{
+    amount: 'Kiasi',
+    payNow: 'Lipa Sasa',
+    processing: 'Inachakata...'
+  }"
+/>
+```
+
+##### BeemCheckoutButton Labels
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `amount` | `'Amount'` | Amount label |
+| `payNow` | `'Pay Now'` | Button text |
+| `processing` | `'Processing...'` | Loading text |
+| `failedToInitiate` | `'Failed to initiate checkout'` | Error message |
+
+##### BeemOtpVerification Labels (21 keys)
+
+| Key | Default |
+|-----|---------|
+| `verified` | `'Verified!'` |
+| `verifyYourPhone` | `'Verify Your Phone'` |
+| `enterPhoneToReceiveCode` | `'Enter your phone number to receive a verification code'` |
+| `phoneNumber` | `'Phone Number'` |
+| `sendOtp` | `'Send OTP'` |
+| `sending` | `'Sending...'` |
+| `enterVerificationCode` | `'Enter Verification Code'` |
+| `weSentCodeTo` | `'We sent a code to :phone'` |
+| `verificationCode` | `'Verification Code'` |
+| `enterCode` | `'Enter code'` |
+| `verify` | `'Verify'` |
+| `verifying` | `'Verifying...'` |
+| `resendIn` | `'Resend in :seconds s'` |
+| `resendCode` | `'Resend Code'` |
+| `changeNumber` | `'Change Number'` |
+| `invalidOtp` | `'Invalid OTP code'` |
+| `failedToSendOtp` | `'Failed to send OTP'` |
+| `networkError` | `'Network error. Please try again.'` |
+| `verifiedSuccess` | `'Phone number verified successfully!'` |
+| `verificationFailed` | `'Verification failed. Please try again.'` |
+| `invalidPhoneFormat` | `'Invalid phone number format (10-15 digits)'` |
+
+##### BeemSmsForm Labels (16 keys)
+
+| Key | Default |
+|-----|---------|
+| `senderName` | `'Sender Name'` |
+| `senderPlaceholder` | `'MYAPP'` |
+| `maxCharactersHint` | `'Max 11 characters'` |
+| `recipients` | `'Recipients'` |
+| `phonePlaceholder` | `'255XXXXXXXXX'` |
+| `recipientsAdded` | `':count recipient(s) added'` |
+| `message` | `'Message'` |
+| `messagePlaceholder` | `'Type your message here...'` |
+| `scheduleOptional` | `'Schedule (Optional)'` |
+| `leaveEmptyHint` | `'Leave empty to send immediately'` |
+| `sendSms` | `'Send SMS'` |
+| `sending` | `'Sending...'` |
+| `reset` | `'Reset'` |
+| `invalidPhoneFormat` | `'Invalid phone number format (10-15 digits required)'` |
+| `recipientAlreadyAdded` | `'This number is already added'` |
+| `smsSentSuccess` | `'SMS sent to :count recipient(s)'` |
+
+#### Livewire Components
+
+Livewire components use Laravel's translation system. Publish and customize translations:
+
+```bash
+php artisan vendor:publish --tag="beem-africa-translations"
+```
+
+Edit files in `resources/lang/vendor/beem-africa/`.
+
+---
+
+### Running Component Tests
+
+#### Vue Component Tests
 
 ```bash
 npm run test:run
 ```
+
+#### Livewire Tests
+
+```bash
+composer test
+```
+
+> **Note:** The package includes 104 component tests (75 Vue + 29 Livewire) to ensure reliability.
+
 
 ## Testing
 
