@@ -100,24 +100,76 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             max-width: 400px;
             margin: 0 auto;
+
+            /* Light Mode Variables */
+            --beem-primary: #33B1BA;
+            --beem-primary-dark: #2a9aa3;
+            --beem-text-on-primary: #ffffff;
+            --beem-text: #2D2D2C;
+            --beem-text-muted: #555555;
+            --beem-border: #dddddd;
+            --beem-input-bg: #ffffff;
+            --beem-input-focus: rgba(51, 177, 186, 0.15);
+            --beem-error-bg: #fee2e2;
+            --beem-error-text: #dc3545;
+            --beem-success-bg: #dcfce7;
+            --beem-success-text: #16a34a;
+            --beem-shadow: rgba(0, 0, 0, 0.15);
+            --beem-btn-secondary-bg: #F3A929;
+            --beem-btn-secondary-text: #2D2D2C;
         }
+
+        @media (prefers-color-scheme: dark) {
+            .beem-checkout {
+                --beem-text: #f9fafb;
+                --beem-text-muted: #d1d5db;
+                --beem-border: #374151;
+                --beem-input-bg: #111827;
+                --beem-input-focus: rgba(51, 177, 186, 0.25);
+                --beem-error-bg: #7f1d1d;
+                --beem-error-text: #fca5a5;
+                --beem-success-bg: #14532d;
+                --beem-success-text: #86efac;
+                --beem-shadow: rgba(0, 0, 0, 0.5);
+                --beem-btn-secondary-bg: #d97706;
+                --beem-btn-secondary-text: #ffffff;
+            }
+        }
+
+        .dark .beem-checkout {
+            --beem-text: #f9fafb;
+            --beem-text-muted: #d1d5db;
+            --beem-border: #374151;
+            --beem-input-bg: #111827;
+            --beem-input-focus: rgba(51, 177, 186, 0.25);
+            --beem-error-bg: #7f1d1d;
+            --beem-error-text: #fca5a5;
+            --beem-success-bg: #14532d;
+            --beem-success-text: #86efac;
+            --beem-shadow: rgba(0, 0, 0, 0.5);
+            --beem-btn-secondary-bg: #d97706;
+            --beem-btn-secondary-text: #ffffff;
+        }
+
         .beem-form-group { margin-bottom: 1rem; }
-        .beem-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555555; }
+        .beem-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--beem-text-muted); }
         .beem-input {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #ddd;
+            border: 1px solid var(--beem-border);
             border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: var(--beem-input-bg);
+            color: var(--beem-text);
         }
         .beem-input:focus {
             outline: none;
-            border-color: #33B1BA;
-            box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.15);
+            border-color: var(--beem-primary);
+            box-shadow: 0 0 0 3px var(--beem-input-focus);
         }
-        .beem-input-error { border-color: #dc3545; }
-        .beem-error-text { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; display: block; }
+        .beem-input-error { border-color: var(--beem-error-text); }
+        .beem-error-text { color: var(--beem-error-text); font-size: 0.875rem; margin-top: 0.25rem; display: block; }
         .beem-btn {
             display: inline-flex;
             align-items: center;
@@ -132,10 +184,10 @@
             width: 100%;
             transition: transform 0.1s, box-shadow 0.2s;
         }
-        .beem-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .beem-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px var(--beem-shadow); }
         .beem-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .beem-btn-primary { background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%); color: white; }
-        .beem-btn-secondary { background: #F3A929; color: #2D2D2C; }
+        .beem-btn-primary { background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%); color: var(--beem-text-on-primary); }
+        .beem-btn-secondary { background: var(--beem-btn-secondary-bg); color: var(--beem-btn-secondary-text); }
         .beem-icon { width: 1.25rem; height: 1.25rem; }
         .beem-spinner { animation: spin 1s linear infinite; width: 1.25rem; height: 1.25rem; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -147,11 +199,11 @@
             border-radius: 8px;
             margin-bottom: 1rem;
         }
-        .beem-alert-error { background: #fee2e2; color: #dc3545; }
-        .beem-alert-close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; }
+        .beem-alert-error { background: var(--beem-error-bg); color: var(--beem-error-text); }
+        .beem-alert-close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: inherit; }
         .beem-amount-display {
-            background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%);
+            color: var(--beem-text-on-primary);
             padding: 1rem;
             border-radius: 8px;
             text-align: center;
@@ -160,6 +212,6 @@
         .beem-amount-label { display: block; font-size: 0.875rem; opacity: 0.9; }
         .beem-amount-value { display: block; font-size: 2rem; font-weight: 700; }
         .beem-checkout-ready { margin-top: 1rem; text-align: center; }
-        .beem-checkout-ready p { color: #22c55e; font-weight: 500; margin-bottom: 0.5rem; }
+        .beem-checkout-ready p { color: var(--beem-success-text); font-weight: 500; margin-bottom: 0.5rem; }
     </style>
 </div>

@@ -443,6 +443,49 @@ defineExpose({
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   max-width: 400px;
   margin: 0 auto;
+
+  /* Light Mode Variables */
+  --beem-primary: #33B1BA;
+  --beem-primary-dark: #2a9aa3;
+  --beem-text-on-primary: #ffffff;
+  --beem-text: #2D2D2C;
+  --beem-text-muted: #555555;
+  --beem-border: #dddddd;
+  --beem-input-bg: #ffffff;
+  --beem-input-focus: rgba(51, 177, 186, 0.15);
+  --beem-error-bg: #fee2e2;
+  --beem-error-text: #dc3545;
+  --beem-success-bg: #dcfce7;
+  --beem-success-text: #16a34a;
+  --beem-shadow: rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .beem-otp {
+    --beem-text: #f9fafb;
+    --beem-text-muted: #9ca3af;
+    --beem-border: #374151;
+    --beem-input-bg: #111827;
+    --beem-input-focus: rgba(51, 177, 186, 0.25);
+    --beem-error-bg: #7f1d1d;
+    --beem-error-text: #fca5a5;
+    --beem-success-bg: #14532d;
+    --beem-success-text: #86efac;
+    --beem-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+:global(.dark) .beem-otp {
+  --beem-text: #f9fafb;
+  --beem-text-muted: #9ca3af;
+  --beem-border: #374151;
+  --beem-input-bg: #111827;
+  --beem-input-focus: rgba(51, 177, 186, 0.25);
+  --beem-error-bg: #7f1d1d;
+  --beem-error-text: #fca5a5;
+  --beem-success-bg: #14532d;
+  --beem-success-text: #86efac;
+  --beem-shadow: rgba(0, 0, 0, 0.5);
 }
 
 .beem-otp-step {
@@ -456,7 +499,7 @@ defineExpose({
 .beem-step-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%);
+  background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -467,18 +510,18 @@ defineExpose({
 .beem-step-icon svg {
   width: 28px;
   height: 28px;
-  color: white;
+  color: var(--beem-text-on-primary);
 }
 
 .beem-step-header h3 {
   margin: 0 0 0.5rem;
-  color: #2D2D2C;
+  color: var(--beem-text);
   font-size: 1.25rem;
 }
 
 .beem-step-header p {
   margin: 0;
-  color: #555555;
+  color: var(--beem-text-muted);
 }
 
 .beem-form-group {
@@ -490,22 +533,24 @@ defineExpose({
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #555555;
+  color: var(--beem-text-muted);
 }
 
 .beem-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--beem-border);
   border-radius: 8px;
   font-size: 1rem;
   box-sizing: border-box;
+  background-color: var(--beem-input-bg);
+  color: var(--beem-text);
 }
 
 .beem-input:focus {
   outline: none;
-  border-color: #33B1BA;
-  box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.15);
+  border-color: var(--beem-primary);
+  box-shadow: 0 0 0 3px var(--beem-input-focus);
 }
 
 .beem-otp-input {
@@ -516,11 +561,11 @@ defineExpose({
 }
 
 .beem-input-error {
-  border-color: #dc3545;
+  border-color: var(--beem-error-text);
 }
 
 .beem-error-text {
-  color: #dc3545;
+  color: var(--beem-error-text);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   display: block;
@@ -542,7 +587,7 @@ defineExpose({
 
 .beem-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--beem-shadow);
 }
 
 .beem-btn:disabled {
@@ -551,8 +596,8 @@ defineExpose({
 }
 
 .beem-btn-primary {
-  background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%);
+  color: var(--beem-text-on-primary);
 }
 
 .beem-alert {
@@ -565,13 +610,13 @@ defineExpose({
 }
 
 .beem-alert-error {
-  background: #fee2e2;
-  color: #dc3545;
+  background: var(--beem-error-bg);
+  color: var(--beem-error-text);
 }
 
 .beem-alert-success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--beem-success-bg);
+  color: var(--beem-success-text);
 }
 
 .beem-alert-close {
@@ -591,7 +636,7 @@ defineExpose({
 .beem-link {
   background: none;
   border: none;
-  color: #33B1BA;
+  color: var(--beem-primary);
   cursor: pointer;
   font-size: 0.875rem;
 }
@@ -609,7 +654,7 @@ defineExpose({
 .beem-success-icon {
   width: 80px;
   height: 80px;
-  background: #dcfce7;
+  background: var(--beem-success-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -620,16 +665,16 @@ defineExpose({
 .beem-success-icon svg {
   width: 48px;
   height: 48px;
-  color: #16a34a;
+  color: var(--beem-success-text);
 }
 
 .beem-otp-success h3 {
-  color: #16a34a;
+  color: var(--beem-success-text);
   margin: 0 0 0.5rem;
 }
 
 .beem-otp-success p {
-  color: #555555;
+  color: var(--beem-text-muted);
   margin: 0;
 }
 </style>

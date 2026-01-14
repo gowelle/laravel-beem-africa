@@ -131,42 +131,103 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             max-width: 500px;
             margin: 0 auto;
+
+            /* Light Mode Variables */
+            --beem-primary: #33B1BA;
+            --beem-primary-dark: #2a9aa3;
+            --beem-text-on-primary: #ffffff;
+            --beem-text: #2D2D2C;
+            --beem-text-muted: #555555;
+            --beem-text-hint: #888888;
+            --beem-border: #dddddd;
+            --beem-input-bg: #ffffff;
+            --beem-input-focus: rgba(51, 177, 186, 0.15);
+            --beem-error-bg: #fee2e2;
+            --beem-error-text: #dc3545;
+            --beem-success-bg: #dcfce7;
+            --beem-success-text: #16a34a;
+            --beem-shadow: rgba(0, 0, 0, 0.15);
+            --beem-btn-secondary-bg: #f5f5f5;
+            --beem-btn-secondary-text: #555555;
+            --beem-tag-bg: #e0f7fa;
+            --beem-tag-text: #00838f;
         }
+
+        @media (prefers-color-scheme: dark) {
+            .beem-sms {
+                --beem-text: #f9fafb;
+                --beem-text-muted: #d1d5db;
+                --beem-text-hint: #9ca3af;
+                --beem-border: #374151;
+                --beem-input-bg: #111827;
+                --beem-input-focus: rgba(51, 177, 186, 0.25);
+                --beem-error-bg: #7f1d1d;
+                --beem-error-text: #fca5a5;
+                --beem-success-bg: #14532d;
+                --beem-success-text: #86efac;
+                --beem-shadow: rgba(0, 0, 0, 0.5);
+                --beem-btn-secondary-bg: #374151;
+                --beem-btn-secondary-text: #e5e7eb;
+                --beem-tag-bg: #155e75;
+                --beem-tag-text: #a5f3fc;
+            }
+        }
+
+        .dark .beem-sms {
+            --beem-text: #f9fafb;
+            --beem-text-muted: #d1d5db;
+            --beem-text-hint: #9ca3af;
+            --beem-border: #374151;
+            --beem-input-bg: #111827;
+            --beem-input-focus: rgba(51, 177, 186, 0.25);
+            --beem-error-bg: #7f1d1d;
+            --beem-error-text: #fca5a5;
+            --beem-success-bg: #14532d;
+            --beem-success-text: #86efac;
+            --beem-shadow: rgba(0, 0, 0, 0.5);
+            --beem-btn-secondary-bg: #374151;
+            --beem-btn-secondary-text: #e5e7eb;
+            --beem-tag-bg: #155e75;
+            --beem-tag-text: #a5f3fc;
+        }
+
         .beem-sms-form { padding: 1rem 0; }
         .beem-form-group { margin-bottom: 1.25rem; }
-        .beem-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555555; }
+        .beem-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--beem-text-muted); }
         .beem-input, .beem-textarea {
             width: 100%; padding: 0.75rem;
-            border: 1px solid #ddd; border-radius: 8px;
+            border: 1px solid var(--beem-border); border-radius: 8px;
             font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: var(--beem-input-bg);
+            color: var(--beem-text);
         }
         .beem-textarea { resize: vertical; min-height: 100px; font-family: inherit; }
-        .beem-input:focus, .beem-textarea:focus { outline: none; border-color: #33B1BA; box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.15); }
-        .beem-input-error { border-color: #dc3545; }
-        .beem-error-text { color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem; display: block; }
-        .beem-hint { color: #888; font-size: 0.75rem; margin-top: 0.25rem; display: block; }
+        .beem-input:focus, .beem-textarea:focus { outline: none; border-color: var(--beem-primary); box-shadow: 0 0 0 3px var(--beem-input-focus); }
+        .beem-input-error { border-color: var(--beem-error-text); }
+        .beem-error-text { color: var(--beem-error-text); font-size: 0.875rem; margin-top: 0.25rem; display: block; }
+        .beem-hint { color: var(--beem-text-hint); font-size: 0.75rem; margin-top: 0.25rem; display: block; }
         .beem-recipient-input { display: flex; gap: 0.5rem; }
         .beem-recipient-input .beem-input { flex: 1; }
         .beem-btn-icon {
-            padding: 0.75rem; background: #33B1BA; color: white;
+            padding: 0.75rem; background: var(--beem-primary); color: var(--beem-text-on-primary);
             border: none; border-radius: 8px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
         .beem-btn-icon svg { width: 1.25rem; height: 1.25rem; }
-        .beem-btn-icon:hover { background: #2a9aa3; }
+        .beem-btn-icon:hover { background: var(--beem-primary-dark); }
         .beem-recipients-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
         .beem-recipient-tag {
-            background: #e0f7fa; color: #00838f;
+            background: var(--beem-tag-bg); color: var(--beem-tag-text);
             padding: 0.375rem 0.75rem; border-radius: 20px;
             font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;
         }
-        .beem-recipient-tag button { background: none; border: none; color: #00838f; cursor: pointer; font-size: 1rem; line-height: 1; }
+        .beem-recipient-tag button { background: none; border: none; color: var(--beem-tag-text); cursor: pointer; font-size: 1rem; line-height: 1; }
         .beem-char-count {
             display: flex; justify-content: space-between;
-            font-size: 0.75rem; color: #888; margin-top: 0.25rem;
+            font-size: 0.75rem; color: var(--beem-text-hint); margin-top: 0.25rem;
         }
-        .beem-text-error { color: #dc3545; }
-        .beem-segment-info { color: #33B1BA; font-weight: 500; }
+        .beem-text-error { color: var(--beem-error-text); }
+        .beem-segment-info { color: var(--beem-primary); font-weight: 500; }
         .beem-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
         .beem-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -174,10 +235,10 @@
             border: none; border-radius: 8px; cursor: pointer; flex: 1;
             transition: transform 0.1s, box-shadow 0.2s;
         }
-        .beem-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .beem-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px var(--beem-shadow); }
         .beem-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .beem-btn-primary { background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%); color: white; }
-        .beem-btn-secondary { background: #f5f5f5; color: #555555; }
+        .beem-btn-primary { background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%); color: var(--beem-text-on-primary); }
+        .beem-btn-secondary { background: var(--beem-btn-secondary-bg); color: var(--beem-btn-secondary-text); }
         .beem-icon { width: 1.25rem; height: 1.25rem; }
         .beem-spinner { animation: spin 1s linear infinite; width: 1.25rem; height: 1.25rem; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -185,8 +246,8 @@
             display: flex; align-items: center; gap: 0.5rem;
             padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem;
         }
-        .beem-alert-error { background: #fee2e2; color: #dc3545; }
-        .beem-alert-success { background: #dcfce7; color: #16a34a; }
+        .beem-alert-error { background: var(--beem-error-bg); color: var(--beem-error-text); }
+        .beem-alert-success { background: var(--beem-success-bg); color: var(--beem-success-text); }
         .beem-alert-close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: inherit; }
     </style>
 </div>

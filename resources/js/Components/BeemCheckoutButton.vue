@@ -226,11 +226,33 @@ defineExpose({
 .beem-checkout-wrapper {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   max-width: 400px;
+
+  /* Light Mode Variables */
+  --beem-primary: #33B1BA;
+  --beem-primary-dark: #2a9aa3;
+  --beem-text-on-primary: #ffffff;
+  --beem-error-bg: #fee2e2;
+  --beem-error-text: #dc3545;
+  --beem-shadow: rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .beem-checkout-wrapper {
+    --beem-error-bg: #7f1d1d;
+    --beem-error-text: #fca5a5;
+    --beem-shadow: rgba(0, 0, 0, 0.5);
+  }
+}
+
+:global(.dark) .beem-checkout-wrapper {
+  --beem-error-bg: #7f1d1d;
+  --beem-error-text: #fca5a5;
+  --beem-shadow: rgba(0, 0, 0, 0.5);
 }
 
 .beem-amount-display {
-  background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%);
+  color: var(--beem-text-on-primary);
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
@@ -266,7 +288,7 @@ defineExpose({
 
 .beem-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--beem-shadow);
 }
 
 .beem-btn:disabled {
@@ -275,8 +297,8 @@ defineExpose({
 }
 
 .beem-btn-primary {
-  background: linear-gradient(135deg, #33B1BA 0%, #2a9aa3 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--beem-primary) 0%, var(--beem-primary-dark) 100%);
+  color: var(--beem-text-on-primary);
 }
 
 .beem-icon {
@@ -310,8 +332,8 @@ defineExpose({
 }
 
 .beem-alert-error {
-  background: #fee2e2;
-  color: #dc3545;
+  background: var(--beem-error-bg);
+  color: var(--beem-error-text);
 }
 
 .beem-alert-close {
