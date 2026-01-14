@@ -632,4 +632,79 @@ defineExpose({
   color: #555555;
   margin: 0;
 }
+
+@media (prefers-color-scheme: dark) {
+  .beem-label,
+  .beem-step-header p,
+  .beem-otp-success p {
+    color: #cbd5e1;
+  }
+  .beem-step-header h3,
+  .beem-otp-success h3 {
+    color: #f1f5f9;
+  }
+  .beem-input {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+  .beem-input:focus {
+    border-color: #33B1BA;
+    box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+  }
+  .beem-alert-error {
+    background: #450a0a;
+    color: #fca5a5;
+  }
+  .beem-alert-success {
+    background: #052e16;
+    color: #86efac;
+  }
+  .beem-success-icon {
+    background: #064e3b;
+  }
+  .beem-success-icon svg {
+    color: #4ade80;
+  }
+}
+
+:global(.dark) .beem-label,
+:global(.dark) .beem-step-header p,
+:global(.dark) .beem-otp-success p {
+  color: #cbd5e1;
+}
+
+:global(.dark) .beem-step-header h3,
+:global(.dark) .beem-otp-success h3 {
+  color: #f1f5f9;
+}
+
+:global(.dark) .beem-input {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+:global(.dark) .beem-input:focus {
+  border-color: #33B1BA;
+  box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+}
+
+:global(.dark) .beem-alert-error {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+:global(.dark) .beem-alert-success {
+  background: #052e16;
+  color: #86efac;
+}
+
+:global(.dark) .beem-success-icon {
+  background: #064e3b;
+}
+
+:global(.dark) .beem-success-icon svg {
+  color: #4ade80;
+}
 </style>

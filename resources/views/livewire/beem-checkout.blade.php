@@ -161,5 +161,34 @@
         .beem-amount-value { display: block; font-size: 2rem; font-weight: 700; }
         .beem-checkout-ready { margin-top: 1rem; text-align: center; }
         .beem-checkout-ready p { color: #22c55e; font-weight: 500; margin-bottom: 0.5rem; }
+
+        @media (prefers-color-scheme: dark) {
+            .beem-label { color: #cbd5e1; }
+            .beem-input {
+                background-color: #1e293b;
+                border-color: #334155;
+                color: #f1f5f9;
+            }
+            .beem-input::placeholder { color: #64748b; }
+            .beem-input:focus {
+                border-color: #33B1BA;
+                box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+            }
+            .beem-alert-error { background: #450a0a; color: #fca5a5; }
+            .beem-btn-secondary { background: #334155; color: #f1f5f9; }
+        }
+        .dark .beem-label { color: #cbd5e1; }
+        .dark .beem-input {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+        .dark .beem-input::placeholder { color: #64748b; }
+        .dark .beem-input:focus {
+            border-color: #33B1BA;
+            box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+        }
+        .dark .beem-alert-error { background: #450a0a; color: #fca5a5; }
+        .dark .beem-btn-secondary { background: #334155; color: #f1f5f9; }
     </style>
 </div>

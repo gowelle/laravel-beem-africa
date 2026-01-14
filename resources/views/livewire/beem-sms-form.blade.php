@@ -188,5 +188,36 @@
         .beem-alert-error { background: #fee2e2; color: #dc3545; }
         .beem-alert-success { background: #dcfce7; color: #16a34a; }
         .beem-alert-close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: inherit; }
+
+        @media (prefers-color-scheme: dark) {
+            .beem-label { color: #cbd5e1; }
+            .beem-input, .beem-textarea {
+                background-color: #1e293b;
+                border-color: #334155;
+                color: #f1f5f9;
+            }
+            .beem-input::placeholder, .beem-textarea::placeholder { color: #64748b; }
+            .beem-input:focus, .beem-textarea:focus { border-color: #33B1BA; box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25); }
+            .beem-hint, .beem-char-count { color: #9ca3af; }
+            .beem-recipient-tag { background-color: #164e63; color: #67e8f9; }
+            .beem-recipient-tag button { color: #67e8f9; }
+            .beem-btn-secondary { background-color: #334155; color: #f1f5f9; }
+            .beem-alert-error { background: #450a0a; color: #fca5a5; }
+            .beem-alert-success { background: #052e16; color: #86efac; }
+        }
+        .dark .beem-label { color: #cbd5e1; }
+        .dark .beem-input, .dark .beem-textarea {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+        .dark .beem-input::placeholder, .dark .beem-textarea::placeholder { color: #64748b; }
+        .dark .beem-input:focus, .dark .beem-textarea:focus { border-color: #33B1BA; box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25); }
+        .dark .beem-hint, .dark .beem-char-count { color: #9ca3af; }
+        .dark .beem-recipient-tag { background-color: #164e63; color: #67e8f9; }
+        .dark .beem-recipient-tag button { color: #67e8f9; }
+        .dark .beem-btn-secondary { background-color: #334155; color: #f1f5f9; }
+        .dark .beem-alert-error { background: #450a0a; color: #fca5a5; }
+        .dark .beem-alert-success { background: #052e16; color: #86efac; }
     </style>
 </div>

@@ -600,4 +600,82 @@ defineExpose({
   cursor: pointer;
   color: inherit;
 }
+
+@media (prefers-color-scheme: dark) {
+  .beem-label {
+    color: #cbd5e1;
+  }
+  .beem-input,
+  .beem-textarea {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+  .beem-input:focus,
+  .beem-textarea:focus {
+    border-color: #33B1BA;
+    box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+  }
+  .beem-hint,
+  .beem-char-count {
+    color: #9ca3af;
+  }
+  .beem-recipient-tag {
+    background-color: #164e63;
+    color: #67e8f9;
+  }
+  .beem-recipient-tag button {
+    color: #67e8f9;
+  }
+  .beem-btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+  }
+  .beem-alert-error {
+    background: #450a0a;
+    color: #fca5a5;
+  }
+  .beem-alert-success {
+    background: #052e16;
+    color: #86efac;
+  }
+}
+
+:global(.dark) .beem-label {
+  color: #cbd5e1;
+}
+:global(.dark) .beem-input,
+:global(.dark) .beem-textarea {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+:global(.dark) .beem-input:focus,
+:global(.dark) .beem-textarea:focus {
+  border-color: #33B1BA;
+  box-shadow: 0 0 0 3px rgba(51, 177, 186, 0.25);
+}
+:global(.dark) .beem-hint,
+:global(.dark) .beem-char-count {
+  color: #9ca3af;
+}
+:global(.dark) .beem-recipient-tag {
+  background-color: #164e63;
+  color: #67e8f9;
+}
+:global(.dark) .beem-recipient-tag button {
+  color: #67e8f9;
+}
+:global(.dark) .beem-btn-secondary {
+  background-color: #334155;
+  color: #f1f5f9;
+}
+:global(.dark) .beem-alert-error {
+  background: #450a0a;
+  color: #fca5a5;
+}
+:global(.dark) .beem-alert-success {
+  background: #052e16;
+  color: #86efac;
+}
 </style>

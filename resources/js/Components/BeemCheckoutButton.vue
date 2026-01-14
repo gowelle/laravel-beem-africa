@@ -321,4 +321,16 @@ defineExpose({
   font-size: 1.25rem;
   cursor: pointer;
 }
+
+@media (prefers-color-scheme: dark) {
+  .beem-alert-error {
+    background: #450a0a;
+    color: #fca5a5;
+  }
+}
+
+:global(.dark) .beem-alert-error {
+  background: #450a0a;
+  color: #fca5a5;
+}
 </style>
