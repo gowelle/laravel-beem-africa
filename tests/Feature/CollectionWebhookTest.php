@@ -1,5 +1,6 @@
 <?php
 
+use Gowelle\BeemAfrica\DTOs\CollectionPayload;
 use Gowelle\BeemAfrica\Events\CollectionReceived;
 use Illuminate\Support\Facades\Event;
 
@@ -61,7 +62,7 @@ describe('CollectionWebhookController', function () {
 describe('CollectionReceived Event', function () {
     it('provides convenience methods', function () {
         $event = new CollectionReceived(
-            \Gowelle\BeemAfrica\DTOs\CollectionPayload::fromArray([
+            CollectionPayload::fromArray([
                 'transaction_id' => 'TXN-789',
                 'amount_collected' => '7500',
                 'subscriber_msisdn' => '255787654321',

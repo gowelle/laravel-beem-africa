@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gowelle\BeemAfrica\Tests;
 
 use Gowelle\BeemAfrica\BeemServiceProvider;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -23,8 +24,8 @@ abstract class TestCase extends Orchestra
         ];
 
         // Add Livewire provider if available
-        if (class_exists(\Livewire\LivewireServiceProvider::class)) {
-            $providers[] = \Livewire\LivewireServiceProvider::class;
+        if (class_exists(LivewireServiceProvider::class)) {
+            $providers[] = LivewireServiceProvider::class;
         }
 
         return $providers;

@@ -58,14 +58,14 @@ describe('MojaMediaObject', function () {
             mime_type: '',
             url: 'https://example.com/image.jpg'
         );
-    })->throws(\InvalidArgumentException::class, 'MIME type is required');
+    })->throws(InvalidArgumentException::class, 'MIME type is required');
 
     it('throws exception for invalid URL', function () {
         new MojaMediaObject(
             mime_type: 'image/jpeg',
             url: 'not-a-url'
         );
-    })->throws(\InvalidArgumentException::class, 'Invalid URL format');
+    })->throws(InvalidArgumentException::class, 'Invalid URL format');
 
     it('identifies image media type', function () {
         $media = new MojaMediaObject('image/jpeg', 'https://example.com/img.jpg');
@@ -116,11 +116,11 @@ describe('MojaLocationObject', function () {
 
     it('throws exception for invalid latitude', function () {
         new MojaLocationObject('100', '0');
-    })->throws(\InvalidArgumentException::class, 'Latitude must be between -90 and 90');
+    })->throws(InvalidArgumentException::class, 'Latitude must be between -90 and 90');
 
     it('throws exception for invalid longitude', function () {
         new MojaLocationObject('0', '200');
-    })->throws(\InvalidArgumentException::class, 'Longitude must be between -180 and 180');
+    })->throws(InvalidArgumentException::class, 'Longitude must be between -180 and 180');
 
     it('returns float coordinates', function () {
         $location = new MojaLocationObject('-6.7924', '39.2083');
@@ -160,11 +160,11 @@ describe('MojaContactObject', function () {
 
     it('throws exception for empty names', function () {
         new MojaContactObject('', ['255712345678']);
-    })->throws(\InvalidArgumentException::class, 'Contact name is required');
+    })->throws(InvalidArgumentException::class, 'Contact name is required');
 
     it('throws exception for empty phones', function () {
         new MojaContactObject('John Doe', []);
-    })->throws(\InvalidArgumentException::class, 'At least one phone number is required');
+    })->throws(InvalidArgumentException::class, 'At least one phone number is required');
 
     it('returns primary phone number', function () {
         $contact = new MojaContactObject('John', ['255712345678', '255798765432']);
@@ -241,7 +241,7 @@ describe('MojaMessageRequest', function () {
             channel: MojaChannel::WHATSAPP,
             message_type: MojaMessageType::TEXT
         );
-    })->throws(\InvalidArgumentException::class, 'Text content is required');
+    })->throws(InvalidArgumentException::class, 'Text content is required');
 
     it('throws exception for image message without image', function () {
         new MojaMessageRequest(
@@ -250,7 +250,7 @@ describe('MojaMessageRequest', function () {
             channel: MojaChannel::WHATSAPP,
             message_type: MojaMessageType::IMAGE
         );
-    })->throws(\InvalidArgumentException::class, 'Image object is required');
+    })->throws(InvalidArgumentException::class, 'Image object is required');
 
     it('throws exception for invalid transaction ID format', function () {
         new MojaMessageRequest(
@@ -261,7 +261,7 @@ describe('MojaMessageRequest', function () {
             text: 'Hello',
             transaction_id: 'invalid-uuid'
         );
-    })->throws(\InvalidArgumentException::class, 'Transaction ID must be a valid UUIDv4');
+    })->throws(InvalidArgumentException::class, 'Transaction ID must be a valid UUIDv4');
 });
 
 describe('MojaTemplateRequest', function () {
@@ -300,15 +300,15 @@ describe('MojaTemplateRequest', function () {
 
     it('throws exception for empty from address', function () {
         new MojaTemplateRequest('', [['phoneNumber' => '255712345678', 'params' => []]], 1024);
-    })->throws(\InvalidArgumentException::class, 'Sender address');
+    })->throws(InvalidArgumentException::class, 'Sender address');
 
     it('throws exception for empty destinations', function () {
         new MojaTemplateRequest('255701000000', [], 1024);
-    })->throws(\InvalidArgumentException::class, 'At least one destination address');
+    })->throws(InvalidArgumentException::class, 'At least one destination address');
 
     it('throws exception for invalid template ID', function () {
         new MojaTemplateRequest('255701000000', [['phoneNumber' => '255712345678', 'params' => []]], 0);
-    })->throws(\InvalidArgumentException::class, 'Template ID must be a positive integer');
+    })->throws(InvalidArgumentException::class, 'Template ID must be a positive integer');
 });
 
 describe('MojaMessageResponse', function () {

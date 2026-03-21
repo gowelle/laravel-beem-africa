@@ -32,21 +32,21 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/contracts": "^11.0|^12.0",
-        "illuminate/database": "^11.0|^12.0",
-        "illuminate/http": "^11.0|^12.0",
-        "illuminate/support": "^11.0|^12.0",
-        "illuminate/validation": "^11.0|^12.0",
-        "spatie/laravel-package-tools": "^1.92"
+        "php": "^8.3",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/validation": "^11.0|^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.93"
     },
     "require-dev": {
-        "livewire/livewire": "^3.0",
-        "orchestra/testbench": "^9.0|^10.0",
-        "pestphp/pest": "^2.0|^3.0",
-        "pestphp/pest-plugin-laravel": "^2.0|^3.0",
-        "pestphp/pest-plugin-livewire": "^2.0|^3.0",
-        "phpstan/phpstan": "^1.10|^2.0",
+        "livewire/livewire": "^3.7.4|^4.0",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "pestphp/pest-plugin-livewire": "^4.0",
+        "phpstan/phpstan": "^2.0",
         "laravel/pint": "^1.13"
     },
     "autoload": {
@@ -62,7 +62,7 @@
     "scripts": {
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
-        "analyse": "vendor/bin/phpstan analyse",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
         "format": "vendor/bin/pint"
     },
     "config": {

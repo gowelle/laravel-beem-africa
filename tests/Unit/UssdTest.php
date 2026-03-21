@@ -169,5 +169,5 @@ describe('BeemUssdService', function () {
         );
 
         $service->checkBalance();
-    })->throws(\RuntimeException::class, 'Invalid Authentication Parameters');
+    })->throws(RuntimeException::class, 'Invalid Authentication Parameters');
 });

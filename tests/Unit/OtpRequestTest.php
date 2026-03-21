@@ -32,21 +32,21 @@ describe('OtpRequest', function () {
             appId: '',
             msisdn: '255712345678',
         );
-    })->throws(\InvalidArgumentException::class, 'App ID is required');
+    })->throws(InvalidArgumentException::class, 'App ID is required');
 
     it('throws exception for empty phone number', function () {
         new OtpRequest(
             appId: 'test-app-id',
             msisdn: '',
         );
-    })->throws(\InvalidArgumentException::class, 'Phone number (msisdn) is required');
+    })->throws(InvalidArgumentException::class, 'Phone number (msisdn) is required');
 
     it('throws exception for invalid phone number format', function () {
         new OtpRequest(
             appId: 'test-app-id',
             msisdn: 'invalid',
         );
-    })->throws(\InvalidArgumentException::class, 'Invalid phone number format');
+    })->throws(InvalidArgumentException::class, 'Invalid phone number format');
 
     it('accepts valid phone number formats', function ($msisdn) {
         $request = new OtpRequest(

@@ -41,14 +41,14 @@ describe('SmsRecipient', function () {
             recipientId: '',
             destAddr: '255712345678'
         );
-    })->throws(\InvalidArgumentException::class, 'Recipient ID is required');
+    })->throws(InvalidArgumentException::class, 'Recipient ID is required');
 
     it('throws exception for invalid phone number', function () {
         new SmsRecipient(
             recipientId: 'REC-001',
             destAddr: '12345'
         );
-    })->throws(\InvalidArgumentException::class, 'Invalid phone number format');
+    })->throws(InvalidArgumentException::class, 'Invalid phone number format');
 });
 
 describe('SmsRequest', function () {
@@ -97,7 +97,7 @@ describe('SmsRequest', function () {
             message: 'Hello',
             recipients: [new SmsRecipient('REC-001', '255712345678')]
         );
-    })->throws(\InvalidArgumentException::class, 'Source address');
+    })->throws(InvalidArgumentException::class, 'Source address');
 
     it('throws exception for empty message', function () {
         new SmsRequest(
@@ -105,7 +105,7 @@ describe('SmsRequest', function () {
             message: '',
             recipients: [new SmsRecipient('REC-001', '255712345678')]
         );
-    })->throws(\InvalidArgumentException::class, 'Message content is required');
+    })->throws(InvalidArgumentException::class, 'Message content is required');
 
     it('throws exception for empty recipients', function () {
         new SmsRequest(
@@ -113,7 +113,7 @@ describe('SmsRequest', function () {
             message: 'Hello',
             recipients: []
         );
-    })->throws(\InvalidArgumentException::class, 'At least one recipient is required');
+    })->throws(InvalidArgumentException::class, 'At least one recipient is required');
 
     it('throws exception for invalid encoding', function () {
         new SmsRequest(
@@ -122,7 +122,7 @@ describe('SmsRequest', function () {
             recipients: [new SmsRecipient('REC-001', '255712345678')],
             encoding: 5
         );
-    })->throws(\InvalidArgumentException::class, 'Encoding must be 0');
+    })->throws(InvalidArgumentException::class, 'Encoding must be 0');
 
     it('throws exception for invalid schedule time format', function () {
         new SmsRequest(
@@ -131,7 +131,7 @@ describe('SmsRequest', function () {
             recipients: [new SmsRecipient('REC-001', '255712345678')],
             scheduleTime: 'invalid-date'
         );
-    })->throws(\InvalidArgumentException::class, 'Schedule time must be in yyyy-mm-dd hh:mm format');
+    })->throws(InvalidArgumentException::class, 'Schedule time must be in yyyy-mm-dd hh:mm format');
 
     it('returns recipient count', function () {
         $request = new SmsRequest(

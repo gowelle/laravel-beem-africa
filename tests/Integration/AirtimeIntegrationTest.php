@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Gowelle\BeemAfrica\Airtime\BeemAirtimeService;
 use Gowelle\BeemAfrica\Support\BeemAirtimeClient;
+use Illuminate\Http\Client\PendingRequest;
 
 /**
  * Integration tests for Beem Airtime API.
@@ -40,12 +41,12 @@ describe('Beem Airtime API Integration', function () {
     it('can build authenticated request', function () {
         $request = $this->client->request();
 
-        expect($request)->toBeInstanceOf(Illuminate\Http\Client\PendingRequest::class);
+        expect($request)->toBeInstanceOf(PendingRequest::class);
     })->group('integration');
 
     it('can build balance request', function () {
         $request = $this->client->balanceRequest();
 
-        expect($request)->toBeInstanceOf(Illuminate\Http\Client\PendingRequest::class);
+        expect($request)->toBeInstanceOf(PendingRequest::class);
     })->group('integration');
 })->group('integration');

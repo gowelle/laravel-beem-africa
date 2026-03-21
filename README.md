@@ -130,8 +130,8 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 
 ## Requirements
 
-- PHP 8.2+
-- Laravel 11.0+ or 12.0+
+- PHP 8.3+
+- Laravel 11.0+, 12.0+, or 13.0+
 
 ## Installation
 
@@ -3445,8 +3445,8 @@ The package includes GitHub Actions workflows:
 ### `tests.yml`
 
 - Runs on every push/PR to main
-- Tests against PHP 8.2, 8.3, 8.4
-- Tests against Laravel 11 and 12
+- Tests against PHP 8.3, 8.4, and 8.5
+- Tests against Laravel 11, 12, and 13
 - Runs PHPStan static analysis
 - Checks code style with Pint
 

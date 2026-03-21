@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace Gowelle\BeemAfrica\Facades;
 
+use Gowelle\BeemAfrica\Airtime\BeemAirtimeService;
 use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
+use Gowelle\BeemAfrica\Collection\BeemCollectionService;
+use Gowelle\BeemAfrica\Contacts\BeemContactsService;
+use Gowelle\BeemAfrica\Disbursement\BeemDisbursementService;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
 use Gowelle\BeemAfrica\DTOs\CheckoutResponse;
+use Gowelle\BeemAfrica\Otp\BeemOtpService;
+use Gowelle\BeemAfrica\Sms\BeemSmsService;
+use Gowelle\BeemAfrica\Ussd\BeemUssdService;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -21,7 +28,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Gowelle\BeemAfrica\Ussd\BeemUssdService ussd()
  * @method static \Gowelle\BeemAfrica\Contacts\BeemContactsService contacts()
  *
- * @see \Gowelle\BeemAfrica\Checkout\BeemCheckoutService
+ * @see BeemCheckoutService
  */
 class Beem extends Facade
 {
@@ -33,56 +40,56 @@ class Beem extends Facade
     /**
      * Get the OTP service instance.
      */
-    public static function otp(): \Gowelle\BeemAfrica\Otp\BeemOtpService
+    public static function otp(): BeemOtpService
     {
-        return app(\Gowelle\BeemAfrica\Otp\BeemOtpService::class);
+        return app(BeemOtpService::class);
     }
 
     /**
      * Get the Airtime service instance.
      */
-    public static function airtime(): \Gowelle\BeemAfrica\Airtime\BeemAirtimeService
+    public static function airtime(): BeemAirtimeService
     {
-        return app(\Gowelle\BeemAfrica\Airtime\BeemAirtimeService::class);
+        return app(BeemAirtimeService::class);
     }
 
     /**
      * Get the SMS service instance.
      */
-    public static function sms(): \Gowelle\BeemAfrica\Sms\BeemSmsService
+    public static function sms(): BeemSmsService
     {
-        return app(\Gowelle\BeemAfrica\Sms\BeemSmsService::class);
+        return app(BeemSmsService::class);
     }
 
     /**
      * Get the Disbursement service instance.
      */
-    public static function disbursement(): \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService
+    public static function disbursement(): BeemDisbursementService
     {
-        return app(\Gowelle\BeemAfrica\Disbursement\BeemDisbursementService::class);
+        return app(BeemDisbursementService::class);
     }
 
     /**
      * Get the Collection service instance.
      */
-    public static function collection(): \Gowelle\BeemAfrica\Collection\BeemCollectionService
+    public static function collection(): BeemCollectionService
     {
-        return app(\Gowelle\BeemAfrica\Collection\BeemCollectionService::class);
+        return app(BeemCollectionService::class);
     }
 
     /**
      * Get the USSD service instance.
      */
-    public static function ussd(): \Gowelle\BeemAfrica\Ussd\BeemUssdService
+    public static function ussd(): BeemUssdService
     {
-        return app(\Gowelle\BeemAfrica\Ussd\BeemUssdService::class);
+        return app(BeemUssdService::class);
     }
 
     /**
      * Get the Contacts service instance.
      */
-    public static function contacts(): \Gowelle\BeemAfrica\Contacts\BeemContactsService
+    public static function contacts(): BeemContactsService
     {
-        return app(\Gowelle\BeemAfrica\Contacts\BeemContactsService::class);
+        return app(BeemContactsService::class);
     }
 }

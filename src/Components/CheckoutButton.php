@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gowelle\BeemAfrica\Components;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class CheckoutButton extends Component
@@ -23,7 +24,7 @@ class CheckoutButton extends Component
     /**
      * Get the view / contents that represent the component.
      */
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): View
     {
         return view('beem-africa::components.checkout-button');
     }

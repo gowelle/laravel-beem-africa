@@ -64,7 +64,7 @@ describe('DisbursementRequest', function () {
             accountNo: 'f09dc0d3',
             clientReferenceId: 'REF-001'
         );
-    })->throws(\InvalidArgumentException::class, 'Amount must be greater than zero');
+    })->throws(InvalidArgumentException::class, 'Amount must be greater than zero');
 
     it('throws exception for zero amount', function () {
         new DisbursementRequest(
@@ -74,7 +74,7 @@ describe('DisbursementRequest', function () {
             accountNo: 'f09dc0d3',
             clientReferenceId: 'REF-001'
         );
-    })->throws(\InvalidArgumentException::class, 'Amount must be greater than zero');
+    })->throws(InvalidArgumentException::class, 'Amount must be greater than zero');
 
     it('throws exception for invalid wallet number', function () {
         new DisbursementRequest(
@@ -84,7 +84,7 @@ describe('DisbursementRequest', function () {
             accountNo: 'f09dc0d3',
             clientReferenceId: 'REF-001'
         );
-    })->throws(\InvalidArgumentException::class, 'Invalid wallet number format');
+    })->throws(InvalidArgumentException::class, 'Invalid wallet number format');
 
     it('throws exception for empty wallet code', function () {
         new DisbursementRequest(
@@ -94,7 +94,7 @@ describe('DisbursementRequest', function () {
             accountNo: 'f09dc0d3',
             clientReferenceId: 'REF-001'
         );
-    })->throws(\InvalidArgumentException::class, 'Wallet code is required');
+    })->throws(InvalidArgumentException::class, 'Wallet code is required');
 
     it('throws exception for empty account number', function () {
         new DisbursementRequest(
@@ -104,7 +104,7 @@ describe('DisbursementRequest', function () {
             accountNo: '',
             clientReferenceId: 'REF-001'
         );
-    })->throws(\InvalidArgumentException::class, 'Account number is required');
+    })->throws(InvalidArgumentException::class, 'Account number is required');
 
     it('throws exception for empty reference ID', function () {
         new DisbursementRequest(
@@ -114,7 +114,7 @@ describe('DisbursementRequest', function () {
             accountNo: 'f09dc0d3',
             clientReferenceId: ''
         );
-    })->throws(\InvalidArgumentException::class, 'Client reference ID is required');
+    })->throws(InvalidArgumentException::class, 'Client reference ID is required');
 
     it('throws exception for invalid scheduled time format', function () {
         new DisbursementRequest(
@@ -125,7 +125,7 @@ describe('DisbursementRequest', function () {
             clientReferenceId: 'REF-001',
             scheduledTimeUtc: 'invalid-date'
         );
-    })->throws(\InvalidArgumentException::class, 'Scheduled time must be in yyyy-mm-dd hh:mm:ss format');
+    })->throws(InvalidArgumentException::class, 'Scheduled time must be in yyyy-mm-dd hh:mm:ss format');
 
     it('returns amount as float', function () {
         $request = new DisbursementRequest(

@@ -1,5 +1,6 @@
 <?php
 
+use Gowelle\BeemAfrica\DTOs\UssdCallback;
 use Gowelle\BeemAfrica\Events\UssdSessionReceived;
 use Illuminate\Support\Facades\Event;
 
@@ -60,7 +61,7 @@ describe('UssdWebhookController', function () {
 describe('UssdSessionReceived Event', function () {
     it('provides convenience methods', function () {
         $event = new UssdSessionReceived(
-            \Gowelle\BeemAfrica\DTOs\UssdCallback::fromArray([
+            UssdCallback::fromArray([
                 'command' => 'continue',
                 'msisdn' => '255712345678',
                 'session_id' => '4574',
@@ -76,7 +77,7 @@ describe('UssdSessionReceived Event', function () {
 
     it('can set continue response', function () {
         $event = new UssdSessionReceived(
-            \Gowelle\BeemAfrica\DTOs\UssdCallback::fromArray([
+            UssdCallback::fromArray([
                 'command' => 'initiate',
                 'msisdn' => '255712345678',
                 'session_id' => '4574',
@@ -94,7 +95,7 @@ describe('UssdSessionReceived Event', function () {
 
     it('can set terminate response', function () {
         $event = new UssdSessionReceived(
-            \Gowelle\BeemAfrica\DTOs\UssdCallback::fromArray([
+            UssdCallback::fromArray([
                 'command' => 'continue',
                 'msisdn' => '255712345678',
                 'session_id' => '4574',

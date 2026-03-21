@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gowelle\BeemAfrica\Models;
 
+use Carbon\Carbon;
 use Gowelle\BeemAfrica\DTOs\CallbackPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,11 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $amount
  * @property string $status
  * @property string|null $msisdn
- * @property \Carbon\Carbon|null $processed_at
+ * @property Carbon|null $processed_at
  * @property array|null $raw_payload
  * @property int|null $user_id
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @method static self create(array $attributes = [])
  * @method static self updateOrCreate(array $attributes, array $values = [])

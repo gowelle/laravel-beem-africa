@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
 use Gowelle\BeemAfrica\Support\BeemClient;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Integration tests for Beem Africa API.
@@ -99,7 +101,7 @@ describe('Beem API Integration', function () {
         $response = $this->service->redirect($request);
 
         expect($response)
-            ->toBeInstanceOf(Illuminate\Http\RedirectResponse::class)
+            ->toBeInstanceOf(RedirectResponse::class)
             ->and($response->getTargetUrl())
             ->toStartWith('https://checkout.beem.africa/v1/checkout?');
     })->group('integration');
@@ -128,6 +130,6 @@ describe('BeemClient API Integration', function () {
         $request = $this->client->request();
 
         // Check that the request is properly configured
-        expect($request)->toBeInstanceOf(Illuminate\Http\Client\PendingRequest::class);
+        expect($request)->toBeInstanceOf(PendingRequest::class);
     })->group('integration');
 })->group('integration');

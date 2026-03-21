@@ -32,21 +32,21 @@ describe('OtpVerification', function () {
             pinId: '',
             pin: '1234',
         );
-    })->throws(\InvalidArgumentException::class, 'PIN ID is required');
+    })->throws(InvalidArgumentException::class, 'PIN ID is required');
 
     it('throws exception for empty PIN', function () {
         new OtpVerification(
             pinId: 'test-pin-id',
             pin: '',
         );
-    })->throws(\InvalidArgumentException::class, 'PIN is required');
+    })->throws(InvalidArgumentException::class, 'PIN is required');
 
     it('throws exception for invalid PIN format', function () {
         new OtpVerification(
             pinId: 'test-pin-id',
             pin: 'abc',
         );
-    })->throws(\InvalidArgumentException::class, 'Invalid PIN format');
+    })->throws(InvalidArgumentException::class, 'Invalid PIN format');
 
     it('accepts valid PIN formats', function ($pin) {
         $verification = new OtpVerification(
