@@ -228,7 +228,7 @@ Example using Laravel translations (Blade):
 ## Configuration
 
 > [!IMPORTANT]
-> **Important notice for users upgrading from <=1.11.x**:
+> **Important notice for users upgrading from <=2.0.0**:
 > The `laravel-beem-africa` package now appends API versions (for example, `/v1`) at the service level instead of the base URL. If you override `BEEM_BASE_URL` or `BEEM_OTP_BASE_URL` in your `.env`, set them to root domains such as `https://checkout.beem.africa` and `https://apiotp.beem.africa` (without `/v1`) to avoid duplicated URL paths.
 
 Add your Beem credentials to your `.env` file:
