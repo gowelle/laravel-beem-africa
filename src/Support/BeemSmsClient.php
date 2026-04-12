@@ -16,8 +16,8 @@ class BeemSmsClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apisms.beem.africa/v1',
-        protected string $dlrBaseUrl = 'https://dlrapi.beem.africa/public/v1',
+        protected string $baseUrl = 'https://apisms.beem.africa',
+        protected string $dlrBaseUrl = 'https://dlrapi.beem.africa',
     ) {}
 
     /**

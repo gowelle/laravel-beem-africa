@@ -16,7 +16,7 @@ class BeemOtpClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apiotp.beem.africa/v1',
+        protected string $baseUrl = 'https://apiotp.beem.africa',
     ) {}
 
     /**

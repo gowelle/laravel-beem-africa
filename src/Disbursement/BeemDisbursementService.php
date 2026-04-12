@@ -25,7 +25,7 @@ class BeemDisbursementService
      */
     public function transfer(DisbursementRequest $request): DisbursementResponse
     {
-        $response = $this->client->post('/transfer', $request->toArray());
+        $response = $this->client->post('/v1/transfer', $request->toArray());
 
         if (! $response->successful()) {
             throw DisbursementException::fromApiResponse(

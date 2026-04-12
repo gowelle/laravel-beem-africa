@@ -29,7 +29,7 @@ class BeemMojaService
      */
     public function getActiveSessions(): MojaActiveSessionListResponse
     {
-        $response = $this->client->get('/chatapi/active-users');
+        $response = $this->client->get('/v1/chatapi/active-users');
 
         if (! $response->successful()) {
             throw MojaException::fromApiResponse(
@@ -54,7 +54,7 @@ class BeemMojaService
      */
     public function sendMessage(MojaMessageRequest $request): MojaMessageResponse
     {
-        $response = $this->client->post('/chatapi', $request->toArray());
+        $response = $this->client->post('/v1/chatapi', $request->toArray());
 
         if (! $response->successful()) {
             $responseData = $response->json() ?? [];
@@ -85,7 +85,7 @@ class BeemMojaService
      */
     public function fetchTemplates(array $filters = []): MojaTemplateListResponse
     {
-        $response = $this->client->broadcastGet('/message-templates/list', $filters);
+        $response = $this->client->broadcastGet('/v1/message-templates/list', $filters);
 
         if (! $response->successful()) {
             throw MojaException::fromApiResponse(
@@ -110,7 +110,7 @@ class BeemMojaService
      */
     public function sendTemplate(MojaTemplateRequest $request): MojaTemplateSendResponse
     {
-        $response = $this->client->broadcastPost('/broadcast/template/api-send', $request->toArray());
+        $response = $this->client->broadcastPost('/v1/broadcast/template/api-send', $request->toArray());
 
         if (! $response->successful()) {
             throw MojaException::fromApiResponse(

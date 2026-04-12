@@ -30,7 +30,7 @@ describe('Beem API Integration', function () {
         $this->client = new BeemClient(
             apiKey: $apiKey,
             secretKey: $secretKey,
-            baseUrl: 'https://checkout.beem.africa/v1',
+            baseUrl: 'https://checkout.beem.africa',
         );
 
         $this->service = new BeemCheckoutService($this->client);
@@ -48,7 +48,7 @@ describe('Beem API Integration', function () {
 
         expect($url)
             ->toBeString()
-            ->toStartWith('https://checkout.beem.africa/v1/checkout?')
+            ->toStartWith('https://checkout.beem.africa/checkout?')
             ->toContain('amount=1000')
             ->toContain('transaction_id=')
             ->toContain('reference_number=');
@@ -103,7 +103,7 @@ describe('Beem API Integration', function () {
         expect($response)
             ->toBeInstanceOf(RedirectResponse::class)
             ->and($response->getTargetUrl())
-            ->toStartWith('https://checkout.beem.africa/v1/checkout?');
+            ->toStartWith('https://checkout.beem.africa/checkout?');
     })->group('integration');
 })->group('integration');
 
@@ -123,7 +123,7 @@ describe('BeemClient API Integration', function () {
     });
 
     it('has correct base URL configured', function () {
-        expect($this->client->getBaseUrl())->toBe('https://checkout.beem.africa/v1');
+        expect($this->client->getBaseUrl())->toBe('https://checkout.beem.africa');
     })->group('integration');
 
     it('builds correct request with authentication', function () {

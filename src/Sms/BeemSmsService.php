@@ -29,7 +29,7 @@ class BeemSmsService
      */
     public function send(SmsRequest $request): SmsResponse
     {
-        $response = $this->client->post('/send', $request->toArray());
+        $response = $this->client->post('/v1/send', $request->toArray());
 
         if (! $response->successful()) {
             throw SmsException::fromApiResponse(
@@ -79,7 +79,7 @@ class BeemSmsService
      */
     public function getDeliveryReport(string $destAddr, int $requestId): SmsDeliveryReport
     {
-        $response = $this->client->getDlr('/delivery-reports', [
+        $response = $this->client->getDlr('/public/v1/delivery-reports', [
             'dest_addr' => $destAddr,
             'request_id' => $requestId,
         ]);

@@ -21,7 +21,7 @@ describe('BeemDisbursementService', function () {
 
     it('can transfer successfully', function () {
         Http::fake([
-            'apipay.beem.africa/*' => Http::response([
+            'bpay.beem.africa/*' => Http::response([
                 'code' => 100,
                 'message' => 'Disbursement successful',
                 'transaction_id' => 'TXN-123',
@@ -46,7 +46,7 @@ describe('BeemDisbursementService', function () {
 
     it('throws exception on transfer failure', function () {
         Http::fake([
-            'apipay.beem.africa/*' => Http::response([
+            'bpay.beem.africa/*' => Http::response([
                 'code' => 103,
                 'message' => 'Insufficient balance',
             ], 400),
@@ -65,7 +65,7 @@ describe('BeemDisbursementService', function () {
 
     it('throws exception for empty response', function () {
         Http::fake([
-            'apipay.beem.africa/*' => Http::response([], 200),
+            'bpay.beem.africa/*' => Http::response([], 200),
         ]);
 
         $request = new DisbursementRequest(

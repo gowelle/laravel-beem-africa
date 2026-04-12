@@ -43,7 +43,7 @@ describe('BeemContactsService', function () {
         $response->shouldReceive('successful')->andReturn(true);
         $response->shouldReceive('json')->andReturn($mockResponse);
 
-        $this->client->shouldReceive('get')->with('/address-books', [])->andReturn($response);
+        $this->client->shouldReceive('get')->with('/public/v1/address-books', [])->andReturn($response);
 
         $result = $this->service->listAddressBooks();
 
@@ -71,7 +71,7 @@ describe('BeemContactsService', function () {
         $response->shouldReceive('json')->andReturn($mockResponse);
 
         $this->client->shouldReceive('get')
-            ->with('/address-books', ['q' => 'Test'])
+            ->with('/public/v1/address-books', ['q' => 'Test'])
             ->andReturn($response);
 
         $result = $this->service->listAddressBooks('Test');
@@ -93,7 +93,7 @@ describe('BeemContactsService', function () {
         $response->shouldReceive('json')->andReturn($mockResponse);
 
         $this->client->shouldReceive('post')
-            ->with('/address-books', ['addressbook' => 'Test'])
+            ->with('/public/v1/address-books', ['addressbook' => 'Test'])
             ->andReturn($response);
 
         $request = new AddressBookRequest('Test');
@@ -152,7 +152,7 @@ describe('BeemContactsService', function () {
         $response->shouldReceive('json')->andReturn($mockResponse);
 
         $this->client->shouldReceive('get')
-            ->with('/contacts', ['addressbook_id' => 'addressbook-123'])
+            ->with('/public/v1/contacts', ['addressbook_id' => 'addressbook-123'])
             ->andReturn($response);
 
         $result = $this->service->listContacts('addressbook-123');

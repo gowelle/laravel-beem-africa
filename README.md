@@ -227,6 +227,10 @@ Example using Laravel translations (Blade):
 
 ## Configuration
 
+> [!IMPORTANT]
+> **Important notice for users upgrading from <=1.11.x**:
+> The `laravel-beem-africa` package now appends API versions (for example, `/v1`) at the service level instead of the base URL. If you override `BEEM_BASE_URL` or `BEEM_OTP_BASE_URL` in your `.env`, set them to root domains such as `https://checkout.beem.africa` and `https://apiotp.beem.africa` (without `/v1`) to avoid duplicated URL paths.
+
 Add your Beem credentials to your `.env` file:
 
 ```env
@@ -246,7 +250,7 @@ BEEM_INTERNATIONAL_SMS_PASSWORD=your_int_sms_password
 return [
     'api_key' => env('BEEM_API_KEY'),
     'secret_key' => env('BEEM_SECRET_KEY'),
-    'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa/v1'),
+    'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa'),
 
     'webhook' => [
         'path' => env('BEEM_WEBHOOK_PATH', 'beem/webhook'),
@@ -257,7 +261,7 @@ return [
     'store_transactions' => env('BEEM_STORE_TRANSACTIONS', false),
 
     'otp' => [
-        'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa/v1'),
+        'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa'),
         'app_id' => env('BEEM_OTP_APP_ID'),
     ],
 

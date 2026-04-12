@@ -34,7 +34,7 @@ class BeemOtpService
             msisdn: $msisdn,
         );
 
-        $response = $this->client->post('/request', $otpRequest->toArray());
+        $response = $this->client->post('/v1/request', $otpRequest->toArray());
 
         if (! $response->successful()) {
             throw OtpRequestException::fromApiResponse(
@@ -64,7 +64,7 @@ class BeemOtpService
             pin: $pin,
         );
 
-        $response = $this->client->post('/verify', $verification->toArray());
+        $response = $this->client->post('/v1/verify', $verification->toArray());
 
         if (! $response->successful()) {
             throw OtpVerificationException::fromApiResponse(

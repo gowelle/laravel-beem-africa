@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Http;
  */
 class BeemClient
 {
-    private const CHECKOUT_ENDPOINT = '/checkout';
+    private const CHECKOUT_ENDPOINT = '/v1/checkout';
 
-    private const WHITELIST_ENDPOINT = '/whitelist/add-to-list';
+    private const WHITELIST_ENDPOINT = '/v1/whitelist/add-to-list';
 
     /**
      * Create a new Beem client instance.
@@ -32,7 +32,7 @@ class BeemClient
     public function __construct(
         private readonly ?string $apiKey,
         private readonly ?string $secretKey,
-        private readonly string $baseUrl = 'https://checkout.beem.africa/v1',
+        private readonly string $baseUrl = 'https://checkout.beem.africa',
     ) {
         $this->validateConfiguration();
     }

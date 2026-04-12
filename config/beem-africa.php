@@ -25,7 +25,7 @@ return [
     |
     */
 
-    'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa/v1'),
+    'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa'),
 
     /*
     |--------------------------------------------------------------------------
@@ -92,7 +92,7 @@ return [
 
     'otp' => [
         // Base URL for OTP API
-        'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa/v1'),
+        'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa'),
 
         // Application ID from Beem OTP dashboard
         'app_id' => env('BEEM_OTP_APP_ID'),
@@ -116,10 +116,10 @@ return [
 
     'airtime' => [
         // Base URL for Airtime API
-        'base_url' => env('BEEM_AIRTIME_BASE_URL', 'https://apiairtime.beem.africa/v1'),
+        'base_url' => env('BEEM_AIRTIME_BASE_URL', 'https://apiairtime.beem.africa'),
 
         // Base URL for Balance API
-        'balance_base_url' => env('BEEM_AIRTIME_BALANCE_URL', 'https://apitopup.beem.africa/v1'),
+        'balance_base_url' => env('BEEM_AIRTIME_BALANCE_URL', 'https://apitopup.beem.africa'),
     ],
 
     /*
@@ -134,10 +134,10 @@ return [
 
     'sms' => [
         // Base URL for SMS API
-        'base_url' => env('BEEM_SMS_BASE_URL', 'https://apisms.beem.africa/v1'),
+        'base_url' => env('BEEM_SMS_BASE_URL', 'https://apisms.beem.africa'),
 
         // Base URL for Delivery Reports API
-        'dlr_base_url' => env('BEEM_SMS_DLR_URL', 'https://dlrapi.beem.africa/public/v1'),
+        'dlr_base_url' => env('BEEM_SMS_DLR_URL', 'https://dlrapi.beem.africa'),
 
         // Default sender ID (can be overridden per message)
         'default_sender_id' => env('BEEM_SMS_SENDER_ID', 'INFO'),
@@ -161,7 +161,7 @@ return [
 
     'disbursement' => [
         // Base URL for Disbursement API
-        'base_url' => env('BEEM_DISBURSEMENT_BASE_URL', 'https://apipay.beem.africa/webservices/disbursement'),
+        'base_url' => env('BEEM_DISBURSEMENT_BASE_URL', 'https://bpay.beem.africa'),
     ],
 
     /*
@@ -194,7 +194,7 @@ return [
 
     'ussd' => [
         // Balance check URL
-        'balance_url' => env('BEEM_USSD_BALANCE_URL', 'https://apitopup.beem.africa/v1/credit-balance'),
+        'balance_url' => env('BEEM_USSD_BALANCE_URL', 'https://ussdapi.beem.africa/public/v1/vendors/balance'),
 
         // Webhook path for USSD callbacks
         'webhook_path' => env('BEEM_USSD_WEBHOOK_PATH', 'webhooks/beem/ussd'),
@@ -212,7 +212,7 @@ return [
 
     'contacts' => [
         // Base URL for Contacts API
-        'base_url' => env('BEEM_CONTACTS_BASE_URL', 'https://apicontacts.beem.africa/public/v1'),
+        'base_url' => env('BEEM_CONTACTS_BASE_URL', 'https://apicontacts.beem.africa'),
     ],
 
     /*
@@ -227,10 +227,10 @@ return [
 
     'moja' => [
         // Base URL for Chat API
-        'base_url' => env('BEEM_MOJA_BASE_URL', 'https://apichatcore.beem.africa/v1'),
+        'base_url' => env('BEEM_MOJA_BASE_URL', 'https://apichatcore.beem.africa'),
 
         // Base URL for Broadcast/Template API
-        'broadcast_base_url' => env('BEEM_MOJA_BROADCAST_BASE_URL', 'https://apibroadcast.beem.africa/v1'),
+        'broadcast_base_url' => env('BEEM_MOJA_BROADCAST_BASE_URL', 'https://apibroadcast.beem.africa'),
 
         // Webhook path for incoming messages
         'webhook_path' => env('BEEM_MOJA_WEBHOOK_PATH', 'webhooks/beem/moja/incoming'),

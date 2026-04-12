@@ -12,7 +12,7 @@ describe('BeemContactsClient', function () {
             secretKey: 'test-secret-key',
         );
 
-        expect($client->getBaseUrl())->toBe('https://apicontacts.beem.africa/public/v1');
+        expect($client->getBaseUrl())->toBe('https://apicontacts.beem.africa');
     });
 
     it('creates http request with custom base url', function () {
@@ -27,7 +27,7 @@ describe('BeemContactsClient', function () {
 
     it('makes get request', function () {
         Http::fake([
-            'https://apicontacts.beem.africa/public/v1/address-books' => Http::response(['data' => []]),
+            'https://apicontacts.beem.africa/address-books' => Http::response(['data' => []]),
         ]);
 
         $client = new BeemContactsClient('key', 'secret');
@@ -38,7 +38,7 @@ describe('BeemContactsClient', function () {
 
     it('makes post request', function () {
         Http::fake([
-            'https://apicontacts.beem.africa/public/v1/address-books' => Http::response(['data' => ['id' => '123']]),
+            'https://apicontacts.beem.africa/address-books' => Http::response(['data' => ['id' => '123']]),
         ]);
 
         $client = new BeemContactsClient('key', 'secret');
@@ -49,7 +49,7 @@ describe('BeemContactsClient', function () {
 
     it('makes put request', function () {
         Http::fake([
-            'https://apicontacts.beem.africa/public/v1/address-books/123' => Http::response(['data' => ['id' => '123']]),
+            'https://apicontacts.beem.africa/address-books/123' => Http::response(['data' => ['id' => '123']]),
         ]);
 
         $client = new BeemContactsClient('key', 'secret');
@@ -60,7 +60,7 @@ describe('BeemContactsClient', function () {
 
     it('makes delete request', function () {
         Http::fake([
-            'https://apicontacts.beem.africa/public/v1/address-books/123' => Http::response(['data' => ['status' => true]]),
+            'https://apicontacts.beem.africa/address-books/123' => Http::response(['data' => ['status' => true]]),
         ]);
 
         $client = new BeemContactsClient('key', 'secret');

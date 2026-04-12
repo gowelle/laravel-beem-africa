@@ -138,7 +138,7 @@ describe('UssdBalance', function () {
 describe('BeemUssdService', function () {
     it('can check balance successfully', function () {
         Http::fake([
-            'apitopup.beem.africa/*' => Http::response([
+            'ussdapi.beem.africa/*' => Http::response([
                 'data' => [
                     'credit_bal' => '5300.0000',
                 ],
@@ -157,7 +157,7 @@ describe('BeemUssdService', function () {
 
     it('throws exception on balance check failure', function () {
         Http::fake([
-            'apitopup.beem.africa/*' => Http::response([
+            'ussdapi.beem.africa/*' => Http::response([
                 'code' => 120,
                 'message' => 'Invalid Authentication Parameters',
             ], 401),

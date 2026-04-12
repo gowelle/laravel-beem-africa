@@ -36,7 +36,7 @@ describe('BeemClient', function () {
         $client = new BeemClient(
             apiKey: 'test_api_key',
             secretKey: 'test_secret_key',
-            baseUrl: 'https://checkout.beem.africa/v1',
+            baseUrl: 'https://checkout.beem.africa',
         );
 
         $request = new CheckoutRequest(
@@ -74,7 +74,7 @@ describe('BeemClient', function () {
     });
 
     it('returns correct base URL', function () {
-        $customUrl = 'https://sandbox.beem.africa/v1';
+        $customUrl = 'https://sandbox.beem.africa';
 
         $client = new BeemClient(
             apiKey: 'test_api_key',

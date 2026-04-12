@@ -34,8 +34,8 @@ describe('Beem Airtime API Integration', function () {
     });
 
     it('has correct base URL configured', function () {
-        expect($this->client->getBaseUrl())->toBe('https://apiairtime.beem.africa/v1')
-            ->and($this->client->getBalanceBaseUrl())->toBe('https://apitopup.beem.africa/v1');
+        expect($this->client->getBaseUrl())->toBe('https://apiairtime.beem.africa')
+            ->and($this->client->getBalanceBaseUrl())->toBe('https://apitopup.beem.africa');
     })->group('integration');
 
     it('can build authenticated request', function () {

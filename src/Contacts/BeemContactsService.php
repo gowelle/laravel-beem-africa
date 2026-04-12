@@ -39,7 +39,7 @@ class BeemContactsService
             $params['q'] = $query;
         }
 
-        $response = $this->client->get('/address-books', $params);
+        $response = $this->client->get('/public/v1/address-books', $params);
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -64,7 +64,7 @@ class BeemContactsService
      */
     public function createAddressBook(AddressBookRequest $request): AddressBookResponse
     {
-        $response = $this->client->post('/address-books', $request->toArray());
+        $response = $this->client->post('/public/v1/address-books', $request->toArray());
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -93,7 +93,7 @@ class BeemContactsService
             throw new \InvalidArgumentException('AddressBook ID is required');
         }
 
-        $response = $this->client->put("/address-books/{$addressBookId}", $request->toArray());
+        $response = $this->client->put("/public/v1/address-books/{$addressBookId}", $request->toArray());
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -122,7 +122,7 @@ class BeemContactsService
             throw new \InvalidArgumentException('AddressBook ID is required');
         }
 
-        $response = $this->client->delete("/address-books/{$addressBookId}");
+        $response = $this->client->delete("/public/v1/address-books/{$addressBookId}");
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -157,7 +157,7 @@ class BeemContactsService
             $params['q'] = $query;
         }
 
-        $response = $this->client->get('/contacts', $params);
+        $response = $this->client->get('/public/v1/contacts', $params);
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -182,7 +182,7 @@ class BeemContactsService
      */
     public function createContact(ContactRequest $request): ContactResponse
     {
-        $response = $this->client->post('/contacts', $request->toArray());
+        $response = $this->client->post('/public/v1/contacts', $request->toArray());
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -211,7 +211,7 @@ class BeemContactsService
             throw new \InvalidArgumentException('Contact ID is required');
         }
 
-        $response = $this->client->put("/contacts/{$contactId}", $request->toArray());
+        $response = $this->client->put("/public/v1/contacts/{$contactId}", $request->toArray());
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(
@@ -252,7 +252,7 @@ class BeemContactsService
             'contacts_id' => $contactIds,
         ];
 
-        $response = $this->client->delete('/contacts', $data);
+        $response = $this->client->delete('/public/v1/contacts', $data);
 
         if (! $response->successful()) {
             throw ContactsException::fromApiResponse(

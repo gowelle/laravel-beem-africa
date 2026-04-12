@@ -16,7 +16,7 @@ class BeemContactsClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apicontacts.beem.africa/public/v1',
+        protected string $baseUrl = 'https://apicontacts.beem.africa',
     ) {}
 
     /**

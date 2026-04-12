@@ -34,7 +34,7 @@ class BeemAirtimeService
             referenceId: $referenceId,
         );
 
-        $response = $this->client->post('/transfer', $airtimeRequest->toArray());
+        $response = $this->client->post('/v1/transfer', $airtimeRequest->toArray());
 
         if (! $response->successful()) {
             throw AirtimeException::fromApiResponse(
@@ -61,7 +61,7 @@ class BeemAirtimeService
     {
         $statusRequest = new AirtimeStatusRequest($transactionId);
 
-        $response = $this->client->post('/transaction-status', $statusRequest->toArray());
+        $response = $this->client->post('/v1/transaction-status', $statusRequest->toArray());
 
         if (! $response->successful()) {
             throw AirtimeException::fromApiResponse(

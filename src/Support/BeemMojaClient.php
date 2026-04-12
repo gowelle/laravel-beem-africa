@@ -16,8 +16,8 @@ class BeemMojaClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apichatcore.beem.africa/v1',
-        protected string $broadcastBaseUrl = 'https://apibroadcast.beem.africa/v1',
+        protected string $baseUrl = 'https://apichatcore.beem.africa',
+        protected string $broadcastBaseUrl = 'https://apibroadcast.beem.africa',
     ) {}
 
     /**

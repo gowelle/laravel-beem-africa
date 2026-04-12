@@ -16,7 +16,7 @@ class BeemDisbursementClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apipay.beem.africa/webservices/disbursement',
+        protected string $baseUrl = 'https://bpay.beem.africa',
     ) {}
 
     /**

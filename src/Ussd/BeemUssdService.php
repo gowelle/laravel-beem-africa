@@ -15,7 +15,7 @@ class BeemUssdService
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $balanceUrl = 'https://apitopup.beem.africa/v1/credit-balance',
+        protected string $balanceUrl = 'https://ussdapi.beem.africa/public/v1/vendors/balance',
     ) {}
 
     /**

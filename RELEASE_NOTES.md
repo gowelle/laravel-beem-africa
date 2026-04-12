@@ -1,5 +1,18 @@
 # Release Notes
 
+## [Unreleased]
+
+### Breaking changes
+
+- **API Endpoint Refactor**: Base URLs in `config/beem-africa.php` no longer contain API versions or subpaths (e.g., `/v1`). Version paths have been moved directly into the respective Service classes to prevent URL duplication. If you have overridden any `BEEM_*_BASE_URL` variables in your `.env` file, ensure they point directly to the domain root (e.g., `https://checkout.beem.africa` instead of `https://checkout.beem.africa/v1/checkout`).
+
+### Changed
+
+- **Disbursement API Migration**: Updated the Disbursement service to use the new BPay infrastructure (`https://bpay.beem.africa`), replacing the legacy `apipay.beem.africa` endpoint to align with the official Beem Africa API docs.
+- **USSD API Routing**: Corrected the USSD balance check URL to point to the dedicated `ussdapi.beem.africa` endpoint instead of the legacy Collection API endpoint.
+
+---
+
 ## [2.0.0] - 2026-03-22
 
 ### Breaking changes

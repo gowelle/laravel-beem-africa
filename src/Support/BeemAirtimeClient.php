@@ -16,8 +16,8 @@ class BeemAirtimeClient
     public function __construct(
         protected string $apiKey,
         protected string $secretKey,
-        protected string $baseUrl = 'https://apiairtime.beem.africa/v1',
-        protected string $balanceBaseUrl = 'https://apitopup.beem.africa/v1',
+        protected string $baseUrl = 'https://apiairtime.beem.africa',
+        protected string $balanceBaseUrl = 'https://apitopup.beem.africa',
     ) {}
 
     /**
@@ -57,7 +57,7 @@ class BeemAirtimeClient
      */
     public function getBalance(array $query = []): Response
     {
-        return $this->balanceRequest()->get('/credit-balance', $query);
+        return $this->balanceRequest()->get('/v1/credit-balance', $query);
     }
 
     /**
