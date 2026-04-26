@@ -48,7 +48,7 @@ describe('Beem API Integration', function () {
 
         expect($url)
             ->toBeString()
-            ->toStartWith('https://checkout.beem.africa/checkout?')
+            ->toStartWith('https://checkout.beem.africa/v1/checkout?')
             ->toContain('amount=1000')
             ->toContain('transaction_id=')
             ->toContain('reference_number=');
@@ -103,7 +103,7 @@ describe('Beem API Integration', function () {
         expect($response)
             ->toBeInstanceOf(RedirectResponse::class)
             ->and($response->getTargetUrl())
-            ->toStartWith('https://checkout.beem.africa/checkout?');
+            ->toStartWith('https://checkout.beem.africa/v1/checkout?');
     })->group('integration');
 })->group('integration');
 
