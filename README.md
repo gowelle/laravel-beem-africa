@@ -286,7 +286,7 @@ Shared request rules for both modes:
 
 - `amount` must be a whole number. Decimals are not allowed.
 - `transaction_id` should be a UUIDv4.
-- `reference_number` should be alphanumeric and may include hyphens.
+- `reference_number` is a reference number to track the payment. Should be alphanumeric, with a prefix pattern matching a collection or checkout product configured in Beem (e.g. `SAMPLE-12345`).
 - `beem-secure-token` is optional request-specific correlation data that Beem echoes back in callback headers. In this package API it is named `callbackToken`.
 
 > **Important:** `callbackToken` is your optional correlation token. It is different from Beem's generated checkout page token that appears in URLs like `/v1/checkout/page?token=...`.
@@ -294,7 +294,7 @@ Shared request rules for both modes:
 Before you start, make sure:
 
 - your Beem API key and secret key are configured
-- the `reference_number` you use matches a product/reference prefix configured in Beem
+- the `reference_number` prefix matches a collection or checkout product prefix configured in Beem (e.g. `SAMPLE-12345`)
 - your Beem callback URL is configured if you want webhook updates
 - your Beem redirect URL is configured if you want Beem to send users back to your site after payment
 

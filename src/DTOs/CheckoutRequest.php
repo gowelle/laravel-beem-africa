@@ -19,7 +19,7 @@ readonly class CheckoutRequest implements Arrayable
      *
      * @param  float  $amount  The payment amount (required)
      * @param  string  $transactionId  Unique transaction identifier (required)
-     * @param  string  $referenceNumber  Reference for the transaction (required)
+     * @param  string  $referenceNumber  Reference number to track the payment. Should be alphanumeric with an optional hyphenated prefix matching a product/reference prefix configured in Beem (e.g. SAMPLE-12345) (required)
      * @param  string|null  $mobile  Customer mobile number (optional)
      * @param  bool  $sendSource  Whether to include source information (optional)
      * @param  string|null  $callbackToken  Optional client token echoed back by Beem in callback headers
