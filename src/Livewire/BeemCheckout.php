@@ -7,9 +7,9 @@ namespace Gowelle\BeemAfrica\Livewire;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
 use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Gowelle\BeemAfrica\Facades\Beem;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Illuminate\Support\Str;
 
 /**
  * Livewire component for Beem payment checkout.
