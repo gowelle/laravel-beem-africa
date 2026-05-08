@@ -121,7 +121,7 @@ class BeemCheckoutService
     protected function extractCheckoutUrl(Response $response): string
     {
         $location = $response->header('Location');
-        if (is_string($location) && $location !== '') {
+        if ($location !== '') {
             return $location;
         }
 

@@ -17,7 +17,7 @@ readonly class CheckoutRequest implements Arrayable
     /**
      * Create a new checkout request instance.
      *
-     * @param  float  $amount  The payment amount (required)
+     * @param  int  $amount  The payment amount in whole units (required)
      * @param  string  $transactionId  Unique transaction identifier (required)
      * @param  string  $referenceNumber  Reference number to track the payment. Should be alphanumeric with an optional hyphenated prefix matching a product/reference prefix configured in Beem (e.g. SAMPLE-12345) (required)
      * @param  string|null  $mobile  Customer mobile number (optional)
@@ -46,10 +46,6 @@ readonly class CheckoutRequest implements Arrayable
     {
         if ($this->amount <= 0) {
             throw new InvalidArgumentException('Amount must be greater than zero.');
-        }
-
-        if (filter_var($this->amount, FILTER_VALIDATE_INT) === false) {
-            throw new InvalidArgumentException('Amount must be a whole number. Decimals are not allowed.');
         }
 
         if (empty($this->transactionId)) {
