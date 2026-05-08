@@ -26,6 +26,7 @@ export {
     type SmsData,
     type SmsSendResult,
     type UseBeemCheckoutReturn,
+    type UseBeemCheckoutOptions,
     type UseBeemOtpReturn,
     type UseBeemSmsReturn,
     type UseBeemOtpOptions,

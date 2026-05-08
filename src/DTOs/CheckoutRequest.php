@@ -22,13 +22,17 @@ readonly class CheckoutRequest implements Arrayable
      * @param  string  $referenceNumber  Reference for the transaction (required)
      * @param  string|null  $mobile  Customer mobile number (optional)
      * @param  bool  $sendSource  Whether to include source information (optional)
+     * @param  string|null  $callbackToken  Optional client token echoed back by Beem in callback headers
      */
     public function __construct(
-        public float $amount,
+        public int $amount,
         public string $transactionId,
         public string $referenceNumber,
         public ?string $mobile = null,
+        public ?string $email = null,
+        public ?string $currency = null,
         public bool $sendSource = false,
+        public ?string $callbackToken = null,
     ) {
         $this->validate();
     }
@@ -44,12 +48,36 @@ readonly class CheckoutRequest implements Arrayable
             throw new InvalidArgumentException('Amount must be greater than zero.');
         }
 
+        if (filter_var($this->amount, FILTER_VALIDATE_INT) === false) {
+            throw new InvalidArgumentException('Amount must be a whole number. Decimals are not allowed.');
+        }
+
         if (empty($this->transactionId)) {
             throw new InvalidArgumentException('Transaction ID is required.');
         }
 
+        if (! preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $this->transactionId)) {
+            throw new InvalidArgumentException('Transaction ID must be a valid UUIDv4.');
+        }
+
         if (empty($this->referenceNumber)) {
             throw new InvalidArgumentException('Reference number is required.');
+        }
+
+        if (! preg_match('/^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/', $this->referenceNumber)) {
+            throw new InvalidArgumentException('Reference number must be alphanumeric and may include hyphens.');
+        }
+
+        if ($this->mobile !== null && ! preg_match('/^[0-9]{10,15}$/', $this->mobile)) {
+            throw new InvalidArgumentException('Mobile number must contain 10 to 15 digits.');
+        }
+
+        if ($this->email !== null && ! filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException('Email must be a valid email address.');
+        }
+
+        if ($this->currency !== null && ! preg_match('/^[A-Z]{3}$/', $this->currency)) {
+            throw new InvalidArgumentException('Currency must be a valid 3-letter ISO code.');
         }
     }
 
@@ -61,11 +89,14 @@ readonly class CheckoutRequest implements Arrayable
     public static function fromArray(array $data): self
     {
         return new self(
-            amount: (float) ($data['amount'] ?? 0),
+            amount: (int) ($data['amount'] ?? 0),
             transactionId: (string) ($data['transaction_id'] ?? $data['transactionId'] ?? ''),
             referenceNumber: (string) ($data['reference_number'] ?? $data['referenceNumber'] ?? ''),
             mobile: isset($data['mobile']) ? (string) $data['mobile'] : null,
+            email: isset($data['email']) ? (string) $data['email'] : null,
+            currency: isset($data['currency']) ? strtoupper((string) $data['currency']) : null,
             sendSource: (bool) ($data['send_source'] ?? $data['sendSource'] ?? false),
+            callbackToken: isset($data['callback_token']) ? (string) $data['callback_token'] : (isset($data['callbackToken']) ? (string) $data['callbackToken'] : (isset($data['secure_token']) ? (string) $data['secure_token'] : (isset($data['secureToken']) ? (string) $data['secureToken'] : null))),
         );
     }
 
@@ -84,6 +115,14 @@ readonly class CheckoutRequest implements Arrayable
 
         if ($this->mobile !== null) {
             $data['mobile'] = $this->mobile;
+        }
+
+        if ($this->email !== null) {
+            $data['email'] = $this->email;
+        }
+
+        if ($this->currency !== null) {
+            $data['currency'] = $this->currency;
         }
 
         if ($this->sendSource) {
@@ -110,9 +149,15 @@ readonly class CheckoutRequest implements Arrayable
             $params['mobile'] = $this->mobile;
         }
 
-        if ($this->sendSource) {
-            $params['sendSource'] = 'true';
+        if ($this->email !== null) {
+            $params['email'] = $this->email;
         }
+
+        if ($this->currency !== null) {
+            $params['currency'] = $this->currency;
+        }
+
+        $params['sendSource'] = $this->sendSource ? 'true' : 'false';
 
         return $params;
     }

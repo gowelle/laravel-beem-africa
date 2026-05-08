@@ -7,6 +7,10 @@ use Gowelle\BeemAfrica\Enums\BeemErrorCode;
 use Gowelle\BeemAfrica\Exceptions\InvalidConfigurationException;
 use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Gowelle\BeemAfrica\Support\BeemClient;
+use Gowelle\BeemAfrica\Tests\TestCase;
+use Illuminate\Support\Facades\Http;
+
+uses(TestCase::class);
 
 describe('BeemClient', function () {
     it('throws exception when API key is missing', function () {
@@ -32,7 +36,13 @@ describe('BeemClient', function () {
         expect($client)->toBeInstanceOf(BeemClient::class);
     });
 
-    it('builds checkout URL correctly', function () {
+    it('initiates redirect checkout with authenticated get request', function () {
+        Http::fake([
+            'https://checkout.beem.africa/v1/checkout*' => Http::response([
+                'src' => 'https://checkout.beem.africa/session/abc123',
+            ], 200),
+        ]);
+
         $client = new BeemClient(
             apiKey: 'test_api_key',
             secretKey: 'test_secret_key',
@@ -40,37 +50,55 @@ describe('BeemClient', function () {
         );
 
         $request = new CheckoutRequest(
-            amount: 1000.00,
-            transactionId: 'TXN-123',
+            amount: 1000,
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
             referenceNumber: 'REF-001',
+            email: 'customer@example.com',
+            currency: 'TZS',
+            sendSource: true,
+            callbackToken: 'secure-123',
         );
 
-        $url = $client->buildCheckoutUrl($request);
+        $response = $client->initiateCheckout($request);
 
-        expect($url)->toStartWith('https://checkout.beem.africa/v1/checkout?')
-            ->and($url)->toContain('amount=1000')
-            ->and($url)->toContain('transaction_id=TXN-123')
-            ->and($url)->toContain('reference_number=REF-001');
+        expect($response->successful())->toBeTrue();
+
+        Http::assertSent(function ($request) {
+            parse_str(parse_url($request->url(), PHP_URL_QUERY) ?: '', $query);
+
+            return $request->method() === 'GET'
+                && $request->hasHeader('Authorization', 'Basic '.base64_encode('test_api_key:test_secret_key'))
+                && $request->hasHeader('beem-secure-token', 'secure-123')
+                && $query['amount'] === '1000'
+                && $query['transaction_id'] === '96f9cc09-afa0-40cf-928a-d7e2b27b2408'
+                && $query['reference_number'] === 'REF-001'
+                && $query['email'] === 'customer@example.com'
+                && $query['currency'] === 'TZS'
+                && $query['sendSource'] === 'true';
+        });
     });
 
-    it('includes optional parameters in checkout URL', function () {
+    it('can whitelist a domain', function () {
+        Http::fake([
+            'https://checkout.beem.africa/v1/whitelist/add-to-list' => Http::response([
+                'status' => 200,
+                'message' => 'successful',
+            ], 200),
+        ]);
+
         $client = new BeemClient(
             apiKey: 'test_api_key',
             secretKey: 'test_secret_key',
+            baseUrl: 'https://checkout.beem.africa',
         );
 
-        $request = new CheckoutRequest(
-            amount: 500.00,
-            transactionId: 'TXN-456',
-            referenceNumber: 'REF-002',
-            mobile: '255712345678',
-            sendSource: true,
-        );
+        expect($client->whitelistDomain('https://example.com'))->toBeTrue();
 
-        $url = $client->buildCheckoutUrl($request);
-
-        expect($url)->toContain('mobile=255712345678')
-            ->and($url)->toContain('sendSource=true');
+        Http::assertSent(function ($request) {
+            return $request->method() === 'POST'
+                && $request->url() === 'https://checkout.beem.africa/v1/whitelist/add-to-list'
+                && $request['website'] === 'https://example.com';
+        });
     });
 
     it('returns correct base URL', function () {

@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-05-08
+
+### Changed
+
+- **Redirect Checkout Alignment**: Checkout redirect initiation now matches Beem's documented flow by issuing the authenticated `GET /v1/checkout` request and resolving the returned Beem-hosted payment page URL.
+- **Checkout Request Validation**: Checkout requests now require whole-number amounts, UUIDv4 transaction IDs, and the documented field formats for a successful Beem initiation.
+- **Correlation Token Naming**: The package-facing request field is now named `callbackToken` to distinguish it from Beem's generated checkout page token.
+
+### Fixed
+
+- **Mixed Checkout Modes**: Redirect and iframe checkout behavior are now separated cleanly across backend services, Livewire, Vue, Blade, and tests.
+- **Iframe Integration Contract**: Embedded checkout now renders the documented Beem widget shell, assets, and initialization behavior.
+- **Documentation**: Added a checkout quick start, prerequisites, backend route examples for Vue redirect checkout, and clearer callback token guidance.
+
 ### Breaking changes
 
 - **API Endpoint Refactor**: Base URLs in `config/beem-africa.php` no longer contain API versions or subpaths (e.g., `/v1`). Version paths have been moved directly into the respective Service classes to prevent URL duplication. If you have overridden any `BEEM_*_BASE_URL` variables in your `.env` file, ensure they point directly to the domain root (e.g., `https://checkout.beem.africa` instead of `https://checkout.beem.africa/v1/checkout`).

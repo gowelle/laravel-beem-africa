@@ -38,7 +38,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - 🔄 **Redirect Checkout** - Redirect users to Beem's hosted checkout page
 - 🖼️ **Iframe Checkout** - Embed checkout within your application
 - 🔔 **Webhook Handling** - Automatic webhook processing with Laravel events
-- 🛡️ **Secure Token Validation** - Optional webhook signature verification
+- 🛡️ **Secure Token Support** - Optional callback correlation token support
 - 💾 **Transaction Storage** - Optional database storage for payment records
 
 ### OTP (One-Time Password)
@@ -206,8 +206,6 @@ Example with manual strings:
 <BeemCheckoutButton
     :amount="1000"
     :labels="{
-        payNow: 'Lipa Sasa',
-        processing: 'Inachakata...',
         amount: 'Kiasi'
     }"
 />
@@ -279,36 +277,135 @@ return [
 
 ### Using Payment Checkout
 
+Beem exposes two different checkout integrations and this package now treats them separately:
+
+- **Redirect checkout** is a backend-initiated, authenticated `GET /v1/checkout` request.
+- **Iframe checkout** is a frontend widget that requires a whitelisted domain plus Beem's CSS/JS assets.
+
+Shared request rules for both modes:
+
+- `amount` must be a whole number. Decimals are not allowed.
+- `transaction_id` should be a UUIDv4.
+- `reference_number` should be alphanumeric and may include hyphens.
+- `beem-secure-token` is optional request-specific correlation data that Beem echoes back in callback headers. In this package API it is named `callbackToken`.
+
+> **Important:** `callbackToken` is your optional correlation token. It is different from Beem's generated checkout page token that appears in URLs like `/v1/checkout/page?token=...`.
+
+Before you start, make sure:
+
+- your Beem API key and secret key are configured
+- the `reference_number` you use matches a product/reference prefix configured in Beem
+- your Beem callback URL is configured if you want webhook updates
+- your Beem redirect URL is configured if you want Beem to send users back to your site after payment
+
+#### Quick Start: Redirect Checkout
+
+This is the simplest end-to-end Laravel flow to get a customer from your app to Beem's hosted payment page successfully.
+
+```php
+// routes/web.php
+
+use App\Http\Controllers\CheckoutController;
+use Illuminate\Support\Facades\Route;
+
+Route::post('/checkout/beem', [CheckoutController::class, 'store'])->name('checkout.beem');
+```
+
+```php
+// app/Http/Controllers/CheckoutController.php
+
+namespace App\Http\Controllers;
+
+use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Gowelle\BeemAfrica\Facades\Beem;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class CheckoutController extends Controller
+{
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'amount' => ['required', 'integer', 'min:1'],
+            'reference_number' => ['required', 'string'],
+            'mobile' => ['nullable', 'regex:/^[0-9]{10,15}$/'],
+            'email' => ['nullable', 'email'],
+        ]);
+
+        $checkoutRequest = new CheckoutRequest(
+            amount: (int) $request->integer('amount'),
+            transactionId: (string) Str::uuid(),
+            referenceNumber: $request->string('reference_number')->toString(),
+            mobile: $request->string('mobile')->toString() ?: null,
+            email: $request->string('email')->toString() ?: null,
+            currency: 'TZS',
+            sendSource: true,
+            callbackToken: 'order-'.$request->string('reference_number')->toString(),
+        );
+
+        return Beem::redirect($checkoutRequest);
+    }
+}
+```
+
+```blade
+<form method="POST" action="{{ route('checkout.beem') }}">
+    @csrf
+    <input type="hidden" name="amount" value="1000">
+    <input type="hidden" name="reference_number" value="SAMPLE-12345">
+    <input type="hidden" name="mobile" value="255712345678">
+    <button type="submit">Pay with Beem</button>
+</form>
+```
+
+If that route works, your checkout initiation is wired correctly.
+
 #### Redirect Method
 
-The simplest way to accept payments is to redirect users to Beem's hosted checkout page:
+Use redirect checkout when your Laravel backend should initiate the Beem request with Basic Auth. This package recommends `sendSource: true`, which returns a redirect URL that Laravel can send the customer to explicitly.
 
 ```php
 use Gowelle\BeemAfrica\Facades\Beem;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Illuminate\Support\Str;
 
 // In your controller
 public function checkout()
 {
     $request = new CheckoutRequest(
-        amount: 1000.00,
-        transactionId: 'TXN-' . uniqid(),
-        referenceNumber: 'ORDER-001',
-        mobile: '255712345678', // Optional
+        amount: 1000,
+        transactionId: (string) Str::uuid(),
+        referenceNumber: 'SAMPLE-12345',
+        mobile: '255712345678',
+        email: 'customer@example.com',
+        currency: 'TZS',
+        sendSource: true,
+        callbackToken: 'order-123',
     );
 
     // Option 1: Redirect directly
     return Beem::redirect($request);
 
-    // Option 2: Get the URL and redirect manually
+    // Option 2: Resolve the authenticated redirect URL manually
     $checkoutUrl = Beem::getCheckoutUrl($request);
     return redirect()->away($checkoutUrl);
 }
 ```
 
+If you need Beem's raw checkout response metadata first, call:
+
+```php
+$checkout = Beem::initiate($request);
+
+$checkout->checkoutUrl;
+$checkout->statusCode;
+$checkout->data;
+```
+
 #### Iframe Method
 
-For a seamless checkout experience, embed the checkout button in your page:
+Use iframe checkout when you want Beem's hosted payment page embedded on your site through their frontend library.
 
 ##### 1. Whitelist Your Domain
 
@@ -323,14 +420,14 @@ Beem::whitelistDomain('https://yourapp.com');
 
 ##### 2. Add the Checkout Button
 
-Use the included Blade component:
+Use the included Blade component. This renders the documented Beem widget shell:
 
 ```blade
 <x-beem-checkout-button
     :amount="1000"
-    :token="$secureToken"
-    reference="ORDER-001"
-    transaction-id="TXN-123456"
+    :token="$callbackToken"
+    reference="SAMPLE-12345"
+    transaction-id="96f9cc09-afa0-40cf-928a-d7e2b27b2408"
     mobile="255712345678"
 />
 ```
@@ -343,16 +440,31 @@ Use the included Blade component:
 Or manually add the button:
 
 ```html
+<link rel="stylesheet" href="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.css">
+
 <div
   id="beem-button"
   data-price="1000"
-  data-token="{{ $secureToken }}"
-  data-reference="ORDER-001"
-  data-transaction="TXN-123456"
+  data-token="{{ $callbackToken }}"
+  data-reference="SAMPLE-12345"
+  data-transaction="96f9cc09-afa0-40cf-928a-d7e2b27b2408"
   data-mobile="255712345678"
 ></div>
-<script src="https://checkout.beem.africa/bpay.min.js"></script>
+<div id="beem-page" class="beem-page"></div>
+
+<script src="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.js"></script>
+<script>
+  InitializeBeem();
+</script>
 ```
+
+The iframe widget requires:
+
+- a whitelisted domain
+- `#beem-button`
+- `#beem-page`
+- Beem's CSS and JS assets
+- `InitializeBeem()`
 
 #### Error Handling
 
@@ -379,10 +491,11 @@ use Gowelle\BeemAfrica\Enums\BeemErrorCode;
 
 try {
     $request = new CheckoutRequest(
-        amount: 1000.00,
-        transactionId: 'TXN-123',
-        referenceNumber: 'ORDER-001',
+        amount: 1000,
+        transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+        referenceNumber: 'SAMPLE-12345',
         mobile: '255712345678',
+        sendSource: true,
     );
 
     return Beem::redirect($request);
@@ -453,17 +566,19 @@ try {
 
 The package automatically registers a webhook route at `/webhooks/beem`. When Beem sends a payment notification, the package dispatches Laravel events.
 
-##### Webhook Security
+##### Webhook Token
 
-The package supports webhook authentication using Beem's secure token. Configure your webhook secret in `.env`:
+Beem echoes the optional `beem-secure-token` request header back in callback headers. Use it as request-specific correlation data between your checkout request and callback handling.
+
+If you want to compare against a static token in your application, you can still configure one in `.env`:
 
 ```env
 BEEM_WEBHOOK_SECRET=your_webhook_secret_from_beem
 ```
 
-**Two authentication methods are available:**
+**Two validation options are available:**
 
-1. **Built-in validation** - The webhook controller automatically validates the `beem-secure-token` header
+1. **Built-in validation** - The webhook controller compares the callback `beem-secure-token` header against your configured value
 2. **Middleware approach** - Apply the provided middleware for more control:
 
 ```php
@@ -478,7 +593,7 @@ BEEM_WEBHOOK_SECRET=your_webhook_secret_from_beem
 ],
 ```
 
-> **Note:** If you use the middleware approach, the controller will still perform validation. You can use either or both methods depending on your security requirements. If no `BEEM_WEBHOOK_SECRET` is configured, both will allow requests through.
+> **Note:** `beem-secure-token` is not Beem API authentication. It is callback correlation data echoed from your checkout request.
 
 ##### 1. Create Event Listeners
 
@@ -562,7 +677,7 @@ public function handle(PaymentSucceeded $event): void
     $payload->referenceNumber;  // 'ORDER-001'
     $payload->status;           // 'success'
     $payload->timestamp;        // '2024-01-15T10:30:00Z'
-    $payload->transactionId;    // 'TXN-123'
+    $payload->transactionId;    // '96f9cc09-afa0-40cf-928a-d7e2b27b2408'
     $payload->msisdn;           // '255712345678'
 
     // Helper methods
@@ -617,7 +732,7 @@ BEEM_STORE_TRANSACTIONS=true
 use Gowelle\BeemAfrica\Models\BeemTransaction;
 
 // Find by transaction ID
-$transaction = BeemTransaction::where('transaction_id', 'TXN-123')->first();
+$transaction = BeemTransaction::where('transaction_id', '96f9cc09-afa0-40cf-928a-d7e2b27b2408')->first();
 
 // Find by reference
 $transactions = BeemTransaction::byReference('ORDER-001')->get();
@@ -629,7 +744,7 @@ $pending = BeemTransaction::pending()->get();
 
 // Create a pending transaction before redirect
 $transaction = BeemTransaction::createPending(
-    transactionId: 'TXN-' . uniqid(),
+    transactionId: (string) Str::uuid(),
     referenceNumber: 'ORDER-001',
     amount: 1000.00,
     msisdn: '255712345678',
@@ -2719,7 +2834,7 @@ A payment checkout component with amount input, reference, and mobile number fie
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `amount` | `float` | `0` | Payment amount. If `0`, displays an editable input field |
+| `amount` | `int` | `0` | Whole-number payment amount. If `0`, displays an editable input field |
 | `reference` | `string` | `''` | Order reference. If empty, displays an editable input field |
 | `mobile` | `?string` | `null` | Pre-filled mobile number (optional) |
 
@@ -2883,17 +2998,13 @@ resources/js/vendor/beem-africa/
 
 ---
 
-#### BeemCheckoutButton
+#### BeemCheckoutButton (Iframe Only)
 
-A payment button that redirects to Beem's checkout page.
+An iframe/widget wrapper for Beem's embedded checkout library. This component does not initiate redirect checkout.
 
 ```vue
 <script setup lang="ts">
 import { BeemCheckoutButton } from '@/vendor/beem-africa';
-
-const handleCheckout = (event: { checkoutUrl: string }) => {
-  console.log('Redirecting to:', event.checkoutUrl);
-};
 
 const handleError = (event: { message: string }) => {
   console.error('Checkout error:', event.message);
@@ -2903,11 +3014,11 @@ const handleError = (event: { message: string }) => {
 <template>
   <BeemCheckoutButton
     :amount="1000"
-    token="your-beem-token"
-    reference="ORDER-001"
-    transaction-id="TXN-123456"
+    token="your-callback-token"
+    reference="SAMPLE-12345"
+    transaction-id="96f9cc09-afa0-40cf-928a-d7e2b27b2408"
     mobile="255712345678"
-    @checkout-initiated="handleCheckout"
+    @checkout-mounted="() => console.log('Beem iframe ready')"
     @checkout-error="handleError"
   />
 </template>
@@ -2917,42 +3028,19 @@ const handleError = (event: { message: string }) => {
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `amount` | `number` | ✅ | - | Payment amount |
-| `token` | `string` | ✅ | - | Beem secure token |
+| `amount` | `number` | ✅ | - | Whole-number payment amount |
+| `token` | `string` | ❌ | `null` | Optional callback correlation token echoed by Beem in callback headers |
 | `reference` | `string` | ✅ | - | Order reference number |
-| `transactionId` | `string` | ✅ | - | Unique transaction ID |
+| `transactionId` | `string` | ✅ | - | UUIDv4 transaction ID |
 | `mobile` | `string` | ❌ | `null` | Customer mobile number |
-| `buttonText` | `string` | ❌ | `'Pay Now'` | Button label |
-| `disabled` | `boolean` | ❌ | `false` | Disable the button |
-| `redirectOnInit` | `boolean` | ❌ | `true` | Auto-redirect to Beem checkout |
 | `labels` | `Labels` | ❌ | `{}` | Custom labels object |
 
 ##### Events
 
 | Event | Payload | Description |
 |-------|---------|-------------|
-| `checkout-initiated` | `{amount, transactionId, reference, checkoutUrl}` | Checkout URL generated |
+| `checkout-mounted` | - | Beem iframe assets loaded and `InitializeBeem()` invoked |
 | `checkout-error` | `{message}` | Error occurred |
-| `checkout-complete` | - | Checkout flow complete |
-
-##### Exposed Methods (via ref)
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const checkoutRef = ref();
-
-// Access exposed methods
-checkoutRef.value?.initiateCheckout();
-console.log(checkoutRef.value?.isLoading);
-console.log(checkoutRef.value?.error);
-</script>
-
-<template>
-  <BeemCheckoutButton ref="checkoutRef" ... />
-</template>
-```
 
 ---
 
@@ -3078,17 +3166,21 @@ import { useBeemCheckout, useBeemOtp, useBeemSms } from '@/vendor/beem-africa';
 const {
   isLoading,      // Ref<boolean> - Loading state
   error,          // Ref<string | null> - Error message
-  checkoutUrl,    // Ref<string | null> - Generated checkout URL
+  checkoutUrl,    // Ref<string | null> - Backend-generated redirect URL
   initiateCheckout, // (options: CheckoutOptions) => Promise<CheckoutResult>
   reset,          // () => void - Reset state
-} = useBeemCheckout();
+} = useBeemCheckout({
+  requestUrl: '/beem/checkout/redirect', // Your backend endpoint
+});
 
 // Usage
 const result = await initiateCheckout({
   amount: 1000,
-  transactionId: 'TXN-123',
-  reference: 'ORDER-001',
+  transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+  reference: 'SAMPLE-12345',
   mobile: '255712345678',
+  email: 'customer@example.com',
+  currency: 'TZS',
   redirectOnInit: false, // Don't auto-redirect
 });
 
@@ -3096,6 +3188,10 @@ if (result.success) {
   console.log('Checkout URL:', result.url);
 }
 ```
+
+`useBeemCheckout()` does not call Beem directly from the browser. It calls your backend endpoint, which should perform the authenticated Beem redirect request.
+
+See [Checkout Redirect Route](#checkout-redirect-route) below for the backend endpoint example.
 
 #### useBeemOtp
 
@@ -3160,6 +3256,44 @@ if (result.success) {
 ### Backend Routes for Vue Components
 
 Vue components require backend endpoints to communicate with Beem APIs. Here's how to set them up:
+
+#### Checkout Redirect Route
+
+Use this endpoint with `useBeemCheckout()` when your frontend should ask your Laravel backend to initiate Beem redirect checkout.
+
+```php
+use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Gowelle\BeemAfrica\Facades\Beem;
+use Illuminate\Http\Request;
+
+Route::post('/beem/checkout/redirect', function (Request $request) {
+    $validated = $request->validate([
+        'amount' => ['required', 'integer', 'min:1'],
+        'transaction_id' => ['required', 'string'],
+        'reference_number' => ['required', 'string'],
+        'mobile' => ['nullable', 'regex:/^[0-9]{10,15}$/'],
+        'email' => ['nullable', 'email'],
+        'currency' => ['nullable', 'string', 'size:3'],
+        'send_source' => ['nullable', 'boolean'],
+    ]);
+
+    $checkout = Beem::initiate(CheckoutRequest::fromArray([
+        'amount' => $validated['amount'],
+        'transaction_id' => $validated['transaction_id'],
+        'reference_number' => $validated['reference_number'],
+        'mobile' => $validated['mobile'] ?? null,
+        'email' => $validated['email'] ?? null,
+        'currency' => $validated['currency'] ?? 'TZS',
+        'send_source' => $validated['send_source'] ?? true,
+    ]));
+
+    return response()->json([
+        'checkout_url' => $checkout->checkoutUrl,
+        'status_code' => $checkout->statusCode,
+        'message' => $checkout->message,
+    ]);
+});
+```
 
 #### OTP Routes
 
@@ -3320,9 +3454,7 @@ Pass a `labels` prop to customize text:
 <BeemCheckoutButton
   :amount="1000"
   :labels="{
-    amount: 'Kiasi',
-    payNow: 'Lipa Sasa',
-    processing: 'Inachakata...'
+    amount: 'Kiasi'
   }"
 />
 ```
@@ -3332,9 +3464,6 @@ Pass a `labels` prop to customize text:
 | Key | Default | Description |
 |-----|---------|-------------|
 | `amount` | `'Amount'` | Amount label |
-| `payNow` | `'Pay Now'` | Button text |
-| `processing` | `'Processing...'` | Loading text |
-| `failedToInitiate` | `'Failed to initiate checkout'` | Error message |
 
 ##### BeemOtpVerification Labels (21 keys)
 

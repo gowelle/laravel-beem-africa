@@ -20,6 +20,7 @@ readonly class CheckoutResponse
     public function __construct(
         public bool $success,
         public string $checkoutUrl,
+        public int $statusCode = 200,
         public ?string $message = null,
         public array $data = [],
     ) {}
@@ -29,11 +30,13 @@ readonly class CheckoutResponse
      *
      * @param  array<string, mixed>  $data
      */
-    public static function success(string $checkoutUrl, array $data = []): self
+    public static function success(string $checkoutUrl, array $data = [], int $statusCode = 200, ?string $message = null): self
     {
         return new self(
             success: true,
             checkoutUrl: $checkoutUrl,
+            statusCode: $statusCode,
+            message: $message,
             data: $data,
         );
     }
@@ -43,11 +46,12 @@ readonly class CheckoutResponse
      *
      * @param  array<string, mixed>  $data
      */
-    public static function failed(string $message, array $data = []): self
+    public static function failed(string $message, array $data = [], int $statusCode = 500): self
     {
         return new self(
             success: false,
             checkoutUrl: '',
+            statusCode: $statusCode,
             message: $message,
             data: $data,
         );
@@ -71,6 +75,7 @@ readonly class CheckoutResponse
         return [
             'success' => $this->success,
             'checkout_url' => $this->checkoutUrl,
+            'status_code' => $this->statusCode,
             'message' => $this->message,
             'data' => $this->data,
         ];

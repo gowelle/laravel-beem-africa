@@ -8,7 +8,9 @@ use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
 use Gowelle\BeemAfrica\DTOs\CheckoutResponse;
 use Gowelle\BeemAfrica\Exceptions\BeemException;
 use Gowelle\BeemAfrica\Support\BeemClient;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
+use RuntimeException;
 
 /**
  * Service for handling Beem checkout operations.
@@ -23,16 +25,6 @@ class BeemCheckoutService
     ) {}
 
     /**
-     * Get the checkout URL for the redirect method.
-     *
-     * This returns the URL that users should be redirected to for payment.
-     */
-    public function getCheckoutUrl(CheckoutRequest $request): string
-    {
-        return $this->client->buildCheckoutUrl($request);
-    }
-
-    /**
      * Create a redirect response to the Beem checkout page.
      *
      * This is a convenience method that returns a redirect response
@@ -40,9 +32,9 @@ class BeemCheckoutService
      */
     public function redirect(CheckoutRequest $request): RedirectResponse
     {
-        $url = $this->getCheckoutUrl($request);
+        $response = $this->initiate($request);
 
-        return new RedirectResponse($url);
+        return new RedirectResponse($response->checkoutUrl);
     }
 
     /**
@@ -52,13 +44,31 @@ class BeemCheckoutService
      */
     public function initiate(CheckoutRequest $request): CheckoutResponse
     {
-        $checkoutUrl = $this->getCheckoutUrl($request);
+        $response = $this->client->initiateCheckout($request);
+        $checkoutUrl = $this->extractCheckoutUrl($response);
 
-        return CheckoutResponse::success($checkoutUrl, [
-            'transaction_id' => $request->transactionId,
-            'reference_number' => $request->referenceNumber,
-            'amount' => $request->amount,
-        ]);
+        return CheckoutResponse::success(
+            checkoutUrl: $checkoutUrl,
+            data: [
+                'transaction_id' => $request->transactionId,
+                'reference_number' => $request->referenceNumber,
+                'amount' => $request->amount,
+                'send_source' => $request->sendSource,
+                'response' => $this->extractResponseData($response),
+            ],
+            statusCode: $response->status(),
+            message: $this->extractResponseMessage($response),
+        );
+    }
+
+    /**
+     * Get the checkout URL for the redirect method.
+     *
+     * This performs the authenticated checkout request and returns the resolved URL.
+     */
+    public function getCheckoutUrl(CheckoutRequest $request): string
+    {
+        return $this->initiate($request)->checkoutUrl;
     }
 
     /**
@@ -81,15 +91,20 @@ class BeemCheckoutService
      *
      * @return array<string, mixed>
      */
-    public function getIframeData(CheckoutRequest $request, string $secureToken): array
+    public function getIframeData(CheckoutRequest $request, string $callbackToken): array
     {
-        return [
+        $data = [
             'data-price' => $request->amount,
-            'data-token' => $secureToken,
+            'data-token' => $callbackToken,
             'data-reference' => $request->referenceNumber,
             'data-transaction' => $request->transactionId,
-            'data-mobile' => $request->mobile,
         ];
+
+        if ($request->mobile !== null) {
+            $data['data-mobile'] = $request->mobile;
+        }
+
+        return $data;
     }
 
     /**
@@ -98,5 +113,56 @@ class BeemCheckoutService
     public function getClient(): BeemClient
     {
         return $this->client;
+    }
+
+    /**
+     * Resolve the checkout URL from Beem's response shape.
+     */
+    protected function extractCheckoutUrl(Response $response): string
+    {
+        $location = $response->header('Location');
+        if (is_string($location) && $location !== '') {
+            return $location;
+        }
+
+        $json = $response->json();
+        if (is_array($json)) {
+            foreach (['src', 'url', 'checkout_url', 'redirect_url', 'link'] as $key) {
+                $value = $json[$key] ?? null;
+                if (is_string($value) && $value !== '') {
+                    return $value;
+                }
+            }
+        }
+
+        $body = trim($response->body());
+        if ($body !== '' && filter_var($body, FILTER_VALIDATE_URL) !== false) {
+            return $body;
+        }
+
+        throw new RuntimeException('Beem checkout response did not include a redirect URL.');
+    }
+
+    /**
+     * Normalize response payload details for callers.
+     *
+     * @return array<string, mixed>
+     */
+    protected function extractResponseData(Response $response): array
+    {
+        $json = $response->json();
+
+        return is_array($json)
+            ? $json
+            : ['body' => $response->body()];
+    }
+
+    protected function extractResponseMessage(Response $response): ?string
+    {
+        $json = $response->json();
+
+        return is_array($json) && isset($json['message']) && is_string($json['message'])
+            ? $json['message']
+            : null;
     }
 }

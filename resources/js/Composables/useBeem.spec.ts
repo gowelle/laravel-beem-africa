@@ -2,12 +2,18 @@ import { describe, it, expect, beforeEach, vi, afterEach, type Mock } from 'vite
 import { useBeemCheckout, useBeemOtp, useBeemSms } from './useBeem';
 
 describe('useBeemCheckout', () => {
+    let fetchMock: Mock;
+
     beforeEach(() => {
         vi.stubGlobal('location', { href: '' });
+        fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
+        document.head.innerHTML = '<meta name="csrf-token" content="test-token">';
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
+        vi.restoreAllMocks();
     });
 
     it('initializes with correct default state', () => {
@@ -18,44 +24,58 @@ describe('useBeemCheckout', () => {
         expect(checkoutUrl.value).toBe(null);
     });
 
-    it('builds checkout URL correctly', async () => {
+    it('requests checkout URL from backend correctly', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve({ checkout_url: 'https://checkout.beem.africa/session/abc123' }),
+        });
+
         const { initiateCheckout, checkoutUrl } = useBeemCheckout();
 
         const result = await initiateCheckout({
             amount: 1000,
-            transactionId: 'TXN-123',
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
             reference: 'ORDER-001',
             redirectOnInit: false,
         });
 
         expect(result.success).toBe(true);
-        expect(result.url).toContain('https://checkout.beem.africa/v1/checkout');
-        expect(result.url).toContain('amount=1000');
-        expect(result.url).toContain('transaction_id=TXN-123');
-        expect(result.url).toContain('reference_number=ORDER-001');
+        expect(result.url).toContain('https://checkout.beem.africa/session/abc123');
         expect(checkoutUrl.value).toBe(result.url);
     });
 
-    it('includes mobile in URL when provided', async () => {
+    it('includes mobile in backend request when provided', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve({ checkout_url: 'https://checkout.beem.africa/session/abc123' }),
+        });
+
         const { initiateCheckout } = useBeemCheckout();
 
-        const result = await initiateCheckout({
+        await initiateCheckout({
             amount: 1000,
-            transactionId: 'TXN-123',
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
             reference: 'ORDER-001',
             mobile: '255712345678',
             redirectOnInit: false,
         });
 
-        expect(result.url).toContain('mobile=255712345678');
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock.mock.calls[0][0]).toBe('/beem/checkout/redirect');
+        expect(fetchMock.mock.calls[0][1]?.body).toContain('"mobile":"255712345678"');
     });
 
     it('resets state correctly', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve({ checkout_url: 'https://checkout.beem.africa/session/abc123' }),
+        });
+
         const { initiateCheckout, reset, error, checkoutUrl, isLoading } = useBeemCheckout();
 
         await initiateCheckout({
             amount: 1000,
-            transactionId: 'TXN-123',
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
             reference: 'ORDER-001',
             redirectOnInit: false,
         });

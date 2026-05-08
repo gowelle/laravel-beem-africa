@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gowelle\BeemAfrica\Livewire\BeemCheckout;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
 uses()->group('livewire');
@@ -15,11 +16,11 @@ describe('BeemCheckout Component', function () {
 
     it('can be mounted with initial values', function () {
         Livewire::test(BeemCheckout::class, [
-            'amount' => 1000.00,
+            'amount' => 1000,
             'reference' => 'ORDER-001',
             'mobile' => '255712345678',
         ])
-            ->assertSet('amount', 1000.00)
+            ->assertSet('amount', 1000)
             ->assertSet('reference', 'ORDER-001')
             ->assertSet('mobile', '255712345678')
             ->assertSet('isProcessing', false);
@@ -56,6 +57,21 @@ describe('BeemCheckout Component', function () {
             ->set('reference', 'ORDER-001')
             ->set('mobile', '255712345678')
             ->assertHasNoErrors(['mobile']);
+    });
+
+    it('initiates redirect checkout through the backend service', function () {
+        Http::fake([
+            'https://checkout.beem.africa/v1/checkout*' => Http::response([
+                'src' => 'https://checkout.beem.africa/session/livewire-123',
+            ], 200),
+        ]);
+
+        Livewire::test(BeemCheckout::class)
+            ->set('amount', 1000)
+            ->set('reference', 'ORDER-001')
+            ->call('initiateCheckout')
+            ->assertSet('checkoutUrl', 'https://checkout.beem.africa/session/livewire-123')
+            ->assertDispatched('beem-checkout-initiated');
     });
 
     it('can reset checkout state', function () {

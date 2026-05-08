@@ -17,7 +17,8 @@ use Gowelle\BeemAfrica\Ussd\BeemUssdService;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static CheckoutResponse redirect(CheckoutRequest $request)
+ * @method static \Illuminate\Http\RedirectResponse redirect(CheckoutRequest $request)
+ * @method static CheckoutResponse initiate(CheckoutRequest $request)
  * @method static string getCheckoutUrl(CheckoutRequest $request)
  * @method static bool whitelistDomain(string $domain)
  * @method static \Gowelle\BeemAfrica\Otp\BeemOtpService otp()

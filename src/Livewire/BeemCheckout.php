@@ -9,6 +9,7 @@ use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Gowelle\BeemAfrica\Facades\Beem;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Illuminate\Support\Str;
 
 /**
  * Livewire component for Beem payment checkout.
@@ -18,8 +19,8 @@ use Livewire\Component;
  */
 class BeemCheckout extends Component
 {
-    #[Validate('required|numeric|min:1')]
-    public float $amount = 0;
+    #[Validate('required|integer|min:1')]
+    public int $amount = 0;
 
     #[Validate('required|string|max:50')]
     public string $reference = '';
@@ -37,7 +38,7 @@ class BeemCheckout extends Component
      * Mount the component with initial values.
      */
     public function mount(
-        float $amount = 0,
+        int $amount = 0,
         string $reference = '',
         ?string $mobile = null
     ): void {
@@ -59,12 +60,14 @@ class BeemCheckout extends Component
         try {
             $request = new CheckoutRequest(
                 amount: $this->amount,
-                transactionId: 'TXN-'.uniqid(),
+                transactionId: (string) Str::uuid(),
                 referenceNumber: $this->reference,
                 mobile: $this->mobile,
+                sendSource: true,
             );
 
-            $this->checkoutUrl = Beem::getCheckoutUrl($request);
+            $checkout = Beem::initiate($request);
+            $this->checkoutUrl = $checkout->checkoutUrl;
 
             $this->dispatch('beem-checkout-initiated', [
                 'url' => $this->checkoutUrl,

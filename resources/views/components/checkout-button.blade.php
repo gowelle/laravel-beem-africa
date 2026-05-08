@@ -18,4 +18,16 @@
 >
     {{ $slot }}
 </div>
-<script src="https://checkout.beem.africa/bpay.min.js"></script>
+<div id="beem-page" class="beem-page"></div>
+
+@once
+    <link rel="stylesheet" href="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.css">
+    <script src="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof window.InitializeBeem === 'function') {
+                window.InitializeBeem();
+            }
+        });
+    </script>
+@endonce

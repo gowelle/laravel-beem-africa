@@ -13,7 +13,7 @@
         @if($amount > 0)
             <div class="beem-amount-display">
                 <span class="beem-amount-label">{{ __('beem-africa::beem-africa.amount') }}</span>
-                <span class="beem-amount-value">{{ number_format($amount, 2) }}</span>
+                <span class="beem-amount-value">{{ number_format($amount, 0) }}</span>
             </div>
         @else
             <div class="beem-form-group">
@@ -25,7 +25,7 @@
                     class="beem-input @error('amount') beem-input-error @enderror"
                     placeholder="{{ __('beem-africa::beem-africa.checkout.enter_amount') }}"
                     min="1"
-                    step="0.01"
+                    step="1"
                 >
                 @error('amount')
                     <span class="beem-error-text">{{ $message }}</span>

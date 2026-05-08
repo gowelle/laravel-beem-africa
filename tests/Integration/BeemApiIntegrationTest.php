@@ -38,27 +38,26 @@ describe('Beem API Integration', function () {
 
     it('can build a valid checkout URL', function () {
         $request = new CheckoutRequest(
-            amount: 1000.00,
-            transactionId: 'INT-TEST-'.uniqid(),
-            referenceNumber: 'REF-INT-'.date('Ymd'),
+            amount: 1000,
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+            referenceNumber: 'REFINT-'.date('Ymd'),
             mobile: '255712345678',
+            sendSource: true,
         );
 
         $url = $this->service->getCheckoutUrl($request);
 
         expect($url)
             ->toBeString()
-            ->toStartWith('https://checkout.beem.africa/v1/checkout?')
-            ->toContain('amount=1000')
-            ->toContain('transaction_id=')
-            ->toContain('reference_number=');
+            ->toStartWith('https://checkout.beem.africa');
     })->group('integration');
 
     it('can initiate a checkout session', function () {
         $request = new CheckoutRequest(
-            amount: 500.00,
-            transactionId: 'INT-INIT-'.uniqid(),
-            referenceNumber: 'REF-INIT-'.date('Ymd'),
+            amount: 500,
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+            referenceNumber: 'REFINIT-'.date('Ymd'),
+            sendSource: true,
         );
 
         $response = $this->service->initiate($request);
@@ -66,19 +65,19 @@ describe('Beem API Integration', function () {
         expect($response->isSuccessful())->toBeTrue()
             ->and($response->checkoutUrl)->toStartWith('https://checkout.beem.africa')
             ->and($response->data)->toHaveKey('transaction_id')
-            ->and($response->data['amount'])->toBe(500.00);
+            ->and($response->data['amount'])->toBe(500);
     })->group('integration');
 
     it('generates valid iframe data', function () {
         $request = new CheckoutRequest(
-            amount: 2500.00,
-            transactionId: 'INT-IFRAME-'.uniqid(),
-            referenceNumber: 'REF-IFRAME-'.date('Ymd'),
+            amount: 2500,
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+            referenceNumber: 'REFIFRAME-'.date('Ymd'),
             mobile: '255700000000',
         );
 
         // Note: In production, you would get the secure token from Beem
-        $mockToken = 'test-secure-token-'.uniqid();
+        $mockToken = 'test-callback-token-'.uniqid();
         $data = $this->service->getIframeData($request, $mockToken);
 
         expect($data)
@@ -87,15 +86,16 @@ describe('Beem API Integration', function () {
             ->toHaveKey('data-reference')
             ->toHaveKey('data-transaction')
             ->toHaveKey('data-mobile')
-            ->and($data['data-price'])->toBe(2500.00)
+            ->and($data['data-price'])->toBe(2500)
             ->and($data['data-token'])->toBe($mockToken);
     })->group('integration');
 
     it('can redirect to checkout URL', function () {
         $request = new CheckoutRequest(
-            amount: 750.00,
-            transactionId: 'INT-REDIRECT-'.uniqid(),
-            referenceNumber: 'REF-REDIRECT-'.date('Ymd'),
+            amount: 750,
+            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+            referenceNumber: 'REFREDIRECT-'.date('Ymd'),
+            sendSource: true,
         );
 
         $response = $this->service->redirect($request);
@@ -103,7 +103,7 @@ describe('Beem API Integration', function () {
         expect($response)
             ->toBeInstanceOf(RedirectResponse::class)
             ->and($response->getTargetUrl())
-            ->toStartWith('https://checkout.beem.africa/v1/checkout?');
+            ->toStartWith('https://checkout.beem.africa');
     })->group('integration');
 })->group('integration');
 

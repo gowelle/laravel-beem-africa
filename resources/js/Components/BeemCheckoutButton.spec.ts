@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import BeemCheckoutButton from './BeemCheckoutButton.vue';
 
@@ -7,165 +7,66 @@ describe('BeemCheckoutButton', () => {
         amount: 1000,
         token: 'test-token',
         reference: 'ORDER-001',
-        transactionId: 'TXN-123',
+        transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
     };
 
     let wrapper: VueWrapper;
 
     beforeEach(() => {
+        document.head.innerHTML = '';
+        document.body.innerHTML = '';
+        window.InitializeBeem = vi.fn();
+
         wrapper = mount(BeemCheckoutButton, {
             props: defaultProps,
+            attachTo: document.body,
         });
     });
 
-    describe('rendering', () => {
-        it('renders correctly with required props', () => {
-            expect(wrapper.exists()).toBe(true);
-            expect(wrapper.find('.beem-checkout-wrapper').exists()).toBe(true);
-        });
-
-        it('displays formatted amount', () => {
-            expect(wrapper.find('.beem-amount-value').text()).toBe('1,000.00');
-        });
-
-        it('displays custom button text', async () => {
-            await wrapper.setProps({ buttonText: 'Checkout Now' });
-            expect(wrapper.find('.beem-btn-primary').text()).toContain('Checkout Now');
-        });
-
-        it('displays default button text', () => {
-            expect(wrapper.find('.beem-btn-primary').text()).toContain('Pay Now');
-        });
+    it('renders iframe checkout shell', () => {
+        expect(wrapper.exists()).toBe(true);
+        expect(wrapper.find('.beem-checkout-wrapper').exists()).toBe(true);
+        expect(wrapper.find('#beem-button').exists()).toBe(true);
+        expect(wrapper.find('#beem-page').exists()).toBe(true);
     });
 
-    describe('props', () => {
-        it('accepts all required props', () => {
-            const w = mount(BeemCheckoutButton, {
-                props: {
-                    amount: 5000,
-                    token: 'token-abc',
-                    reference: 'REF-002',
-                    transactionId: 'TXN-456',
-                },
-            });
-            expect(w.find('.beem-amount-value').text()).toBe('5,000.00');
-        });
-
-        it('handles mobile prop', () => {
-            const w = mount(BeemCheckoutButton, {
-                props: {
-                    ...defaultProps,
-                    mobile: '255712345678',
-                },
-            });
-            expect(w.find('[data-mobile="255712345678"]').exists()).toBe(true);
-        });
-
-        it('handles disabled prop', async () => {
-            await wrapper.setProps({ disabled: true });
-            const button = wrapper.find('.beem-btn-primary');
-            expect(button.attributes('disabled')).toBeDefined();
-        });
+    it('displays whole-number formatted amount', () => {
+        expect(wrapper.find('.beem-amount-value').text()).toBe('1,000');
     });
 
-    describe('checkout initiation', () => {
-        it('emits checkout-initiated event on button click', async () => {
-            // Mock window.location using Object.defineProperty
-            const originalLocation = window.location;
-            Object.defineProperty(window, 'location', {
-                writable: true,
-                value: { href: '' },
-            });
+    it('renders documented data attributes', () => {
+        const button = wrapper.find('#beem-button');
 
-            await wrapper.setProps({ redirectOnInit: false });
-            await wrapper.find('.beem-btn-primary').trigger('click');
-
-            expect(wrapper.emitted('checkout-initiated')).toBeTruthy();
-            expect(wrapper.emitted('checkout-initiated')![0][0]).toMatchObject({
-                amount: 1000,
-                transactionId: 'TXN-123',
-                reference: 'ORDER-001',
-            });
-
-            Object.defineProperty(window, 'location', {
-                writable: true,
-                value: originalLocation,
-            });
-        });
-
-        it('builds correct checkout URL', async () => {
-            await wrapper.setProps({ redirectOnInit: false });
-            await wrapper.find('.beem-btn-primary').trigger('click');
-
-            const event = wrapper.emitted('checkout-initiated')![0][0] as any;
-            expect(event.checkoutUrl).toContain('https://checkout.beem.africa/v1/checkout');
-            expect(event.checkoutUrl).toContain('amount=1000');
-            expect(event.checkoutUrl).toContain('transaction_id=TXN-123');
-            expect(event.checkoutUrl).toContain('reference_number=ORDER-001');
-        });
-
-        it('includes mobile in URL when provided', async () => {
-            const w = mount(BeemCheckoutButton, {
-                props: {
-                    ...defaultProps,
-                    mobile: '255712345678',
-                    redirectOnInit: false,
-                },
-            });
-
-            await w.find('.beem-btn-primary').trigger('click');
-
-            const event = w.emitted('checkout-initiated')![0][0] as any;
-            expect(event.checkoutUrl).toContain('mobile=255712345678');
-        });
-
-        it('does not initiate when disabled', async () => {
-            await wrapper.setProps({ disabled: true });
-            await wrapper.find('.beem-btn-primary').trigger('click');
-
-            expect(wrapper.emitted('checkout-initiated')).toBeFalsy();
-        });
+        expect(button.attributes('data-price')).toBe('1000');
+        expect(button.attributes('data-token')).toBe('test-token');
+        expect(button.attributes('data-reference')).toBe('ORDER-001');
+        expect(button.attributes('data-transaction')).toBe('96f9cc09-afa0-40cf-928a-d7e2b27b2408');
     });
 
-    describe('loading state', () => {
-        it('shows loading text during processing', async () => {
-            await wrapper.setProps({ redirectOnInit: false });
+    it('handles optional mobile prop', async () => {
+        await wrapper.setProps({ mobile: '255712345678' });
 
-            // Access exposed state
-            const vm = wrapper.vm as any;
-            vm.isLoading = true;
-            await wrapper.vm.$nextTick();
-
-            expect(wrapper.find('.beem-btn-primary').text()).toContain('Processing');
-        });
-
-        it('disables button during processing', async () => {
-            const vm = wrapper.vm as any;
-            vm.isLoading = true;
-            await wrapper.vm.$nextTick();
-
-            const button = wrapper.find('.beem-btn-primary');
-            expect(button.attributes('disabled')).toBeDefined();
-        });
+        expect(wrapper.find('#beem-button').attributes('data-mobile')).toBe('255712345678');
     });
 
-    describe('error handling', () => {
-        it('displays error message when set', async () => {
-            const vm = wrapper.vm as any;
-            vm.error = 'Test error message';
-            await wrapper.vm.$nextTick();
+    it('loads Beem iframe assets when missing', () => {
+        expect(document.querySelector('link[href="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.css"]')).not.toBeNull();
+        expect(document.querySelector('script[src="https://checkout.beem.africa/dist/0.1_alpha/bpay.min.js"]')).not.toBeNull();
+    });
 
-            expect(wrapper.find('.beem-alert-error').exists()).toBe(true);
-            expect(wrapper.find('.beem-alert-error').text()).toContain('Test error message');
+    it('calls InitializeBeem when the script is already available', async () => {
+        const existingScript = document.createElement('script');
+        existingScript.src = 'https://checkout.beem.africa/dist/0.1_alpha/bpay.min.js';
+        document.head.appendChild(existingScript);
+
+        const mounted = mount(BeemCheckoutButton, {
+            props: defaultProps,
+            attachTo: document.body,
         });
 
-        it('can dismiss error message', async () => {
-            const vm = wrapper.vm as any;
-            vm.error = 'Test error';
-            await wrapper.vm.$nextTick();
+        await mounted.vm.$nextTick();
+        await Promise.resolve();
 
-            await wrapper.find('.beem-alert-close').trigger('click');
-            expect(wrapper.find('.beem-alert-error').exists()).toBe(false);
-        });
+        expect(window.InitializeBeem).toHaveBeenCalled();
     });
 });

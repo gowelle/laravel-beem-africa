@@ -52,13 +52,29 @@ class BeemClient
     }
 
     /**
-     * Build the checkout URL for redirect method.
+     * Initiate a checkout request against Beem's redirect endpoint.
      */
-    public function buildCheckoutUrl(CheckoutRequest $request): string
+    public function initiateCheckout(CheckoutRequest $request): Response
     {
-        $queryParams = $request->toQueryParams();
+        $pendingRequest = $this->request();
 
-        return $this->baseUrl.self::CHECKOUT_ENDPOINT.'?'.http_build_query($queryParams);
+        if ($request->callbackToken !== null) {
+            $pendingRequest = $pendingRequest->withHeaders([
+                'beem-secure-token' => $request->callbackToken,
+            ]);
+        }
+
+        if (! $request->sendSource) {
+            $pendingRequest = $pendingRequest->withoutRedirecting();
+        }
+
+        $response = $pendingRequest->get($this->baseUrl.self::CHECKOUT_ENDPOINT, $request->toQueryParams());
+
+        if ($response->failed() && ! in_array($response->status(), [301, 302], true)) {
+            $this->throwPaymentException($response);
+        }
+
+        return $response;
     }
 
     /**

@@ -4,6 +4,26 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-05-08
+
+### Changed
+
+- **Checkout Redirect Integration**: Redirect checkout now performs Beem's authenticated `GET /v1/checkout` request instead of assembling a public URL locally.
+- **Checkout Validation**: `CheckoutRequest` now enforces whole-number amounts, UUIDv4 transaction IDs, and the documented checkout field constraints.
+- **Checkout API Naming**: Renamed the package-facing checkout correlation token field from `secureToken` to `callbackToken` to distinguish it from Beem's generated checkout page token.
+
+### Added
+
+- **Redirect Checkout Response Parsing**: `BeemCheckoutService` now resolves the Beem-hosted checkout page URL from the authenticated response and exposes structured response metadata.
+- **Vue Redirect Backend Guidance**: Added documented backend endpoint examples for `useBeemCheckout()` so frontend integrations route checkout initiation through Laravel securely.
+- **Iframe Checkout Contract Alignment**: Blade and Vue iframe checkout integrations now render the documented widget shell, CDN assets, and `InitializeBeem()` behavior.
+
+### Fixed
+
+- **Checkout Components**: Split redirect and iframe checkout behavior so Livewire handles backend redirect initiation and the Vue/Blade widget integrations remain iframe-only.
+- **Checkout Documentation**: Rewrote the payment checkout docs with a first-pass quick start, prerequisites, backend route examples, and clearer token semantics.
+- **Checkout Tests**: Updated PHP and Vitest coverage to assert the authenticated redirect flow and the documented iframe integration contract.
+
 ## [1.9.0] - 2025-12-20
 
 ### Added

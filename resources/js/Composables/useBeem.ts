@@ -18,6 +18,8 @@ export interface CheckoutOptions {
     transactionId: string;
     reference: string;
     mobile?: string;
+    email?: string;
+    currency?: string;
     redirectOnInit?: boolean;
 }
 
@@ -59,6 +61,10 @@ export interface UseBeemCheckoutReturn {
     checkoutUrl: Ref<string | null>;
     initiateCheckout: (options: CheckoutOptions) => Promise<CheckoutResult>;
     reset: () => void;
+}
+
+export interface UseBeemCheckoutOptions {
+    requestUrl?: string;
 }
 
 export interface UseBeemOtpReturn {
@@ -103,30 +109,47 @@ const getCsrfToken = (): string => {
 // Checkout Composable
 // ============================================================================
 
-export function useBeemCheckout(): UseBeemCheckoutReturn {
+export function useBeemCheckout(options: UseBeemCheckoutOptions = {}): UseBeemCheckoutReturn {
+    const { requestUrl = '/beem/checkout/redirect' } = options;
+
     const isLoading = ref<boolean>(false);
     const error = ref<string | null>(null);
     const checkoutUrl = ref<string | null>(null);
 
     const initiateCheckout = async (options: CheckoutOptions): Promise<CheckoutResult> => {
-        const { amount, transactionId, reference, mobile, redirectOnInit = true } = options;
+        const { amount, transactionId, reference, mobile, email, currency, redirectOnInit = true } = options;
 
         isLoading.value = true;
         error.value = null;
 
         try {
-            const baseUrl = 'https://checkout.beem.africa/v1/checkout';
-            const params = new URLSearchParams({
-                amount: amount.toString(),
-                transaction_id: transactionId,
-                reference_number: reference,
+            const response = await fetch(requestUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    amount,
+                    transaction_id: transactionId,
+                    reference_number: reference,
+                    mobile,
+                    email,
+                    currency,
+                    send_source: true,
+                }),
             });
 
-            if (mobile) {
-                params.append('mobile', mobile);
+            const data = await response.json();
+
+            if (!response.ok || !data.checkout_url) {
+                const message = data.message || 'Failed to initiate checkout';
+                error.value = message;
+                return { success: false, error: message };
             }
 
-            checkoutUrl.value = `${baseUrl}?${params.toString()}`;
+            checkoutUrl.value = data.checkout_url;
 
             if (redirectOnInit) {
                 window.location.href = checkoutUrl.value;
