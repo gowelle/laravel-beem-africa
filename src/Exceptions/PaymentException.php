@@ -11,6 +11,8 @@ use Gowelle\BeemAfrica\Enums\BeemErrorCode;
  */
 class PaymentException extends BeemException
 {
+    private const MISSING_PAYMENT_METHOD_MESSAGE = 'No payment method set by client';
+
     /**
      * Create a new payment exception instance.
      *
@@ -86,6 +88,14 @@ class PaymentException extends BeemException
     }
 
     /**
+     * Check if this exception is due to checkout being unavailable because no payment method is configured.
+     */
+    public function isMissingPaymentMethod(): bool
+    {
+        return $this->getMessage() === self::MISSING_PAYMENT_METHOD_MESSAGE;
+    }
+
+    /**
      * Create an exception for invalid mobile number error.
      */
     public static function invalidMobileNumber(string $mobile = '', int $httpStatusCode = 400): self
@@ -149,6 +159,18 @@ class PaymentException extends BeemException
     }
 
     /**
+     * Create an exception for checkout accounts without a configured payment method.
+     */
+    public static function missingPaymentMethod(int $httpStatusCode = 404): self
+    {
+        return new self(
+            self::MISSING_PAYMENT_METHOD_MESSAGE,
+            null,
+            $httpStatusCode
+        );
+    }
+
+    /**
      * Create an exception from an API error response.
      *
      * @param  array<string, mixed>  $errorData  The error data from the API
@@ -171,6 +193,10 @@ class PaymentException extends BeemException
                     BeemErrorCode::INVALID_AUTHENTICATION => self::invalidAuthentication($httpStatusCode),
                 };
             }
+        }
+
+        if ($errorMessage === self::MISSING_PAYMENT_METHOD_MESSAGE) {
+            return self::missingPaymentMethod($httpStatusCode);
         }
 
         // Generic payment exception if error code is unknown

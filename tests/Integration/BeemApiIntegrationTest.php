@@ -54,7 +54,7 @@ describe('Beem API Integration', function () {
             ));
         };
         $this->skipIfSandboxCheckoutUnavailable = function (PaymentException $exception): void {
-            if (str_contains($exception->getMessage(), 'No payment method set by client')) {
+            if ($exception->isMissingPaymentMethod()) {
                 $this->markTestSkipped(
                     'Beem sandbox checkout is not configured with any payment method for this account. Configure a payment method in Beem, then rerun the checkout integration tests.'
                 );

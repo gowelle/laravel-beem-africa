@@ -470,7 +470,7 @@ The iframe widget requires:
 
 The package provides structured error handling for Beem API errors. All payment-related operations throw `PaymentException` when errors occur.
 
-For checkout requests, the package now preserves Beem's response message when the API returns a JSON error payload without a standard `message` field but includes an error redirect URL like `src=https://checkout.beem.africa/v1/checkout/error?...`. In that case, `PaymentException::getMessage()` contains the decoded Beem checkout error text.
+For checkout requests, the package now preserves Beem's response message when the API returns a JSON error payload without a standard `message` field but includes an error redirect URL like `src=https://checkout.beem.africa/v1/checkout/error?...`. When that payload indicates Beem checkout has no configured payment method, the package exposes it via `PaymentException::missingPaymentMethod()` and `$e->isMissingPaymentMethod()`.
 
 ##### Available Error Codes
 
@@ -523,7 +523,7 @@ try {
         return back()->withErrors(['error' => 'Payment service unavailable']);
     }
 
-    if ($e->getMessage() === 'No payment method set by client') {
+    if ($e->isMissingPaymentMethod()) {
         Log::warning('Beem checkout product is missing a payment method');
         return back()->withErrors(['error' => 'Checkout is temporarily unavailable. Please contact support.']);
     }

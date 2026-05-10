@@ -71,6 +71,16 @@ describe('PaymentException', function () {
                 ->and($exception->isInvalidAuthentication())->toBeTrue();
         });
 
+        it('creates missing payment method exception', function () {
+            $exception = PaymentException::missingPaymentMethod();
+
+            expect($exception)->toBeInstanceOf(PaymentException::class)
+                ->and($exception->getBeemErrorCode())->toBeNull()
+                ->and($exception->getMessage())->toBe('No payment method set by client')
+                ->and($exception->getHttpStatusCode())->toBe(404)
+                ->and($exception->isMissingPaymentMethod())->toBeTrue();
+        });
+
         it('accepts custom HTTP status codes', function () {
             $exception = PaymentException::invalidMobileNumber('', 422);
 
@@ -108,6 +118,12 @@ describe('PaymentException', function () {
             $exception = PaymentException::invalidAmount();
 
             expect($exception->isInvalidAuthentication())->toBeFalse();
+        });
+
+        it('returns false for missing payment method when not that error', function () {
+            $exception = PaymentException::invalidAmount();
+
+            expect($exception->isMissingPaymentMethod())->toBeFalse();
         });
     });
 
@@ -217,7 +233,8 @@ describe('PaymentException', function () {
 
             expect($exception->getBeemErrorCode())->toBeNull()
                 ->and($exception->getMessage())->toBe('No payment method set by client')
-                ->and($exception->getHttpStatusCode())->toBe(404);
+                ->and($exception->getHttpStatusCode())->toBe(404)
+                ->and($exception->isMissingPaymentMethod())->toBeTrue();
         });
 
         it('uses default message when no message in response', function () {

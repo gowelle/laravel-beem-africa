@@ -4,6 +4,12 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [2.2.2] - 2026-05-10
+
+### Fixed
+
+- **Checkout Missing Payment Method Helper**: `PaymentException` now exposes the `No payment method set by client` case through dedicated `missingPaymentMethod()` and `isMissingPaymentMethod()` helpers, and the integration/docs examples use that API instead of raw message matching.
+
 ## [2.2.1] - 2026-05-10
 
 ### Fixed
