@@ -149,13 +149,15 @@ export function useBeemCheckout(options: UseBeemCheckoutOptions = {}): UseBeemCh
                 return { success: false, error: message };
             }
 
-            checkoutUrl.value = data.checkout_url;
+            const resolvedCheckoutUrl = data.checkout_url as string;
+
+            checkoutUrl.value = resolvedCheckoutUrl;
 
             if (redirectOnInit) {
-                window.location.href = checkoutUrl.value;
+                window.location.href = resolvedCheckoutUrl;
             }
 
-            return { success: true, url: checkoutUrl.value };
+            return { success: true, url: resolvedCheckoutUrl };
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to initiate checkout';
             error.value = message;

@@ -45,5 +45,6 @@ jobs:
         env:
           BEEM_API_KEY: ${{ secrets.BEEM_API_KEY }}
           BEEM_SECRET_KEY: ${{ secrets.BEEM_SECRET_KEY }}
+          BEEM_CHECKOUT_REFERENCE_PREFIX: ${{ vars.BEEM_CHECKOUT_REFERENCE_PREFIX }}
           BEEM_WEBHOOK_SECRET: ${{ secrets.BEEM_WEBHOOK_SECRET }}
         run: vendor/bin/pest --group=integration

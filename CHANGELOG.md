@@ -4,6 +4,18 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-05-10
+
+### Fixed
+
+- **Checkout Error Message Preservation**: `PaymentException` now extracts Beem's checkout error message from `src` redirect URLs when the API omits a top-level `message` field, so applications can log and handle actionable checkout failures instead of a generic error.
+- **Checkout Integration Test Stability**: Checkout integration tests now generate unique UUIDv4 transaction IDs, require a configurable `BEEM_CHECKOUT_REFERENCE_PREFIX`, and skip cleanly when the Beem sandbox account has no payment method configured.
+- **Vue Checkout Type Safety**: `useBeemCheckout()` now narrows the resolved checkout URL before redirecting so the Vue typecheck passes cleanly.
+
+### Documentation
+
+- Documented the `BEEM_CHECKOUT_REFERENCE_PREFIX` integration-test requirement and added guidance for handling Beem checkout responses such as `No payment method set by client`.
+
 ## [2.2.0] - 2026-05-08
 
 ### Changed

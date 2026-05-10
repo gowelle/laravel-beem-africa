@@ -208,6 +208,18 @@ describe('PaymentException', function () {
                 ->and($exception->getMessage())->toBe('Something went wrong');
         });
 
+        it('extracts embedded message from checkout error src URL', function () {
+            $errorData = [
+                'src' => 'https://checkout.beem.africa/v1/checkout/error?message=No%20payment%20method%20set%20by%20client',
+            ];
+
+            $exception = PaymentException::fromApiResponse($errorData, 404);
+
+            expect($exception->getBeemErrorCode())->toBeNull()
+                ->and($exception->getMessage())->toBe('No payment method set by client')
+                ->and($exception->getHttpStatusCode())->toBe(404);
+        });
+
         it('uses default message when no message in response', function () {
             $errorData = [];
 

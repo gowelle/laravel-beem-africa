@@ -470,6 +470,8 @@ The iframe widget requires:
 
 The package provides structured error handling for Beem API errors. All payment-related operations throw `PaymentException` when errors occur.
 
+For checkout requests, the package now preserves Beem's response message when the API returns a JSON error payload without a standard `message` field but includes an error redirect URL like `src=https://checkout.beem.africa/v1/checkout/error?...`. In that case, `PaymentException::getMessage()` contains the decoded Beem checkout error text.
+
 ##### Available Error Codes
 
 Based on [Beem API documentation](https://docs.beem.africa/payments-checkout/index.html#api-ERROR), the following error codes are supported:
@@ -519,6 +521,11 @@ try {
     if ($e->isInvalidAuthentication()) {
         Log::error('Beem authentication failed - check API credentials');
         return back()->withErrors(['error' => 'Payment service unavailable']);
+    }
+
+    if ($e->getMessage() === 'No payment method set by client') {
+        Log::warning('Beem checkout product is missing a payment method');
+        return back()->withErrors(['error' => 'Checkout is temporarily unavailable. Please contact support.']);
     }
 
     // Generic error handling
@@ -3556,8 +3563,13 @@ composer test
 Integration tests require Beem sandbox credentials. Set the environment variables and run:
 
 ```bash
-BEEM_API_KEY=your_api_key BEEM_SECRET_KEY=your_secret_key ./vendor/bin/pest --group=integration
+BEEM_API_KEY=your_api_key \
+BEEM_SECRET_KEY=your_secret_key \
+BEEM_CHECKOUT_REFERENCE_PREFIX=your_configured_prefix \
+./vendor/bin/pest --group=integration
 ```
+
+`BEEM_CHECKOUT_REFERENCE_PREFIX` must match the checkout product/reference prefix configured in your Beem sandbox account (for example `SAMPLE`).
 
 ### Static Analysis
 
@@ -3596,6 +3608,8 @@ To set up CI for your fork:
    - `BEEM_API_KEY`: Your Beem sandbox API key
    - `BEEM_SECRET_KEY`: Your Beem sandbox secret key
    - `BEEM_WEBHOOK_SECRET`: Your webhook secret (optional)
+3. Add the following repository variable:
+   - `BEEM_CHECKOUT_REFERENCE_PREFIX`: The checkout/reference prefix configured in your Beem sandbox account
 
 ## Roadmap
 

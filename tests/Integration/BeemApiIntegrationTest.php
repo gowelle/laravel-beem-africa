@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
+use Gowelle\BeemAfrica\Exceptions\PaymentException;
 use Gowelle\BeemAfrica\Support\BeemClient;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 /**
  * Integration tests for Beem Africa API.
@@ -22,6 +24,7 @@ describe('Beem API Integration', function () {
     beforeEach(function () {
         $apiKey = env('BEEM_API_KEY');
         $secretKey = env('BEEM_SECRET_KEY');
+        $referencePrefix = env('BEEM_CHECKOUT_REFERENCE_PREFIX');
 
         if (empty($apiKey) || empty($secretKey)) {
             $this->markTestSkipped('Beem API credentials not configured. Set BEEM_API_KEY and BEEM_SECRET_KEY environment variables.');
@@ -34,18 +37,47 @@ describe('Beem API Integration', function () {
         );
 
         $this->service = new BeemCheckoutService($this->client);
+
+        $this->makeTransactionId = static fn (): string => (string) Str::uuid();
+        $this->makeReferenceNumber = function (string $label) use ($referencePrefix): string {
+            if (empty($referencePrefix)) {
+                $this->markTestSkipped(
+                    'Beem checkout integration tests require BEEM_CHECKOUT_REFERENCE_PREFIX to match a checkout product/reference prefix configured in your Beem sandbox account.'
+                );
+            }
+
+            return strtoupper(sprintf(
+                '%s-%s-%s',
+                $referencePrefix,
+                $label,
+                Str::random(8),
+            ));
+        };
+        $this->skipIfSandboxCheckoutUnavailable = function (PaymentException $exception): void {
+            if (str_contains($exception->getMessage(), 'No payment method set by client')) {
+                $this->markTestSkipped(
+                    'Beem sandbox checkout is not configured with any payment method for this account. Configure a payment method in Beem, then rerun the checkout integration tests.'
+                );
+            }
+        };
     });
 
     it('can build a valid checkout URL', function () {
         $request = new CheckoutRequest(
             amount: 1000,
-            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
-            referenceNumber: 'REFINT-'.date('Ymd'),
+            transactionId: ($this->makeTransactionId)(),
+            referenceNumber: ($this->makeReferenceNumber)('INT'),
             mobile: '255712345678',
             sendSource: true,
         );
 
-        $url = $this->service->getCheckoutUrl($request);
+        try {
+            $url = $this->service->getCheckoutUrl($request);
+        } catch (PaymentException $exception) {
+            ($this->skipIfSandboxCheckoutUnavailable)($exception);
+
+            throw $exception;
+        }
 
         expect($url)
             ->toBeString()
@@ -55,12 +87,18 @@ describe('Beem API Integration', function () {
     it('can initiate a checkout session', function () {
         $request = new CheckoutRequest(
             amount: 500,
-            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
-            referenceNumber: 'REFINIT-'.date('Ymd'),
+            transactionId: ($this->makeTransactionId)(),
+            referenceNumber: ($this->makeReferenceNumber)('INIT'),
             sendSource: true,
         );
 
-        $response = $this->service->initiate($request);
+        try {
+            $response = $this->service->initiate($request);
+        } catch (PaymentException $exception) {
+            ($this->skipIfSandboxCheckoutUnavailable)($exception);
+
+            throw $exception;
+        }
 
         expect($response->isSuccessful())->toBeTrue()
             ->and($response->checkoutUrl)->toStartWith('https://checkout.beem.africa')
@@ -71,7 +109,7 @@ describe('Beem API Integration', function () {
     it('generates valid iframe data', function () {
         $request = new CheckoutRequest(
             amount: 2500,
-            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
+            transactionId: ($this->makeTransactionId)(),
             referenceNumber: 'REFIFRAME-'.date('Ymd'),
             mobile: '255700000000',
         );
@@ -93,12 +131,18 @@ describe('Beem API Integration', function () {
     it('can redirect to checkout URL', function () {
         $request = new CheckoutRequest(
             amount: 750,
-            transactionId: '96f9cc09-afa0-40cf-928a-d7e2b27b2408',
-            referenceNumber: 'REFREDIRECT-'.date('Ymd'),
+            transactionId: ($this->makeTransactionId)(),
+            referenceNumber: ($this->makeReferenceNumber)('REDIRECT'),
             sendSource: true,
         );
 
-        $response = $this->service->redirect($request);
+        try {
+            $response = $this->service->redirect($request);
+        } catch (PaymentException $exception) {
+            ($this->skipIfSandboxCheckoutUnavailable)($exception);
+
+            throw $exception;
+        }
 
         expect($response)
             ->toBeInstanceOf(RedirectResponse::class)

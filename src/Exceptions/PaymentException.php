@@ -157,7 +157,7 @@ class PaymentException extends BeemException
     public static function fromApiResponse(array $errorData, int $httpStatusCode): self
     {
         $errorCode = $errorData['code'] ?? $errorData['error_code'] ?? null;
-        $errorMessage = $errorData['message'] ?? $errorData['error'] ?? 'Payment operation failed';
+        $errorMessage = self::extractApiErrorMessage($errorData);
 
         if ($errorCode !== null && is_numeric($errorCode)) {
             $beemErrorCode = BeemErrorCode::fromInt((int) $errorCode);
@@ -175,5 +175,31 @@ class PaymentException extends BeemException
 
         // Generic payment exception if error code is unknown
         return new self($errorMessage, null, $httpStatusCode);
+    }
+
+    /**
+     * @param  array<string, mixed>  $errorData
+     */
+    private static function extractApiErrorMessage(array $errorData): string
+    {
+        $message = $errorData['message'] ?? $errorData['error'] ?? null;
+        if (is_string($message) && $message !== '') {
+            return $message;
+        }
+
+        $src = $errorData['src'] ?? null;
+        if (is_string($src) && $src !== '') {
+            $query = parse_url($src, PHP_URL_QUERY);
+            if (is_string($query) && $query !== '') {
+                parse_str($query, $params);
+                $embeddedMessage = $params['message'] ?? null;
+
+                if (is_string($embeddedMessage) && $embeddedMessage !== '') {
+                    return $embeddedMessage;
+                }
+            }
+        }
+
+        return 'Payment operation failed';
     }
 }
