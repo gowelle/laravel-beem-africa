@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-06-08
+
+### Removed
+
+- **Disbursement Service**: Removed the Disbursement/Mobile Money Payout service (19 files).
+- **USSD Hub Service**: Removed the USSD Hub interactive menu service (19 files).
+
+### Changed
+
+- **Per-Service Credentials**: Each service now requires its own `api_key`/`secret_key` pair. The top-level shared `BEEM_API_KEY`/`BEEM_SECRET_KEY` no longer exist. A new `checkout` config section holds the former top-level credentials. OTP, SMS, Airtime, Collection, Contacts, and Moja each get independent env vars (`BEEM_OTP_API_KEY`, `BEEM_SMS_API_KEY`, etc.).
+- **Config Restructure**: `webhook.path`, `webhook.secret`, `webhook.middleware`, `iframe.whitelisted_domains`, and `base_url` moved under the `checkout` section.
+
+### Breaking changes
+
+- **Config keys renamed**: `beem-africa.api_key` → `beem-africa.checkout.api_key`, `beem-africa.secret_key` → `beem-africa.checkout.secret_key`, `beem-africa.base_url` → `beem-africa.checkout.base_url`, `beem-africa.webhook.*` → `beem-africa.checkout.webhook_*`. See the config file for a complete migration reference.
+- **Disbursement and USSD removed**: `Beem::disbursement()`, `Beem::ussd()`, corresponding DTOs, enums, exceptions, and events no longer exist. Remove any references from your application code before upgrading.
+
 ## [2.2.0] - 2026-05-08
 
 ### Changed
@@ -19,10 +36,6 @@
 ### Breaking changes
 
 - **API Endpoint Refactor**: Base URLs in `config/beem-africa.php` no longer contain API versions or subpaths (e.g., `/v1`). Version paths have been moved directly into the respective Service classes to prevent URL duplication. If you have overridden any `BEEM_*_BASE_URL` variables in your `.env` file, ensure they point directly to the domain root (e.g., `https://checkout.beem.africa` instead of `https://checkout.beem.africa/v1/checkout`).
-
-### Changed
-
-- **Base URL Cleanup**: Removed Disbursement and USSD services. Each remaining service now uses its own API credentials (no shared key/secret).
 
 ---
 
