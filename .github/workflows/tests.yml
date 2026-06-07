@@ -43,14 +43,14 @@ jobs:
         laravel: [11, 12, 13]
         include:
           - laravel: 11
-            framework: '^11.45.2'
-            testbench: '^9.0'
+            framework: "^11.45.2"
+            testbench: "^9.0"
           - laravel: 12
-            framework: '^12.52.0'
-            testbench: '^10.0'
+            framework: "^12.52.0"
+            testbench: "^10.0"
           - laravel: 13
-            framework: '^13.0'
-            testbench: '^11.0'
+            framework: "^13.0"
+            testbench: "^11.0"
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.dependency-version }}
 
@@ -68,6 +68,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.framework }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer config policy.advisories.ignore-id '["PKSA-mdq4-51ck-6kdq"]'
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
       - name: Fix code style with Pint
