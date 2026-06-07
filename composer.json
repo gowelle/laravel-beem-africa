@@ -1,86 +1,92 @@
 {
-    "name": "gowelle/laravel-beem-africa",
-    "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Disbursements, Collections, USSD, Contacts, Moja, and International SMS services",
-    "keywords": [
-        "laravel",
-        "beem",
-        "beem-africa",
-        "sms",
-        "airtime",
-        "otp",
-        "payment",
-        "checkout",
-        "disbursements",
-        "collections",
-        "contacts",
-        "addressbook",
-        "mobile-money",
-        "moja",
-        "whatsapp",
-        "messaging",
-        "tanzania",
-        "africa",
-        "international-sms",
-        "global-sms"
-    ],
-    "homepage": "https://github.com/gowelle/beem-africa-php",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Gowelle John",
-            "email": "gowelle.john@icloud.com"
-        }
-    ],
-    "require": {
-        "php": "^8.3",
-        "illuminate/contracts": "^11.0|^12.0|^13.0",
-        "illuminate/database": "^11.0|^12.0|^13.0",
-        "illuminate/http": "^11.0|^12.0|^13.0",
-        "illuminate/support": "^11.0|^12.0|^13.0",
-        "illuminate/validation": "^11.0|^12.0|^13.0",
-        "spatie/laravel-package-tools": "^1.93"
-    },
-    "require-dev": {
-        "livewire/livewire": "^3.7.4|^4.0",
-        "orchestra/testbench": "^9.0|^10.0|^11.0",
-        "pestphp/pest": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.1",
-        "pestphp/pest-plugin-livewire": "^4.0",
-        "phpstan/phpstan": "^2.0",
-        "laravel/pint": "^1.13"
-    },
-    "autoload": {
-        "psr-4": {
-            "Gowelle\\BeemAfrica\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Gowelle\\BeemAfrica\\Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
-        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
-        "format": "vendor/bin/pint"
-    },
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Gowelle\\BeemAfrica\\BeemServiceProvider"
-            ],
-            "aliases": {
-                "Beem": "Gowelle\\BeemAfrica\\Facades\\Beem"
-            }
-        }
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+  "name": "gowelle/laravel-beem-africa",
+  "description": "Laravel package for Beem API integration - SMS, Airtime, OTP, Payment Checkout, Collections, Contacts, Moja, and International SMS services",
+  "keywords": [
+    "laravel",
+    "beem",
+    "beem-africa",
+    "sms",
+    "airtime",
+    "otp",
+    "payment",
+    "checkout",
+    "collections",
+    "contacts",
+    "addressbook",
+    "mobile-money",
+    "moja",
+    "whatsapp",
+    "messaging",
+    "tanzania",
+    "africa",
+    "international-sms",
+    "global-sms"
+  ],
+  "homepage": "https://github.com/gowelle/beem-africa-php",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gowelle John",
+      "email": "gowelle.john@icloud.com"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "illuminate/contracts": "^11.0|^12.0|^13.0",
+    "illuminate/database": "^11.0|^12.0|^13.0",
+    "illuminate/http": "^11.0|^12.0|^13.0",
+    "illuminate/support": "^11.0|^12.0|^13.0",
+    "illuminate/validation": "^11.0|^12.0|^13.0",
+    "spatie/laravel-package-tools": "^1.93"
+  },
+  "policy": {
+    "advisories": {
+      "ignore-id": [
+        "PKSA-mdq4-51ck-6kdq"
+      ]
+    }
+  },
+  "require-dev": {
+    "livewire/livewire": "^3.7.4|^4.0",
+    "orchestra/testbench": "^9.0|^10.0|^11.0",
+    "pestphp/pest": "^4.0",
+    "pestphp/pest-plugin-laravel": "^4.1",
+    "pestphp/pest-plugin-livewire": "^4.0",
+    "phpstan/phpstan": "^2.0",
+    "laravel/pint": "^1.13"
+  },
+  "autoload": {
+    "psr-4": {
+      "Gowelle\\BeemAfrica\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gowelle\\BeemAfrica\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/pest",
+    "test-coverage": "vendor/bin/pest --coverage",
+    "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+    "format": "vendor/bin/pint"
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Gowelle\\BeemAfrica\\BeemServiceProvider"
+      ],
+      "aliases": {
+        "Beem": "Gowelle\\BeemAfrica\\Facades\\Beem"
+      }
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
