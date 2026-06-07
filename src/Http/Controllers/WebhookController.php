@@ -48,7 +48,7 @@ class WebhookController extends Controller
      */
     protected function validateSecureToken(Request $request): bool
     {
-        $configuredSecret = config('beem-africa.webhook.secret');
+        $configuredSecret = config('beem-africa.checkout.webhook_secret');
 
         // If no secret is configured, skip validation
         if (empty($configuredSecret)) {

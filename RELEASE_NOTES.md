@@ -22,8 +22,7 @@
 
 ### Changed
 
-- **Disbursement API Migration**: Updated the Disbursement service to use the new BPay infrastructure (`https://bpay.beem.africa`), replacing the legacy `apipay.beem.africa` endpoint to align with the official Beem Africa API docs.
-- **USSD API Routing**: Corrected the USSD balance check URL to point to the dedicated `ussdapi.beem.africa` endpoint instead of the legacy Collection API endpoint.
+- **Base URL Cleanup**: Removed Disbursement and USSD services. Each remaining service now uses its own API credentials (no shared key/secret).
 
 ---
 

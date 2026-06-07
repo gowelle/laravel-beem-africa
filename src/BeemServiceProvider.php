@@ -9,7 +9,6 @@ use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
 use Gowelle\BeemAfrica\Collection\BeemCollectionService;
 use Gowelle\BeemAfrica\Components\CheckoutButton;
 use Gowelle\BeemAfrica\Contacts\BeemContactsService;
-use Gowelle\BeemAfrica\Disbursement\BeemDisbursementService;
 use Gowelle\BeemAfrica\Livewire\BeemCheckout;
 use Gowelle\BeemAfrica\Livewire\BeemOtpVerification;
 use Gowelle\BeemAfrica\Livewire\BeemSmsForm;
@@ -20,12 +19,10 @@ use Gowelle\BeemAfrica\Sms\InternationalSmsService;
 use Gowelle\BeemAfrica\Support\BeemAirtimeClient;
 use Gowelle\BeemAfrica\Support\BeemClient;
 use Gowelle\BeemAfrica\Support\BeemContactsClient;
-use Gowelle\BeemAfrica\Support\BeemDisbursementClient;
 use Gowelle\BeemAfrica\Support\BeemInternationalSmsClient;
 use Gowelle\BeemAfrica\Support\BeemMojaClient;
 use Gowelle\BeemAfrica\Support\BeemOtpClient;
 use Gowelle\BeemAfrica\Support\BeemSmsClient;
-use Gowelle\BeemAfrica\Ussd\BeemUssdService;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -68,9 +65,7 @@ class BeemServiceProvider extends PackageServiceProvider
         $this->registerAirtimeServices();
         $this->registerSmsServices();
         $this->registerInternationalSmsServices();
-        $this->registerDisbursementServices();
         $this->registerCollectionServices();
-        $this->registerUssdServices();
         $this->registerContactsServices();
         $this->registerMojaServices();
 
@@ -96,9 +91,9 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemClient::class, function ($app) {
             return new BeemClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
-                baseUrl: config('beem-africa.base_url'),
+                apiKey: config('beem-africa.checkout.api_key'),
+                secretKey: config('beem-africa.checkout.secret_key'),
+                baseUrl: config('beem-africa.checkout.base_url'),
             );
         });
 
@@ -116,8 +111,8 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemOtpClient::class, function ($app) {
             return new BeemOtpClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.otp.api_key'),
+                secretKey: config('beem-africa.otp.secret_key'),
                 baseUrl: config('beem-africa.otp.base_url'),
             );
         });
@@ -137,8 +132,8 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemAirtimeClient::class, function ($app) {
             return new BeemAirtimeClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.airtime.api_key'),
+                secretKey: config('beem-africa.airtime.secret_key'),
                 baseUrl: config('beem-africa.airtime.base_url'),
                 balanceBaseUrl: config('beem-africa.airtime.balance_base_url'),
             );
@@ -158,8 +153,8 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemSmsClient::class, function ($app) {
             return new BeemSmsClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.sms.api_key'),
+                secretKey: config('beem-africa.sms.secret_key'),
                 baseUrl: config('beem-africa.sms.base_url'),
                 dlrBaseUrl: config('beem-africa.sms.dlr_base_url'),
             );
@@ -194,49 +189,15 @@ class BeemServiceProvider extends PackageServiceProvider
     }
 
     /**
-     * Register Disbursement services.
-     */
-    protected function registerDisbursementServices(): void
-    {
-        $this->app->singleton(BeemDisbursementClient::class, function ($app) {
-            return new BeemDisbursementClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
-                baseUrl: config('beem-africa.disbursement.base_url'),
-            );
-        });
-
-        $this->app->singleton(BeemDisbursementService::class, function ($app) {
-            return new BeemDisbursementService(
-                client: $app->make(BeemDisbursementClient::class),
-            );
-        });
-    }
-
-    /**
      * Register Collection services.
      */
     protected function registerCollectionServices(): void
     {
         $this->app->singleton(BeemCollectionService::class, function ($app) {
             return new BeemCollectionService(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.collection.api_key'),
+                secretKey: config('beem-africa.collection.secret_key'),
                 balanceUrl: config('beem-africa.collection.balance_url'),
-            );
-        });
-    }
-
-    /**
-     * Register USSD services.
-     */
-    protected function registerUssdServices(): void
-    {
-        $this->app->singleton(BeemUssdService::class, function ($app) {
-            return new BeemUssdService(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
-                balanceUrl: config('beem-africa.ussd.balance_url'),
             );
         });
     }
@@ -248,8 +209,8 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemContactsClient::class, function ($app) {
             return new BeemContactsClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.contacts.api_key'),
+                secretKey: config('beem-africa.contacts.secret_key'),
                 baseUrl: config('beem-africa.contacts.base_url'),
             );
         });
@@ -268,8 +229,8 @@ class BeemServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(BeemMojaClient::class, function ($app) {
             return new BeemMojaClient(
-                apiKey: config('beem-africa.api_key'),
-                secretKey: config('beem-africa.secret_key'),
+                apiKey: config('beem-africa.moja.api_key'),
+                secretKey: config('beem-africa.moja.secret_key'),
                 baseUrl: config('beem-africa.moja.base_url'),
                 broadcastBaseUrl: config('beem-africa.moja.broadcast_base_url'),
             );

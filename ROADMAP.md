@@ -18,9 +18,7 @@ This document outlines the strategic roadmap for the `laravel-beem-africa` packa
 | **OTP**               | ✅ Complete | Request, Verify, 18 Error Codes                     |
 | **SMS**               | ✅ Complete | Send, Bulk, Scheduled, Templates, Sender Names, DLR |
 | **Airtime**           | ✅ Complete | Transfer, Balance, Status, Callbacks                |
-| **Disbursements**     | ✅ Complete | Transfer, Scheduled, 14 Error Codes                 |
 | **Collections**       | ✅ Complete | Balance, Webhooks                                   |
-| **USSD Hub**          | ✅ Complete | Sessions, Balance, Menu Responses                   |
 | **Contacts**          | ✅ Complete | AddressBooks, Contacts CRUD, Pagination             |
 | **Moja**              | ✅ Complete | 6 Message Types, 4 Channels, Templates, Webhooks    |
 | **International SMS** | ✅ Complete | Send, Binary, Multi-recipient, DLR                  |
@@ -469,7 +467,6 @@ Build reference implementations:
 - [ ] **E-commerce**: Order notifications, OTP checkout
 - [ ] **SaaS**: Multi-tenant messaging platform
 - [ ] **Support Bot**: WhatsApp customer service
-- [ ] **USSD Menu**: Mobile money integration
 - [ ] Publish as separate repositories
 
 ---

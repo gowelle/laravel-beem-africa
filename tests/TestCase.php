@@ -38,9 +38,9 @@ abstract class TestCase extends Orchestra
 
         // Use test credentials for unit/feature tests
         // Integration tests will use env vars for real API testing
-        $app['config']->set('beem-africa.api_key', 'test_api_key');
-        $app['config']->set('beem-africa.secret_key', 'test_secret_key');
-        $app['config']->set('beem-africa.base_url', 'https://checkout.beem.africa');
-        $app['config']->set('beem-africa.webhook.secret', null);
+        $app['config']->set('beem-africa.checkout.api_key', 'test_api_key');
+        $app['config']->set('beem-africa.checkout.secret_key', 'test_secret_key');
+        $app['config']->set('beem-africa.checkout.base_url', 'https://checkout.beem.africa');
+        $app['config']->set('beem-africa.checkout.webhook_secret', null);
     }
 }

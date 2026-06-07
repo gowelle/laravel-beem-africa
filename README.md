@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/gowelle/laravel-beem-africa/tests.yml?branch=master&label=tests&style=flat-square)](https://github.com/gowelle/laravel-beem-africa/actions/workflows/tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/gowelle/laravel-beem-africa.svg?style=flat-square)](https://packagist.org/packages/gowelle/laravel-beem-africa)
 
-A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Disbursements**, **Collections**, **USSD**, **Contacts**, **Moja** (multi-channel messaging), and **International SMS** services.
+A comprehensive Laravel package for integrating with Beem's APIs. This package provides a unified interface for **SMS**, **Airtime**, **OTP**, **Payment Checkout**, **Collections**, **Contacts**, **Moja** (multi-channel messaging), and **International SMS** services.
 
 ## Table of Contents
 
@@ -17,9 +17,7 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
   - [OTP (One-Time Password)](#using-otp-one-time-password)
   - [Airtime Top-Up](#using-airtime-top-up)
   - [SMS](#using-sms)
-  - [Disbursements](#using-disbursements)
   - [Collections](#using-collections)
-  - [USSD Hub](#using-ussd-hub)
   - [Contacts](#using-contacts)
   - [Moja (Multi-Channel Messaging)](#using-moja-multi-channel-messaging)
   - [Multicountry SMS and SMPP](#using-multicountry-sms-and-smpp)
@@ -67,26 +65,12 @@ A comprehensive Laravel package for integrating with Beem's APIs. This package p
 - ⏰ **Scheduled Messages** - Schedule SMS for future delivery
 - 🎯 **Error Codes** - 9 detailed error codes for precise handling
 
-### Disbursements
-
-- 💸 **Mobile Money Payouts** - Transfer funds to mobile wallets
-- 🏦 **Multiple Wallets** - Support for various mobile money providers
-- ⏰ **Scheduled Transfers** - Schedule disbursements for later
-- 🎯 **Error Codes** - 14 detailed error codes for precise handling
-
 ### Collections
 
 - 💳 **Receive Payments** - Accept mobile money payments from subscribers
 - 🔔 **Webhook Callbacks** - Real-time payment notifications
 - 📊 **Balance Check** - Monitor collection balance
 - 🏪 **Multiple Paybills** - Support for various paybill/merchant numbers
-
-### USSD Hub
-
-- 📱 **Interactive Menus** - Design and run USSD menus via API
-- 🔄 **Session Management** - Handle initiate/continue/terminate flows
-- 📊 **Balance Check** - Monitor USSD credit balance
-- 🌐 **Multi-Network** - Single API for multiple mobile networks
 
 ### Contacts
 
@@ -1511,104 +1495,6 @@ protected $listen = [
 ];
 ```
 
-### Using Disbursements
-
-The package supports Beem's Disbursement API for mobile money payouts.
-
-#### 1. Transfer Funds
-
-Disburse funds to a mobile money wallet:
-
-```php
-use Gowelle\BeemAfrica\Facades\Beem;
-use Gowelle\BeemAfrica\DTOs\DisbursementRequest;
-
-$request = new DisbursementRequest(
-    amount: '10000',                    // Amount to transfer
-    walletNumber: '255712345678',       // Destination mobile (international format)
-    walletCode: 'ABC12345',             // Mobile money wallet code
-    accountNo: 'your-bpay-account',     // Your Bpay wallet account number
-    clientReferenceId: 'REF-'.uniqid(), // Your unique reference
-);
-
-$response = Beem::disbursement()->transfer($request);
-
-if ($response->isSuccessful()) {
-    $transactionId = $response->getTransactionId();
-    echo "Transfer successful! ID: {$transactionId}";
-}
-```
-
-#### 2. Scheduled Transfers
-
-Schedule a disbursement for later:
-
-```php
-$request = new DisbursementRequest(
-    amount: '10000',
-    walletNumber: '255712345678',
-    walletCode: 'ABC12345',
-    accountNo: 'your-bpay-account',
-    clientReferenceId: 'REF-001',
-    scheduledTimeUtc: '2025-12-25 10:30:00'  // UTC timezone
-);
-
-$response = Beem::disbursement()->transfer($request);
-```
-
-> **Note:** Scheduling functionality may not be available in all environments.
-
-#### 3. Error Handling
-
-The package provides detailed error handling with 14 response codes:
-
-```php
-use Gowelle\BeemAfrica\Facades\Beem;
-use Gowelle\BeemAfrica\Exceptions\DisbursementException;
-
-try {
-    $response = Beem::disbursement()->transfer($request);
-} catch (DisbursementException $e) {
-    if ($e->isInsufficientBalance()) {
-        return back()->withErrors(['error' => 'Insufficient wallet balance']);
-    }
-
-    if ($e->isInvalidPhoneNumber()) {
-        return back()->withErrors(['phone' => 'Invalid phone number']);
-    }
-
-    if ($e->isAmountTooLarge()) {
-        return back()->withErrors(['amount' => 'Amount exceeds limit']);
-    }
-
-    if ($e->isInvalidAuthentication()) {
-        Log::error('Beem authentication failed');
-        return back()->withErrors(['error' => 'Service unavailable']);
-    }
-}
-```
-
-**Available Response Codes:**
-
-| Code | Description                 | Helper Method               |
-| ---- | --------------------------- | --------------------------- |
-| 100  | Disbursement successful     | `isSuccess()`               |
-| 101  | Disbursement failed         | `isFailure()`               |
-| 102  | Invalid phone number        | `isInvalidPhoneNumber()`    |
-| 103  | Insufficient balance        | `isInsufficientBalance()`   |
-| 104  | Network timeout             | `isNetworkTimeout()`        |
-| 105  | Invalid parameters          | `isInvalidParameters()`     |
-| 106  | Amount too large            | `isAmountTooLarge()`        |
-| 107  | Account not found           | `isAccountNotFound()`       |
-| 108  | No route mapping            | `isNoRoute()`               |
-| 109  | No authorization headers    | `isInvalidAuthentication()` |
-| 110  | Invalid token               | `isInvalidAuthentication()` |
-| 111  | Missing Destination MSISDN  | `isMissingMsisdn()`         |
-| 112  | Missing Disbursement Amount | `isInvalidAmount()`         |
-| 113  | Invalid Disbursement Amount | `isInvalidAmount()`         |
-
-> See [DisbursementResponseCode](src/Enums/DisbursementResponseCode.php) for all 14 response codes.
-
 ### Using Collections
 
 The package supports Beem's Payment Collections API for receiving mobile money payments.
@@ -1687,74 +1573,6 @@ The collection callback includes:
 | `network_name`      | Mobile network (Vodacom, Airtel, etc.) |
 | `source_currency`   | Source currency (TZS)                  |
 | `target_currency`   | Target currency (TZS)                  |
-
-### Using USSD Hub
-
-The package supports Beem's USSD Hub for interactive menus.
-
-#### 1. Check Balance
-
-```php
-use Gowelle\BeemAfrica\Facades\Beem;
-
-$balance = Beem::ussd()->checkBalance();
-echo "Balance: " . $balance->getFormattedBalance();
-```
-
-#### 2. Handling USSD Sessions
-
-When a subscriber dials your USSD code, Beem sends callbacks. Create a listener:
-
-```php
-// app/Listeners/HandleUssdSession.php
-
-namespace App\Listeners;
-
-use Gowelle\BeemAfrica\Events\UssdSessionReceived;
-
-class HandleUssdSession
-{
-    public function handle(UssdSessionReceived $event): void
-    {
-        if ($event->isInitiate()) {
-            // First menu
-            $event->continueWith("Welcome!\n1. Check Balance\n2. Buy Airtime");
-            return;
-        }
-
-        if ($event->isContinue()) {
-            $response = $event->getSubscriberResponse();
-
-            match ($response) {
-                '1' => $event->terminateWith("Your balance: TZS 5,000"),
-                '2' => $event->continueWith("Enter amount:"),
-                default => $event->terminateWith("Invalid option"),
-            };
-        }
-    }
-}
-```
-
-Register the listener:
-
-```php
-use Gowelle\BeemAfrica\Events\UssdSessionReceived;
-use App\Listeners\HandleUssdSession;
-
-protected $listen = [
-    UssdSessionReceived::class => [
-        HandleUssdSession::class,
-    ],
-];
-```
-
-#### USSD Commands
-
-| Command     | Description                              |
-| ----------- | ---------------------------------------- |
-| `initiate`  | First invocation of session              |
-| `continue`  | Ongoing session with subscriber response |
-| `terminate` | Close the USSD session                   |
 
 ### Using Contacts
 

@@ -62,7 +62,7 @@ describe('Webhook Integration', function () {
 
     it('validates secure token for protected webhooks', function () {
         $webhookSecret = 'beem-webhook-secret-'.uniqid();
-        config(['beem-africa.webhook.secret' => $webhookSecret]);
+        config(['beem-africa.checkout.webhook_secret' => $webhookSecret]);
 
         // Request without token should fail
         $response = $this->postJson(route('beem.webhook'), [

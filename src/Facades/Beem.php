@@ -8,12 +8,10 @@ use Gowelle\BeemAfrica\Airtime\BeemAirtimeService;
 use Gowelle\BeemAfrica\Checkout\BeemCheckoutService;
 use Gowelle\BeemAfrica\Collection\BeemCollectionService;
 use Gowelle\BeemAfrica\Contacts\BeemContactsService;
-use Gowelle\BeemAfrica\Disbursement\BeemDisbursementService;
 use Gowelle\BeemAfrica\DTOs\CheckoutRequest;
 use Gowelle\BeemAfrica\DTOs\CheckoutResponse;
 use Gowelle\BeemAfrica\Otp\BeemOtpService;
 use Gowelle\BeemAfrica\Sms\BeemSmsService;
-use Gowelle\BeemAfrica\Ussd\BeemUssdService;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -24,9 +22,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Gowelle\BeemAfrica\Otp\BeemOtpService otp()
  * @method static \Gowelle\BeemAfrica\Airtime\BeemAirtimeService airtime()
  * @method static \Gowelle\BeemAfrica\Sms\BeemSmsService sms()
- * @method static \Gowelle\BeemAfrica\Disbursement\BeemDisbursementService disbursement()
  * @method static \Gowelle\BeemAfrica\Collection\BeemCollectionService collection()
- * @method static \Gowelle\BeemAfrica\Ussd\BeemUssdService ussd()
  * @method static \Gowelle\BeemAfrica\Contacts\BeemContactsService contacts()
  *
  * @see BeemCheckoutService
@@ -63,27 +59,11 @@ class Beem extends Facade
     }
 
     /**
-     * Get the Disbursement service instance.
-     */
-    public static function disbursement(): BeemDisbursementService
-    {
-        return app(BeemDisbursementService::class);
-    }
-
-    /**
      * Get the Collection service instance.
      */
     public static function collection(): BeemCollectionService
     {
         return app(BeemCollectionService::class);
-    }
-
-    /**
-     * Get the USSD service instance.
-     */
-    public static function ussd(): BeemUssdService
-    {
-        return app(BeemUssdService::class);
     }
 
     /**

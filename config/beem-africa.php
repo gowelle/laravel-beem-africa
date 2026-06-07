@@ -3,62 +3,28 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Beem API Credentials
+    | Checkout Configuration
     |--------------------------------------------------------------------------
     |
-    | Your Beem Africa API credentials. You can find these in your Beem
-    | dashboard under API settings.
+    | Settings for the Beem Checkout (payment) service.
     |
     */
 
-    'api_key' => env('BEEM_API_KEY'),
+    'checkout' => [
+        // Checkout-specific API credentials
+        'api_key' => env('BEEM_CHECKOUT_API_KEY'),
+        'secret_key' => env('BEEM_CHECKOUT_SECRET_KEY'),
 
-    'secret_key' => env('BEEM_SECRET_KEY'),
+        // Base URL for Checkout API
+        'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | API Base URL
-    |--------------------------------------------------------------------------
-    |
-    | The base URL for the Beem Checkout API. You typically don't need to
-    | change this unless you're using a different environment.
-    |
-    */
+        // Webhook path for payment callbacks
+        'webhook_path' => env('BEEM_WEBHOOK_PATH', 'webhooks/beem'),
+        'webhook_secret' => env('BEEM_WEBHOOK_SECRET'),
+        'webhook_middleware' => [],
 
-    'base_url' => env('BEEM_BASE_URL', 'https://checkout.beem.africa'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Webhook Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configure the webhook path and optional security settings.
-    |
-    */
-
-    'webhook' => [
-        // The path where Beem will send payment callbacks
-        'path' => env('BEEM_WEBHOOK_PATH', 'webhooks/beem'),
-
-        // Optional secure token to verify webhook authenticity
-        'secret' => env('BEEM_WEBHOOK_SECRET'),
-
-        // Middleware to apply to the webhook route
-        'middleware' => [],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Iframe Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for the iframe checkout method.
-    |
-    */
-
-    'iframe' => [
-        // Domains that have been whitelisted for iframe checkout
-        'whitelisted_domains' => [],
+        // Domains whitelisted for iframe checkout
+        'iframe_whitelisted_domains' => [],
     ],
 
     /*
@@ -94,6 +60,10 @@ return [
         // Base URL for OTP API
         'base_url' => env('BEEM_OTP_BASE_URL', 'https://apiotp.beem.africa'),
 
+        // OTP-specific API credentials (separate from main Beem credentials)
+        'api_key' => env('BEEM_OTP_API_KEY'),
+        'secret_key' => env('BEEM_OTP_SECRET_KEY'),
+
         // Application ID from Beem OTP dashboard
         'app_id' => env('BEEM_OTP_APP_ID'),
 
@@ -115,6 +85,10 @@ return [
     */
 
     'airtime' => [
+        // Airtime-specific API credentials
+        'api_key' => env('BEEM_AIRTIME_API_KEY'),
+        'secret_key' => env('BEEM_AIRTIME_SECRET_KEY'),
+
         // Base URL for Airtime API
         'base_url' => env('BEEM_AIRTIME_BASE_URL', 'https://apiairtime.beem.africa'),
 
@@ -133,6 +107,10 @@ return [
     */
 
     'sms' => [
+        // SMS-specific API credentials (separate from main Beem credentials)
+        'api_key' => env('BEEM_SMS_API_KEY'),
+        'secret_key' => env('BEEM_SMS_SECRET_KEY'),
+
         // Base URL for SMS API
         'base_url' => env('BEEM_SMS_BASE_URL', 'https://apisms.beem.africa'),
 
@@ -151,21 +129,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Disbursement Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for the Beem Africa Disbursement service. Disbursements allow
-    | you to transfer funds to mobile money wallets.
-    |
-    */
-
-    'disbursement' => [
-        // Base URL for Disbursement API
-        'base_url' => env('BEEM_DISBURSEMENT_BASE_URL', 'https://bpay.beem.africa'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Collection Configuration
     |--------------------------------------------------------------------------
     |
@@ -175,29 +138,15 @@ return [
     */
 
     'collection' => [
+        // Collection-specific API credentials
+        'api_key' => env('BEEM_COLLECTION_API_KEY'),
+        'secret_key' => env('BEEM_COLLECTION_SECRET_KEY'),
+
         // Balance check URL
         'balance_url' => env('BEEM_COLLECTION_BALANCE_URL', 'https://apitopup.beem.africa/v1/credit-balance'),
 
         // Webhook path for collection callbacks
         'webhook_path' => env('BEEM_COLLECTION_WEBHOOK_PATH', 'webhooks/beem/collection'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | USSD Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for the Beem USSD Hub service. USSD allows you to design
-    | and run interactive USSD menus via API.
-    |
-    */
-
-    'ussd' => [
-        // Balance check URL
-        'balance_url' => env('BEEM_USSD_BALANCE_URL', 'https://ussdapi.beem.africa/public/v1/vendors/balance'),
-
-        // Webhook path for USSD callbacks
-        'webhook_path' => env('BEEM_USSD_WEBHOOK_PATH', 'webhooks/beem/ussd'),
     ],
 
     /*
@@ -211,6 +160,10 @@ return [
     */
 
     'contacts' => [
+        // Contacts-specific API credentials
+        'api_key' => env('BEEM_CONTACTS_API_KEY'),
+        'secret_key' => env('BEEM_CONTACTS_SECRET_KEY'),
+
         // Base URL for Contacts API
         'base_url' => env('BEEM_CONTACTS_BASE_URL', 'https://apicontacts.beem.africa'),
     ],
@@ -226,6 +179,10 @@ return [
     */
 
     'moja' => [
+        // Moja-specific API credentials
+        'api_key' => env('BEEM_MOJA_API_KEY'),
+        'secret_key' => env('BEEM_MOJA_SECRET_KEY'),
+
         // Base URL for Chat API
         'base_url' => env('BEEM_MOJA_BASE_URL', 'https://apichatcore.beem.africa'),
 

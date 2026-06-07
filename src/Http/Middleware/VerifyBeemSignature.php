@@ -20,7 +20,7 @@ class VerifyBeemSignature
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $configuredSecret = config('beem-africa.webhook.secret');
+        $configuredSecret = config('beem-africa.checkout.webhook_secret');
 
         // If no secret is configured, allow the request
         if (empty($configuredSecret)) {

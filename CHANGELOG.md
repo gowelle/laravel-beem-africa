@@ -213,18 +213,6 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ### Added
 
-- **USSD Hub Service**: Full integration with Beem USSD Hub API
-  - Handle USSD session callbacks (initiate/continue/terminate)
-  - Return menu responses to subscribers
-  - Check USSD credit balance
-  - `UssdCommand` enum for session flow control
-  - 3 DTOs: `UssdCallback`, `UssdResponse`, `UssdBalance`
-  - `UssdSessionReceived` event with helper methods
-  - `UssdWebhookController` for callback handling
-  - `Beem::ussd()` facade accessor
-  - Comprehensive documentation in README
-  - Full test coverage (18 new tests, 247 total)
-
 ## [1.3.0] - 2025-12-13
 
 ### Added
@@ -242,16 +230,6 @@ All notable changes to `beem-africa` will be documented in this file.
 ## [1.2.0] - 2025-12-13
 
 ### Added
-
-- **Disbursements API Service**: Full integration with Beem Disbursement API
-  - Transfer funds to mobile money wallets
-  - Support for scheduled disbursements
-  - 2 DTOs: `DisbursementRequest`, `DisbursementResponse`
-  - `DisbursementResponseCode` enum with all 14 response codes (100-113)
-  - `DisbursementException` with helper methods for error handling
-  - `Beem::disbursement()` facade accessor
-  - Comprehensive documentation in README
-  - Full test coverage (38 new tests, 218 total)
 
 ## [1.1.0] - 2025-12-13
 
