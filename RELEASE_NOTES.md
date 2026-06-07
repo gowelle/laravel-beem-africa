@@ -13,6 +13,11 @@
 
 - **Per-Service Credentials**: Each service now requires its own `api_key`/`secret_key` pair. The top-level shared `BEEM_API_KEY`/`BEEM_SECRET_KEY` no longer exist. A new `checkout` config section holds the former top-level credentials. OTP, SMS, Airtime, Collection, Contacts, and Moja each get independent env vars (`BEEM_OTP_API_KEY`, `BEEM_SMS_API_KEY`, etc.).
 - **Config Restructure**: `webhook.path`, `webhook.secret`, `webhook.middleware`, `iframe.whitelisted_domains`, and `base_url` moved under the `checkout` section.
+- **Laravel 11**: Dropped from CI test matrix. Minimum tested Laravel version is now 12.
+
+### Fixed
+
+- **Composer**: `orchestra/testbench` restored to `require-dev`. Security advisory `PKSA-mdq4-51ck-6kdq` ignored for CI compatibility.
 
 ### Breaking changes
 
