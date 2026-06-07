@@ -4,6 +4,23 @@ All notable changes to `beem-africa` will be documented in this file.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-06-08
+
+### Removed
+
+- **Disbursement Service**: Removed the Disbursement/Mobile Money Payout service.
+- **USSD Hub Service**: Removed the USSD Hub interactive menu service.
+
+### Changed
+
+- **Per-Service Credentials**: Each service now requires its own `api_key`/`secret_key` pair. The top-level shared credentials no longer exist. A new `checkout` config section holds the former top-level credentials. OTP, SMS, Airtime, Collection, Contacts, and Moja each get independent env vars.
+- **Config Restructure**: `webhook.*`, `iframe.*`, and `base_url` moved under the `checkout` section.
+
+### Breaking changes
+
+- **Config keys renamed**: `beem-africa.api_key` → `beem-africa.checkout.api_key`, `beem-africa.secret_key` → `beem-africa.checkout.secret_key`, `beem-africa.base_url` → `beem-africa.checkout.base_url`, `beem-africa.webhook.*` → `beem-africa.checkout.webhook_*`.
+- **Disbursement and USSD removed**: `Beem::disbursement()`, `Beem::ussd()`, corresponding DTOs, enums, exceptions, and events no longer exist.
+
 ## [2.2.2] - 2026-05-10
 
 ### Fixed
