@@ -67,6 +67,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          composer config policy.advisories.ignore-id '["PKSA-mdq4-51ck-6kdq"]'
           composer require "laravel/framework:${{ matrix.framework }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer config policy.advisories.ignore-id '["PKSA-mdq4-51ck-6kdq"]'
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
